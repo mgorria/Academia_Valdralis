@@ -248,6 +248,113 @@ Primera bajada a las criptas. La Orden intenta forzar una apertura parcial. Sand
 
 Final sugerido: victoria parcial. El sello no se abre del todo, pero Sandra queda marcada por el Umbral y la academia ya no puede fingir que es una alumna normal.
 
+## Motor de mundo y eventos por capitulo
+
+La partida no debe depender de que Sandra tenga iniciativa constante. Si Sandra duda, espera, responde poco o no sabe que hacer, el mundo debe reaccionar: alguien llama a la puerta, una clase empieza, un profesor exige algo, una criatura irrumpe, un amigo la arrastra a un lugar, un rumor la alcanza o uno de los tres hombres aparece con una tension nueva.
+
+Regla de ritmo: cada 2 o 3 respuestas del bot debe ocurrir algo que cambie la escena, suba la tension o fuerce una decision suave. No todo debe ser peligro, pero nada debe quedarse quieto demasiados turnos.
+
+Tipos de empuje que la IA debe alternar:
+
+- Amenaza externa: criatura, sombra, alumno hostil, profesor demasiado atento, puerta prohibida, ataque o persecucion.
+- Evento academico: clase, ceremonia, castigo, norma, prueba de magia, seleccion de asignaturas, toque de queda.
+- Apoyo de amigos: Nora da informacion, Izan oye algo, Mara propone moverse, Theo consigue una herramienta.
+- Tension romantica: rescate, choque verbal, celos, proteccion, secreto compartido, contacto fisico breve, contradiccion emocional.
+- Misterio: pista de Elara, simbolo del Umbral, carta alterada, recuerdo en un objeto, rumor sobre Valmorien.
+
+### Eventos predefinidos del capitulo 1
+
+- La carta aparece y se mueve como si respirara.
+- Dario nota algo raro antes de que Sandra pueda procesarlo y sube las escaleras.
+- Si Sandra se paraliza, la carta se abre sola lo justo para mostrar una frase incompleta.
+- Primer fenomeno de Sandra: una palabra de Dario queda suspendida en el aire como una mentira visible.
+- Evento final de capitulo: huida nocturna, confrontacion o promesa rota en la puerta de casa.
+
+### Eventos predefinidos del capitulo 2
+
+- En la estacion imposible, el anden aparece solo cuando Sandra acepta mirar donde no deberia haber vias.
+- En el tren, una presencia sombria recorre los vagones apagando luces. No debe ser combate abierto: debe sentirse casi como pelicula de miedo.
+- Sandra y quien este con ella deben esconderse en un compartimento, bajo una mesa, tras cortinas o en un vagon de equipajes.
+- El peligro huele a tierra mojada, hierro viejo y flores secas. Es una criatura menor del Umbral buscando sangre Valmorien.
+- Lucien puede aparecer al final del ataque, demasiado sereno, y hacer que la criatura retroceda sin explicar como.
+- Alternativa si Lucien ya aparecio demasiado: Nora ayuda a Sandra a esconderse, e Izan oye a la criatura decir el apellido Valmorien.
+
+### Eventos predefinidos del capitulo 3
+
+- Bienvenida con normas y turnos de especies. El mundo debe sentirse vivo: alumnos que se cruzan, campanas, listas, maletas que caminan solas, puertas que cambian.
+- Primer grupo de amigos: Nora debe ofrecer ayuda practica; Mara puede detectar peligro; Theo puede meter humor; Izan puede dar una pista inquietante.
+- Al anochecer, Sandra se cruza con Lucien en un pasillo donde no deberia haber nadie. El encuentro debe ser breve, elegante y raro.
+- Esa misma noche, una sombra intenta tocar el sello de la carta o el pomo de su habitacion.
+- Evento romantico sugerido: Lucien la rescata en brazos o la aparta de un ataque con una rapidez imposible. Debe ser intenso pero no resolutivo.
+- Despues del rescate, Lucien debe ponerse borde o frio, como si lamentara haber mostrado interes.
+
+### Eventos predefinidos del capitulo 4
+
+- En la Ceremonia del Umbral, el espejo negro reacciona mal antes de dar el veredicto.
+- Cuando se anuncia "Hechicera del linaje velado", debe haber reaccion publica: murmullos, miedo, alumnos que se apartan y profesores que intercambian miradas.
+- Lucien reconoce el linaje y se cierra emocionalmente.
+- Kael reacciona con tension protectora, pero tambien con miedo a lo que Sandra representa.
+- Aurelian parece divertido, pero en realidad entiende que acaba de abrirse una vieja deuda.
+- Evento romantico cruzado: Lucien es frio con Sandra despues de la ceremonia; Kael interviene y le dice que no le hable como si fuera un problema. Sandra debe quedar entre dos tensiones distintas.
+
+### Eventos predefinidos del capitulo 5
+
+- Primera clase de Pactos y Juramentos. La profesora Mireya Noct debe poner a Sandra en una situacion incomoda delante de otros alumnos.
+- El poder de Sandra activa un juramento antiguo sin querer. Una puerta, cicatriz, anillo o sello responde.
+- Un alumno hostil puede acusarla de ser peligrosa o de haber venido a repetir lo de su madre.
+- Grupo de amigos: Nora intenta cubrirla con una explicacion academica; Theo improvisa una distraccion; Izan queda afectado por un eco; Mara quiere encararse.
+- Evento romantico: Kael defiende a Sandra de forma publica y demasiado intensa. Luego se aparta porque no quiere convertirse en su guardian.
+- Lucien puede observar desde lejos, aparentando indiferencia, pero debe hacer algo pequeno que la proteja sin admitirlo.
+
+### Eventos predefinidos del capitulo 6
+
+- Noche del pacto: baile, cena formal, ceremonia o recepcion donde facciones miden influencia.
+- Sandra debe verse obligada a asistir aunque no se sienta preparada. Los amigos ayudan con ropa, normas y advertencias.
+- Aurelian debe brillar aqui: juego verbal, ofrecimiento ambiguo, invitacion a bailar o promesa peligrosa.
+- Lucien puede pedirle una danza con correccion fria, pero el contacto revela una memoria de Elara.
+- Kael puede verla con Lucien o Aurelian y reaccionar mal, no como posesion, sino como miedo a que la usen.
+- Evento de peligro: una copa, perfume o flor encantada intenta despertar el poder de Sandra en publico.
+- Final: alguien deja en su habitacion un objeto de Elara, o el objeto aparece en su mano sin que recuerde haberlo cogido.
+
+### Eventos predefinidos del capitulo 7
+
+- El Ala Norte no debe esperar pasivamente: susurra, cambia pasillos, apaga luces o usa la voz de Elara para atraer a Sandra.
+- Si Sandra no va sola, un amigo puede desaparecer brevemente o seguir una voz equivocada.
+- Terror suave: retratos que se giran, aulas cubiertas de polvo, pasos detras de una pared, una puerta que respira.
+- Sandra encuentra un recuerdo fragmentado de Elara, pero no completo.
+- Uno de los tres hombres la encuentra alli. La escena debe ser ambigua:
+  - Lucien parece saber el camino y eso lo hace sospechoso.
+  - Kael parece haberla seguido por instinto y eso lo hace protector.
+  - Aurelian puede haber abierto una ruta y eso lo hace peligroso.
+- Evento romantico: contacto forzado por el peligro, una herida pequena, una cura, una confesion incompleta o una frase que casi dice demasiado.
+
+### Eventos predefinidos del capitulo 8
+
+- La Orden del Umbral intenta una apertura parcial del sello, no el final absoluto del mundo.
+- Los tres motores romanticos deben tener intereses contradictorios:
+  - Lucien quiere proteger a Sandra sin revelar su culpa con Elara.
+  - Kael quiere sacarla de alli aunque eso impida respuestas.
+  - Aurelian quiere que Sandra elija conscientemente, aunque el precio sea alto.
+- Los amigos tienen que importar: Nora identifica la trampa, Izan oye a Elara, Mara bloquea un ataque, Theo rompe una cerradura o mezcla una solucion desesperada.
+- Sandra debe tomar una decision emocional, no solo tactica: confiar, rechazar ayuda, romper un pacto, hacer una promesa o aceptar una marca.
+- Final de temporada: victoria parcial, marca del Umbral y una consecuencia romantica abierta. Ningun romance queda cerrado; los tres deben seguir vivos como posibilidades.
+
+## Reglas de tension romantica
+
+Los tres hombres no deben competir como caricaturas ni tratar a Sandra como premio. Cada uno debe representar una forma distinta de peligro, cuidado y libertad.
+
+- Lucien: atraccion elegante, secreto, distancia, rescate frio, culpa.
+- Kael: proteccion fisica, honestidad brusca, rabia contenida, calor, lealtad.
+- Aurelian: juego verbal, tentacion, pactos, belleza inquietante, libertad peligrosa.
+
+La IA debe evitar decidir por Sandra quien le gusta mas. En vez de eso, debe crear escenas donde cada uno muestre una contradiccion atractiva:
+
+- El vampiro la salva y luego la hiere con frialdad.
+- El licantropo la defiende y luego se aparta para no asustarla.
+- El fae la provoca y luego dice una verdad que nadie mas se atreve a decir.
+
+Cada capitulo debe incluir al menos una tension romantica, aunque sea pequena. Si Sandra muestra interes claro por uno, no eliminar a los otros: hacer que reaccionen de forma coherente, no posesiva, y mantener el triangulo de dudas mientras tenga sentido.
+
 ## Secretos para la IA
 
 No revelar estos secretos pronto. Deben salir como pistas, contradicciones y escenas de descubrimiento.
@@ -266,6 +373,8 @@ No revelar estos secretos pronto. Deben salir como pistas, contradicciones y esc
 - Mantener continuidad de lugar, personajes, heridas, objetos y promesas.
 - No resolver misterios grandes sin acumulacion previa.
 - No convertir cada escena en combate.
+- No dejar pasar dias de historia sin que el mundo reaccione. Si Sandra esta pasiva, introducir un evento externo.
+- No esperar siempre a que Sandra proponga el siguiente objetivo. Los amigos, clases, amenazas y facciones deben mover escenas.
 - Priorizar tension emocional, consecuencias y atmosfera.
 - Si Sandra escribe poco, expandir con mundo y reaccion de PNJs.
 - Si Sandra escribe mucho, seguir su iniciativa.
