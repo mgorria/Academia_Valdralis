@@ -66,7 +66,9 @@ CHAPTER_TITLES = {
     5: "La primera clase",
     6: "La noche del pacto",
     7: "El Ala Norte",
-    8: "El Sello del Umbral",
+    8: "La marca bajo la piel",
+    9: "El baile de las tres invitaciones",
+    10: "El Sello del Umbral",
 }
 
 control_app: Application | None = None
@@ -192,26 +194,26 @@ def apply_chapter_transition(data: dict[str, Any], transition: Any) -> str:
     except (TypeError, ValueError):
         next_chapter = completed + 1
 
-    if completed < 1 or completed > 8:
+    if completed < 1 or completed > 10:
         return ""
 
     completed_chapters = set(state.get("completed_chapters") or [])
     completed_chapters.add(completed)
     state["completed_chapters"] = sorted(completed_chapters)
 
-    if completed >= 8 or transition.get("season_complete"):
-        state["current_chapter_number"] = 8
-        state["chapter"] = chapter_label(8)
+    if completed >= 10 or transition.get("season_complete"):
+        state["current_chapter_number"] = 10
+        state["chapter"] = chapter_label(10)
         state["season_complete"] = True
         state["current_scene"] = "Primer curso terminado"
         state["next_suggested_scene"] = "Esperar al curso que viene"
         return (
-            f"{chapter_label(8)} terminado.\n\n"
+            f"{chapter_label(10)} terminado.\n\n"
             "Primer curso terminado.\n\n"
             "La historia se detiene aqui, por ahora. Valdralis volvera a abrir sus puertas el curso que viene."
         )
 
-    next_chapter = max(1, min(8, next_chapter))
+    next_chapter = max(1, min(10, next_chapter))
     state["current_chapter_number"] = next_chapter
     state["chapter"] = chapter_label(next_chapter)
     state["season_complete"] = False
@@ -476,7 +478,7 @@ REGLAS DE ESTILO:
 - Si la accion de Sandra rompe el guion, reconduce con consecuencias naturales.
 - Manten el capitulo actual salvo que se haya cumplido claramente su objetivo dramatico.
 - Cuando termine un capitulo, marca chapter_transition.completed=true, pero no escribas tu el cartel de "Capitulo terminado"; el sistema lo anadira.
-- Tras completar el capitulo 8, marca season_complete=true y no abras un capitulo 9.
+- Tras completar el capitulo 10, marca season_complete=true y no abras un capitulo 11.
 
 BIBLIA DE LA PARTIDA:
 {read_lore()}

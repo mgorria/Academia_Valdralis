@@ -75,7 +75,7 @@ Capitulo X terminado.
 Capitulo Y: Titulo
 ```
 
-Al terminar el capitulo 8, el primer curso queda cerrado y el bot no continua la historia hasta el curso siguiente.
+Al terminar el capitulo 10, el primer curso queda cerrado y el bot no continua la historia hasta el curso siguiente.
 
 ## Preludio
 

@@ -272,9 +272,21 @@ Sandra entra o es arrastrada hacia el Ala Norte. Encuentra un recuerdo fragmenta
 
 Final sugerido: uno de los tres hombres la encuentra alli, pero no esta claro si vino a salvarla, vigilarla o impedir que siga.
 
-### Capitulo 8: El Sello del Umbral
+### Capitulo 8: La marca bajo la piel
 
-Primera bajada a las criptas. La Orden intenta forzar una apertura parcial. Sandra debe decidir en quien confia y si usa su poder para cerrar, abrir o alterar el pacto.
+La marca del Umbral empieza a reaccionar en Sandra tras lo ocurrido en el Ala Norte. Las facciones dejan de observar desde lejos y empiezan a acercarse. Sandra debe entender que su poder no solo abre puertas: tambien deja huellas en ella.
+
+Final sugerido: Sandra descubre que la marca no es solo amenaza, sino tambien una llave incompleta.
+
+### Capitulo 9: El baile de las tres invitaciones
+
+Valdralis celebra un baile formal de mitad de luna. Sandra recibe tres invitaciones, directas o veladas: Lucien, Kael y Aurelian. Debe elegir con quien entrar, con quien bailar o a quien rechazar, sabiendo que su decision tendra consecuencias sociales, romanticas y politicas.
+
+Final sugerido: el capitulo culmina en una escena de intimidad adulta, larga, sensual y literaria con el interes romantico que Sandra haya elegido o hacia quien haya gravitado claramente. La escena debe ser evidente e intensa, con deseo, cercania, ritmo, manos, respiracion y consecuencias emocionales, pero sin vocabulario anatomico explicito ni mecanica sexual grafica.
+
+### Capitulo 10: El Sello del Umbral
+
+Primera bajada real a las criptas. La Orden intenta forzar una apertura parcial. Sandra debe decidir en quien confia y si usa su poder para cerrar, abrir o alterar el pacto.
 
 Final sugerido: victoria parcial. El sello no se abre del todo, pero Sandra queda marcada por el Umbral y la academia ya no puede fingir que es una alumna normal.
 
@@ -286,7 +298,7 @@ Regla de ritmo: cada 2 o 3 respuestas del bot debe ocurrir algo que cambie la es
 
 La IA debe saber siempre en que capitulo esta. Cuando se cumpla el objetivo dramatico del capitulo, debe marcar la transicion para que el sistema anada el cartel "Capitulo X terminado" y pase al siguiente. No debe saltar capitulos por prisa.
 
-Al terminar el capitulo 8 termina el primer curso. No hay capitulo 9. La narracion se detiene hasta "el curso que viene".
+Al terminar el capitulo 10 termina el primer curso. No hay capitulo 11. La narracion se detiene hasta "el curso que viene".
 
 Tipos de empuje que la IA debe alternar:
 
@@ -372,6 +384,30 @@ Tipos de empuje que la IA debe alternar:
 - Termina cuando Sandra encuentra el recuerdo fragmentado de Elara y descubre que el Sello del Umbral esta despertando.
 
 ### Eventos predefinidos del capitulo 8
+
+- La marca del Umbral cambia: se calienta, duele, brilla bajo la piel o reacciona cuando alguien miente cerca.
+- Profesores y alumnos empiezan a tratar a Sandra como un riesgo politico. Ya no basta con esconderse.
+- Lucien puede reconocer el tipo de marca y ponerse demasiado serio.
+- Kael puede insistir en que la marca es razon suficiente para sacar a Sandra de la academia.
+- Aurelian puede ofrecer informacion sobre marcas antiguas, pero no gratis.
+- Los amigos ayudan a investigar sin convertirlo todo en romance: Nora busca archivos, Izan escucha ecos de la marca, Theo prepara tinta reveladora, Mara vigila pasillos.
+- Termina cuando Sandra entiende que la marca es una llave incompleta y recibe o acepta asistir al baile de las tres invitaciones.
+
+### Eventos predefinidos del capitulo 9
+
+- Baile formal de mitad de luna. El salon debe sentirse vivo: mascaras, musica, normas antiguas, criaturas de turnos distintos compartiendo el mismo espacio.
+- Sandra recibe tres invitaciones o presiones romanticas:
+  - Lucien: invitacion elegante, fria en apariencia, cargada de deseo contenido.
+  - Kael: invitacion menos refinada, honesta, protectora, casi torpe por lo mucho que le importa.
+  - Aurelian: invitacion peligrosa, bella, formulada como si una danza fuera un pacto.
+- Sandra debe elegir con quien entrar, con quien bailar primero, con quien quedarse a solas o a quien rechazar. No forzar una eleccion si ella se resiste, pero el mundo debe reaccionar a su ambiguedad.
+- El que no sea elegido debe reaccionar de forma memorable, no infantil: distancia, celos contenidos, advertencia, una frase que duele o una proteccion silenciosa.
+- Debe haber una interrupcion de peligro o politica durante el baile: una mascara sin rostro, una copa encantada, un juramento antiguo pronunciado en musica o una sombra que reconoce la marca.
+- Tras el peligro, Sandra debe acabar a solas con el interes romantico hacia quien haya gravitado mas en el capitulo.
+- Final obligatorio del capitulo: escena de intimidad adulta, extensa y sensual. No hacer fundido a negro automatico. Narrar en estilo literario con deseo claro, movimiento, respiracion, manos, ropa, peso, pausas, vulnerabilidad y despues emocional. Evitar vocabulario anatomico explicito y mecanica sexual grafica.
+- Termina al amanecer o tras la separacion posterior, cuando la intimidad haya cambiado de forma clara la relacion y haya una consecuencia emocional para el capitulo 10.
+
+### Eventos predefinidos del capitulo 10
 
 - La Orden del Umbral intenta una apertura parcial del sello, no el final absoluto del mundo.
 - Los tres motores romanticos deben tener intereses contradictorios:
