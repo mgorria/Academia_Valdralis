@@ -29,6 +29,7 @@ En el bot privado:
 ```text
 /status
 /estado
+/memoria
 /historial 20
 /resumen
 /probar texto de Sandra para hacer una prueba privada
@@ -52,6 +53,11 @@ Sandra escribe al narrador como si escribiera una novela. El bot:
 
 `/probar` solo responde al bot de control. No envia nada a Sandra y no guarda memoria.
 
+La partida guarda memoria de dos formas:
+
+- `data/data.json`: estado estructurado usado por la IA.
+- `data/memoria_actual.md`: resumen legible para revisar como humano.
+
 ## Railway
 
 Variables necesarias:
@@ -64,6 +70,7 @@ SANDRA_CHAT_ID=
 OPENAI_API_KEY=...
 OPENAI_MODEL=gpt-5.5
 DATA_FILE=/app/data/data.json
+MEMORY_MD_PATH=/app/data/memoria_actual.md
 APP_TIMEZONE=Europe/Madrid
 DAILY_SUMMARY_HOUR=23
 DAILY_SUMMARY_MINUTE=0

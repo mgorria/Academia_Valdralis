@@ -39,6 +39,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.5")
 
 DATA_FILE = Path(os.getenv("DATA_FILE", "data/data.json"))
+MEMORY_MD_PATH = Path(os.getenv("MEMORY_MD_PATH", "data/memoria_actual.md"))
 APP_TIMEZONE = ZoneInfo(os.getenv("APP_TIMEZONE", "Europe/Madrid"))
 DAILY_SUMMARY_HOUR = int(os.getenv("DAILY_SUMMARY_HOUR", "23"))
 DAILY_SUMMARY_MINUTE = int(os.getenv("DAILY_SUMMARY_MINUTE", "0"))
@@ -125,6 +126,82 @@ def load_data() -> dict[str, Any]:
 def save_data(data: dict[str, Any]) -> None:
     DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
     DATA_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    write_memory_markdown(data)
+
+
+def markdown_list(items: list[Any]) -> str:
+    clean_items = [str(item).strip() for item in items if str(item).strip()]
+    if not clean_items:
+        return "- Pendiente"
+    return "\n".join(f"- {item}" for item in clean_items)
+
+
+def write_memory_markdown(data: dict[str, Any]) -> None:
+    state = data.get("state") or default_state()
+    relationships = state.get("relationships") or {}
+    relationship_lines = [
+        f"{name}: {description}"
+        for name, description in relationships.items()
+        if str(name).strip()
+    ]
+    notes = data.get("admin_notes", [])[-8:]
+    note_lines = [
+        f"{note.get('text', '')}"
+        for note in notes
+        if str(note.get("text", "")).strip()
+    ]
+    recent_history = data.get("history", [])[-12:]
+    history_lines = [
+        f"{item.get('role', 'desconocido')}: {str(item.get('text', '')).strip()}"
+        for item in recent_history
+        if str(item.get("text", "")).strip()
+    ]
+    updated_at = datetime.now(APP_TIMEZONE).strftime("%Y-%m-%d %H:%M:%S %Z")
+    content = f"""# Memoria actual de Valdralis
+
+Actualizado: {updated_at}
+
+## Estado
+
+- Capitulo: {state.get('chapter', 'Pendiente')}
+- Lugar: {state.get('location', 'Pendiente')}
+- Escena actual: {state.get('current_scene', 'Pendiente')}
+- Siguiente tension sugerida: {state.get('next_suggested_scene', 'Pendiente')}
+
+## Hechos que Sandra conoce
+
+{markdown_list(state.get('known_facts') or [])}
+
+## Relaciones
+
+{markdown_list(relationship_lines)}
+
+## Objetos relevantes
+
+{markdown_list(state.get('inventory') or [])}
+
+## Hilos abiertos
+
+{markdown_list(state.get('open_threads') or [])}
+
+## Secretos revelados
+
+{markdown_list(state.get('revealed_secrets') or [])}
+
+## Secretos que la IA debe recordar pero no revelar antes de tiempo
+
+{markdown_list(state.get('unrevealed_secrets_reminder') or [])}
+
+## Notas recientes de Miguel
+
+{markdown_list(note_lines)}
+
+## Historial reciente
+
+{markdown_list(history_lines)}
+"""
+    MEMORY_MD_PATH.parent.mkdir(parents=True, exist_ok=True)
+    MEMORY_MD_PATH.write_text(content, encoding="utf-8")
 
 
 def append_history(role: str, text: str) -> None:
@@ -161,6 +238,14 @@ def recent_history_text(limit: int = RECENT_HISTORY_FOR_AI) -> str:
 
 def state_text() -> str:
     return json.dumps(load_data().get("state", default_state()), ensure_ascii=False, indent=2)
+
+
+def memory_markdown_text() -> str:
+    data = load_data()
+    write_memory_markdown(data)
+    if not MEMORY_MD_PATH.exists():
+        return "Todavia no existe memoria Markdown."
+    return MEMORY_MD_PATH.read_text(encoding="utf-8")
 
 
 def admin_notes_text() -> str:
@@ -429,6 +514,13 @@ async def cmd_estado(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         await update.effective_chat.send_message(chunk)
 
 
+async def cmd_memoria(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    for chunk in split_long(memory_markdown_text()):
+        await update.effective_chat.send_message(chunk)
+
+
 async def cmd_historial(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not update.effective_chat or not is_admin(update):
         return
@@ -598,6 +690,7 @@ def build_control_app() -> Application:
     app.add_handler(CommandHandler("start", control_start))
     app.add_handler(CommandHandler("status", cmd_status))
     app.add_handler(CommandHandler("estado", cmd_estado))
+    app.add_handler(CommandHandler("memoria", cmd_memoria))
     app.add_handler(CommandHandler("historial", cmd_historial))
     app.add_handler(CommandHandler("resumen", cmd_resumen))
     app.add_handler(CommandHandler("probar", cmd_probar))
