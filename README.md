@@ -35,6 +35,7 @@ En el bot privado:
 /probar texto de Sandra para hacer una prueba privada
 /preludio_status
 /preludio_preview YYYY-MM-DD
+/preludio_respuestas 20
 /preludio_on
 /preludio_off
 /preludio_enviar_hoy YYYY-MM-DD
@@ -82,6 +83,8 @@ Para revisar antes de enviar:
 
 El rango recomendado es del 30 de junio de 2026 al 12 de julio de 2026, con mensaje de inicio el 13 de julio.
 
+Hasta `STORY_START_DATE`, si Sandra contesta al bot narrador, el bot responde con una frase misteriosa de antesala, avisa a Miguel y no inicia la partida ni actualiza la memoria principal.
+
 ## Railway
 
 Variables necesarias:
@@ -102,6 +105,8 @@ PRELUDE_ENABLED=false
 PRELUDE_PATH=lore/preludio.md
 PRELUDE_START_DATE=2026-06-30
 PRELUDE_END_DATE=2026-07-13
+STORY_START_DATE=2026-07-13
+PRELUDE_REPLY_ENABLED=true
 PRELUDE_HOUR=21
 PRELUDE_MINUTE=30
 ```
