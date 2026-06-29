@@ -33,6 +33,11 @@ En el bot privado:
 /historial 20
 /resumen
 /probar texto de Sandra para hacer una prueba privada
+/preludio_status
+/preludio_preview YYYY-MM-DD
+/preludio_on
+/preludio_off
+/preludio_enviar_hoy YYYY-MM-DD
 /nota texto para orientar a la IA
 /corregir_memoria texto con la correccion canonica
 /decir texto manual para Sandra
@@ -58,6 +63,25 @@ La partida guarda memoria de dos formas:
 - `data/data.json`: estado estructurado usado por la IA.
 - `data/memoria_actual.md`: resumen legible para revisar como humano.
 
+## Preludio
+
+Los mensajes previos al cumpleanos viven en `lore/preludio.md`.
+
+Por defecto no se envian hasta activar:
+
+```text
+/preludio_on
+```
+
+Para revisar antes de enviar:
+
+```text
+/preludio_status
+/preludio_preview 2026-06-30
+```
+
+El rango recomendado es del 30 de junio de 2026 al 12 de julio de 2026, con mensaje de inicio el 13 de julio.
+
 ## Railway
 
 Variables necesarias:
@@ -74,6 +98,12 @@ MEMORY_MD_PATH=/app/data/memoria_actual.md
 APP_TIMEZONE=Europe/Madrid
 DAILY_SUMMARY_HOUR=23
 DAILY_SUMMARY_MINUTE=0
+PRELUDE_ENABLED=false
+PRELUDE_PATH=lore/preludio.md
+PRELUDE_START_DATE=2026-06-30
+PRELUDE_END_DATE=2026-07-13
+PRELUDE_HOUR=21
+PRELUDE_MINUTE=30
 ```
 
 Para persistencia simple en Railway, crea un Volume y monta `/app/data`.

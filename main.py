@@ -3,7 +3,7 @@ import json
 import logging
 import os
 import signal
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -43,6 +43,12 @@ MEMORY_MD_PATH = Path(os.getenv("MEMORY_MD_PATH", "data/memoria_actual.md"))
 APP_TIMEZONE = ZoneInfo(os.getenv("APP_TIMEZONE", "Europe/Madrid"))
 DAILY_SUMMARY_HOUR = int(os.getenv("DAILY_SUMMARY_HOUR", "23"))
 DAILY_SUMMARY_MINUTE = int(os.getenv("DAILY_SUMMARY_MINUTE", "0"))
+PRELUDE_ENABLED_DEFAULT = os.getenv("PRELUDE_ENABLED", "false").lower() in {"1", "true", "yes", "on"}
+PRELUDE_PATH = Path(os.getenv("PRELUDE_PATH", "lore/preludio.md"))
+PRELUDE_START_DATE = date.fromisoformat(os.getenv("PRELUDE_START_DATE", "2026-06-30"))
+PRELUDE_END_DATE = date.fromisoformat(os.getenv("PRELUDE_END_DATE", "2026-07-13"))
+PRELUDE_HOUR = int(os.getenv("PRELUDE_HOUR", "21"))
+PRELUDE_MINUTE = int(os.getenv("PRELUDE_MINUTE", "30"))
 MAX_HISTORY = int(os.getenv("MAX_HISTORY", "500"))
 RECENT_HISTORY_FOR_AI = int(os.getenv("RECENT_HISTORY_FOR_AI", "24"))
 
@@ -104,6 +110,8 @@ def default_data() -> dict[str, Any]:
         "state": default_state(),
         "admin_notes": [],
         "last_daily_summary_date": None,
+        "prelude_enabled": PRELUDE_ENABLED_DEFAULT,
+        "sent_preludes": [],
     }
 
 
@@ -246,6 +254,54 @@ def memory_markdown_text() -> str:
     if not MEMORY_MD_PATH.exists():
         return "Todavia no existe memoria Markdown."
     return MEMORY_MD_PATH.read_text(encoding="utf-8")
+
+
+def read_prelude_messages() -> dict[str, str]:
+    if not PRELUDE_PATH.exists():
+        return {}
+    messages: dict[str, list[str]] = {}
+    current_date: str | None = None
+    for line in PRELUDE_PATH.read_text(encoding="utf-8").splitlines():
+        if line.startswith("## "):
+            candidate = line.removeprefix("## ").strip()
+            try:
+                date.fromisoformat(candidate)
+            except ValueError:
+                current_date = None
+                continue
+            current_date = candidate
+            messages[current_date] = []
+            continue
+        if current_date:
+            messages[current_date].append(line)
+    return {
+        key: "\n".join(lines).strip()
+        for key, lines in messages.items()
+        if "\n".join(lines).strip()
+    }
+
+
+def prelude_message_for(day: date) -> str | None:
+    return read_prelude_messages().get(day.isoformat())
+
+
+def prelude_status_text() -> str:
+    data = load_data()
+    sent = data.get("sent_preludes", [])
+    messages = read_prelude_messages()
+    today = datetime.now(APP_TIMEZONE).date()
+    today_message = prelude_message_for(today)
+    return "\n".join(
+        [
+            "Preludio de Valdralis",
+            f"- Activado: {'si' if data.get('prelude_enabled') else 'no'}",
+            f"- Fechas: {PRELUDE_START_DATE.isoformat()} a {PRELUDE_END_DATE.isoformat()}",
+            f"- Hora: {PRELUDE_HOUR:02d}:{PRELUDE_MINUTE:02d}",
+            f"- Mensajes cargados: {len(messages)}",
+            f"- Enviados: {len(sent)}",
+            f"- Mensaje para hoy: {'si' if today_message else 'no'}",
+        ]
+    )
 
 
 def admin_notes_text() -> str:
@@ -606,6 +662,96 @@ async def cmd_resumen(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     await update.effective_chat.send_message(summary or "No hay suficiente partida para resumir.")
 
 
+async def send_prelude_for_day(day: date, *, manual: bool = False) -> bool:
+    if not narrador_app:
+        await send_admin("No puedo enviar preludio: narrador no inicializado.")
+        return False
+    data = load_data()
+    sandra_id = data.get("sandra_chat_id")
+    if not sandra_id:
+        await send_admin("No puedo enviar preludio: falta SANDRA_CHAT_ID.")
+        return False
+    if day < PRELUDE_START_DATE or day > PRELUDE_END_DATE:
+        if manual:
+            await send_admin(f"No hay preludio programado para {day.isoformat()}.")
+        return False
+    message = prelude_message_for(day)
+    if not message:
+        if manual:
+            await send_admin(f"No encuentro mensaje de preludio para {day.isoformat()}.")
+        return False
+    sent_preludes = set(data.get("sent_preludes", []))
+    if day.isoformat() in sent_preludes and not manual:
+        return False
+
+    await narrador_app.bot.send_message(chat_id=int(sandra_id), text=message)
+    append_history("Preludio", message)
+    data = load_data()
+    sent_preludes = set(data.get("sent_preludes", []))
+    sent_preludes.add(day.isoformat())
+    data["sent_preludes"] = sorted(sent_preludes)
+    save_data(data)
+    await send_admin(f"Preludio enviado a Sandra ({day.isoformat()}):\n{message}")
+    return True
+
+
+async def cmd_preludio_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    await update.effective_chat.send_message(prelude_status_text())
+
+
+async def cmd_preludio_preview(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    if context.args:
+        try:
+            day = date.fromisoformat(context.args[0])
+        except ValueError:
+            await update.effective_chat.send_message("Uso: /preludio_preview YYYY-MM-DD")
+            return
+    else:
+        day = datetime.now(APP_TIMEZONE).date()
+    message = prelude_message_for(day)
+    if not message:
+        await update.effective_chat.send_message(f"No hay mensaje de preludio para {day.isoformat()}.")
+        return
+    await update.effective_chat.send_message(f"Previsualizacion {day.isoformat()}:\n\n{message}")
+
+
+async def cmd_preludio_on(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    data = load_data()
+    data["prelude_enabled"] = True
+    save_data(data)
+    await update.effective_chat.send_message("Preludio activado.")
+
+
+async def cmd_preludio_off(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    data = load_data()
+    data["prelude_enabled"] = False
+    save_data(data)
+    await update.effective_chat.send_message("Preludio desactivado.")
+
+
+async def cmd_preludio_enviar_hoy(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    day = datetime.now(APP_TIMEZONE).date()
+    if context.args:
+        try:
+            day = date.fromisoformat(context.args[0])
+        except ValueError:
+            await update.effective_chat.send_message("Uso: /preludio_enviar_hoy o /preludio_enviar_hoy YYYY-MM-DD")
+            return
+    sent = await send_prelude_for_day(day, manual=True)
+    if not sent:
+        await update.effective_chat.send_message("No se ha enviado ningun preludio.")
+
+
 async def cmd_probar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not update.effective_chat or not is_admin(update):
         return
@@ -661,12 +807,23 @@ async def daily_summary_loop() -> None:
             await asyncio.sleep(30)
             data = load_data()
             admin_id = data.get("admin_chat_id")
+            now = datetime.now(APP_TIMEZONE)
+            today_date = now.date()
+            today = today_date.isoformat()
+
+            if (
+                data.get("prelude_enabled")
+                and now.hour == PRELUDE_HOUR
+                and now.minute == PRELUDE_MINUTE
+                and today not in set(data.get("sent_preludes", []))
+            ):
+                await send_prelude_for_day(today_date)
+
+            data = load_data()
             if not admin_id or not openai_available():
                 continue
-            now = datetime.now(APP_TIMEZONE)
             if now.hour != DAILY_SUMMARY_HOUR or now.minute != DAILY_SUMMARY_MINUTE:
                 continue
-            today = now.date().isoformat()
             if data.get("last_daily_summary_date") == today:
                 continue
             summary = await generate_summary()
@@ -694,6 +851,11 @@ def build_control_app() -> Application:
     app.add_handler(CommandHandler("historial", cmd_historial))
     app.add_handler(CommandHandler("resumen", cmd_resumen))
     app.add_handler(CommandHandler("probar", cmd_probar))
+    app.add_handler(CommandHandler("preludio_status", cmd_preludio_status))
+    app.add_handler(CommandHandler("preludio_preview", cmd_preludio_preview))
+    app.add_handler(CommandHandler("preludio_on", cmd_preludio_on))
+    app.add_handler(CommandHandler("preludio_off", cmd_preludio_off))
+    app.add_handler(CommandHandler("preludio_enviar_hoy", cmd_preludio_enviar_hoy))
     app.add_handler(CommandHandler("nota", cmd_nota))
     app.add_handler(CommandHandler("corregir_memoria", cmd_corregir_memoria))
     app.add_handler(CommandHandler("pausar", cmd_pausar))
