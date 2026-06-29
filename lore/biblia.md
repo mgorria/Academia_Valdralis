@@ -69,17 +69,45 @@ En Valdralis hay diferencias importantes:
 - Mediums: perciben muertos, ecos, recuerdos y presencias ligadas a lugares.
 - Humanos tocados: han sido alterados por pactos fae, sangre vampirica, maldiciones lunares o accidentes rituales.
 
-Sandra no encaja en una categoria comun. Su magia es magia de pacto, sangre y memoria. Puede sentir juramentos rotos, puertas cerradas por promesas, heridas heredadas y verdades enterradas en objetos o lugares.
+Sandra no encaja en una categoria comun. Su magia profunda es magia de pacto, sangre y memoria, pero en Valdralis tambien debe aprender magia academica util: hechizos de aula, defensa, movimiento, luz, sellos y duelos. La gracia es que sus hechizos normales no salen del todo normales: su linaje velado los contamina con juramentos, puertas, marcas y ecos antiguos.
 
-Habilidades que debe descubrir poco a poco:
+### Magia academica que Sandra puede aprender
+
+Estos hechizos deben aparecer en clases y escenas activas. Al principio fallan, tiemblan o salen demasiado intensos; con practica se vuelven herramientas reales para Sandra.
+
+- Levitacion: levantar libros, llaves, velas, muebles pequenos o armas caidas. En tension puede empujar una puerta, apartar un obstaculo o hacer tropezar a alguien.
+- Impulso: golpe de energia breve para alejar una criatura, romper una cerradura debil o ganar distancia en una persecucion.
+- Escudo: barrera de luz, aire o vidrio arcano. Sirve para bloquear ataques menores, colmillos, garras, esquirlas o magia simple.
+- Atadura: hilos de luz o sombra para sujetar una mano, cerrar una puerta, inmovilizar una sombra pequena o ganar unos segundos.
+- Luz: esfera, llama fria o brillo plateado. Sirve para explorar, revelar tinta oculta, asustar criaturas menores o romper oscuridad magica.
+- Silencio: apagar un sonido, esconder pasos o cortar un susurro sobrenatural durante unos segundos.
+- Apertura: abrir cerraduras simples, desbloquear pestillos, despertar picaportes magicos o forzar una puerta menor.
+- Marca: dejar una senal visible solo para ella o sus amigos, util para caminos, objetos, libros o sospechosos.
+- Desvio: cambiar la trayectoria de un objeto pequeno, una copa, una daga ritual, una pluma encantada o un proyectil menor.
+
+### Magia velada de Sandra
+
+La magia especial de Sandra no sustituye a los hechizos academicos: los altera. Cuando Sandra usa magia comun bajo miedo, deseo, rabia o necesidad, su linaje velado puede despertar efectos raros.
 
 - Oir ecos de promesas antiguas al tocar sellos, cartas, joyas o puertas.
 - Ver marcas invisibles de pactos sobre la piel de otros.
 - Romper una mentira si pronuncia el nombre verdadero de quien la dijo.
 - Activar recuerdos de su madre en lugares concretos de Valdralis.
 - Cerrar o abrir protecciones antiguas, aunque al principio no controle el precio.
+- Convertir un escudo normal en un sello que obliga a una criatura a detenerse si habia prometido no hacer dano.
+- Convertir una atadura simple en un hilo de juramento que aprieta cuando alguien miente.
+- Convertir un hechizo de luz en una revelacion breve: tinta oculta, sangre antigua, una puerta falsa o una sombra que lleva rostro.
+- Convertir una apertura en algo peligroso: no solo abre cerraduras, tambien puede abrir recuerdos, pactos o caminos que debian seguir cerrados.
 
-Regla dramatica: cada uso fuerte de su poder debe tener coste emocional o fisico. Cansancio, sangrado leve, recuerdos ajenos, deseo intensificado, miedo heredado o una verdad que no queria saber.
+Regla dramatica: cada uso fuerte de la magia velada debe tener coste emocional o fisico. Cansancio, sangrado leve, recuerdos ajenos, deseo intensificado, miedo heredado o una verdad que no queria saber. La magia academica normal puede cansarla, pero no siempre debe cobrar un precio grande.
+
+### Progresion de poder
+
+- Al principio Sandra debe sentirse torpe en clase: levita demasiado poco o demasiado, el escudo se rompe, la luz parpadea, la atadura se engancha a lo que no debe.
+- En peligro real, su magia responde mejor que en clase, pero de forma inestable.
+- Los amigos pueden ayudarla a practicar: Nora con teoria, Theo con objetos de prueba, Mara con reflejos, Izan con percepcion de ecos.
+- Los motores romanticos tambien pueden ensenar desde su naturaleza: Lucien control y precision, Kael instinto y reaccion, Aurelian palabra y precio.
+- En combates o ataques, Sandra debe tener siempre al menos una opcion magica posible, aunque sea imperfecta: escudo, impulso, luz, atadura, apertura, marca o desvio.
 
 ## La Ceremonia del Umbral
 
@@ -106,6 +134,8 @@ Consecuencias de la ceremonia:
 - Anatomia de lo Imposible: vampiros, licantropos, fae, espectros y maldiciones.
 - Sangre, Linaje y Memoria: genealogia magica y poderes heredados.
 - Defensa contra Hambres Antiguas: deseo, miedo, manipulacion, sed y posesion.
+- Encantamientos Practicos: levitacion, luz, silencio, apertura, marcas y utilidad cotidiana.
+- Duelos y Protecciones: escudos, impulsos, ataduras, desvio y reaccion ante ataques.
 - Cartografia de Sombras: mapas vivos, puertas ocultas y caminos que no existen de dia.
 - Herbolaria Lunar: plantas que curan, intoxican, revelan o despiertan emociones.
 
@@ -275,6 +305,7 @@ Tipos de empuje que la IA debe alternar:
 - En la estacion imposible, el anden aparece solo cuando Sandra acepta mirar donde no deberia haber vias.
 - En el tren, una presencia sombria recorre los vagones apagando luces. No debe ser combate abierto: debe sentirse casi como pelicula de miedo.
 - Sandra y quien este con ella deben esconderse en un compartimento, bajo una mesa, tras cortinas o en un vagon de equipajes.
+- Si Sandra intenta actuar, puede usar luz, silencio, marca o desvio de forma instintiva, incluso sin haberlo aprendido formalmente.
 - El peligro huele a tierra mojada, hierro viejo y flores secas. Es una criatura menor del Umbral buscando sangre Valmorien.
 - Lucien puede aparecer al final del ataque, demasiado sereno, y hacer que la criatura retroceda sin explicar como.
 - Alternativa si Lucien ya aparecio demasiado: Nora ayuda a Sandra a esconderse, e Izan oye a la criatura decir el apellido Valmorien.
@@ -300,6 +331,7 @@ Tipos de empuje que la IA debe alternar:
 ### Eventos predefinidos del capitulo 5
 
 - Primera clase de Pactos y Juramentos. La profesora Mireya Noct debe poner a Sandra en una situacion incomoda delante de otros alumnos.
+- Primera practica activa: levitacion, escudo o atadura ante toda la clase. Debe sentirse como una escena de escuela magica, no solo como charla teorica.
 - El poder de Sandra activa un juramento antiguo sin querer. Una puerta, cicatriz, anillo o sello responde.
 - Un alumno hostil puede acusarla de ser peligrosa o de haber venido a repetir lo de su madre.
 - Grupo de amigos: Nora intenta cubrirla con una explicacion academica; Theo improvisa una distraccion; Izan queda afectado por un eco; Mara quiere encararse.
