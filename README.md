@@ -35,10 +35,11 @@ En el bot privado:
 /probar texto de Sandra para hacer una prueba privada
 /preludio_status
 /preludio_preview YYYY-MM-DD
-/preludio_respuestas 20
 /preludio_on
 /preludio_off
 /preludio_enviar_hoy YYYY-MM-DD
+/inicio_preview
+/inicio_enviar
 /nota texto para orientar a la IA
 /corregir_memoria texto con la correccion canonica
 /decir texto manual para Sandra
@@ -66,7 +67,7 @@ La partida guarda memoria de dos formas:
 
 ## Preludio
 
-Los mensajes previos al cumpleanos viven en `lore/preludio.md`.
+Los mensajes previos al cumpleanos viven en `lore/preludio.md`. El mensaje que abre la partida vive en `lore/inicio.md`.
 
 Por defecto no se envian hasta activar:
 
@@ -78,12 +79,13 @@ Para revisar antes de enviar:
 
 ```text
 /preludio_status
-/preludio_preview 2026-06-30
+/preludio_preview 2026-06-29
+/inicio_preview
 ```
 
-El rango recomendado es del 30 de junio de 2026 al 12 de julio de 2026, con mensaje de inicio el 13 de julio.
+El rango recomendado es del 29 de junio de 2026 al 12 de julio de 2026. La partida empieza con `lore/inicio.md` el 13 de julio de 2026 a las 00:01.
 
-Hasta `STORY_START_DATE`, si Sandra contesta al bot narrador, el bot responde con una frase misteriosa de antesala, avisa a Miguel y no inicia la partida ni actualiza la memoria principal.
+Hasta `STORY_START_DATE` a la hora configurada, si Sandra contesta al bot narrador, el bot responde con instrucciones fijas, avisa a Miguel y no llama a la IA, no inicia la partida y no guarda memoria.
 
 ## Railway
 
@@ -103,12 +105,15 @@ DAILY_SUMMARY_HOUR=23
 DAILY_SUMMARY_MINUTE=0
 PRELUDE_ENABLED=false
 PRELUDE_PATH=lore/preludio.md
-PRELUDE_START_DATE=2026-06-30
-PRELUDE_END_DATE=2026-07-13
+START_MESSAGE_PATH=lore/inicio.md
+PRELUDE_START_DATE=2026-06-29
+PRELUDE_END_DATE=2026-07-12
 STORY_START_DATE=2026-07-13
 PRELUDE_REPLY_ENABLED=true
 PRELUDE_HOUR=21
 PRELUDE_MINUTE=30
+STORY_START_HOUR=0
+STORY_START_MINUTE=1
 ```
 
 Para persistencia simple en Railway, crea un Volume y monta `/app/data`.

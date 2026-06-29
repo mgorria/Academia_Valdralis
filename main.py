@@ -45,12 +45,15 @@ DAILY_SUMMARY_HOUR = int(os.getenv("DAILY_SUMMARY_HOUR", "23"))
 DAILY_SUMMARY_MINUTE = int(os.getenv("DAILY_SUMMARY_MINUTE", "0"))
 PRELUDE_ENABLED_DEFAULT = os.getenv("PRELUDE_ENABLED", "false").lower() in {"1", "true", "yes", "on"}
 PRELUDE_PATH = Path(os.getenv("PRELUDE_PATH", "lore/preludio.md"))
-PRELUDE_START_DATE = date.fromisoformat(os.getenv("PRELUDE_START_DATE", "2026-06-30"))
-PRELUDE_END_DATE = date.fromisoformat(os.getenv("PRELUDE_END_DATE", "2026-07-13"))
+START_MESSAGE_PATH = Path(os.getenv("START_MESSAGE_PATH", "lore/inicio.md"))
+PRELUDE_START_DATE = date.fromisoformat(os.getenv("PRELUDE_START_DATE", "2026-06-29"))
+PRELUDE_END_DATE = date.fromisoformat(os.getenv("PRELUDE_END_DATE", "2026-07-12"))
 STORY_START_DATE = date.fromisoformat(os.getenv("STORY_START_DATE", "2026-07-13"))
 PRELUDE_REPLY_ENABLED = os.getenv("PRELUDE_REPLY_ENABLED", "true").lower() in {"1", "true", "yes", "on"}
 PRELUDE_HOUR = int(os.getenv("PRELUDE_HOUR", "21"))
 PRELUDE_MINUTE = int(os.getenv("PRELUDE_MINUTE", "30"))
+STORY_START_HOUR = int(os.getenv("STORY_START_HOUR", "0"))
+STORY_START_MINUTE = int(os.getenv("STORY_START_MINUTE", "1"))
 MAX_HISTORY = int(os.getenv("MAX_HISTORY", "500"))
 RECENT_HISTORY_FOR_AI = int(os.getenv("RECENT_HISTORY_FOR_AI", "24"))
 
@@ -114,7 +117,7 @@ def default_data() -> dict[str, Any]:
         "last_daily_summary_date": None,
         "prelude_enabled": PRELUDE_ENABLED_DEFAULT,
         "sent_preludes": [],
-        "prelude_interactions": [],
+        "story_start_sent": False,
     }
 
 
@@ -288,10 +291,19 @@ def prelude_message_for(day: date) -> str | None:
     return read_prelude_messages().get(day.isoformat())
 
 
+def read_start_message() -> str:
+    if not START_MESSAGE_PATH.exists():
+        return (
+            "Sandra, feliz cumpleanos.\n\n"
+            "Esta historia existe solo para ti. Responde que haces, que dices o que sientes.\n\n"
+            "Todo empieza con una carta."
+        )
+    return START_MESSAGE_PATH.read_text(encoding="utf-8").strip()
+
+
 def prelude_status_text() -> str:
     data = load_data()
     sent = data.get("sent_preludes", [])
-    interactions = data.get("prelude_interactions", [])
     messages = read_prelude_messages()
     today = datetime.now(APP_TIMEZONE).date()
     today_message = prelude_message_for(today)
@@ -301,76 +313,35 @@ def prelude_status_text() -> str:
             f"- Activado: {'si' if data.get('prelude_enabled') else 'no'}",
             f"- Fechas: {PRELUDE_START_DATE.isoformat()} a {PRELUDE_END_DATE.isoformat()}",
             f"- Hora: {PRELUDE_HOUR:02d}:{PRELUDE_MINUTE:02d}",
-            f"- Antesala hasta: {STORY_START_DATE.isoformat()}",
-            f"- Respuestas misteriosas: {'si' if PRELUDE_REPLY_ENABLED else 'no'}",
+            f"- Inicio de partida: {STORY_START_DATE.isoformat()} {STORY_START_HOUR:02d}:{STORY_START_MINUTE:02d}",
+            f"- Respuestas de instrucciones: {'si' if PRELUDE_REPLY_ENABLED else 'no'}",
             f"- Mensajes cargados: {len(messages)}",
             f"- Enviados: {len(sent)}",
-            f"- Respuestas de Sandra en antesala: {len(interactions)}",
+            f"- Apertura enviada: {'si' if data.get('story_start_sent') else 'no'}",
             f"- Mensaje para hoy: {'si' if today_message else 'no'}",
         ]
     )
 
 
 def prelude_guard_active() -> bool:
-    today = datetime.now(APP_TIMEZONE).date()
-    return PRELUDE_REPLY_ENABLED and today < STORY_START_DATE
+    now = datetime.now(APP_TIMEZONE)
+    if not PRELUDE_REPLY_ENABLED:
+        return False
+    if now.date() < STORY_START_DATE:
+        return True
+    if now.date() > STORY_START_DATE:
+        return False
+    return (now.hour, now.minute) < (STORY_START_HOUR, STORY_START_MINUTE)
 
 
 def prelude_reply_for_text(text: str) -> str:
-    lowered = text.lower().strip()
-    if "?" in text or lowered.startswith(("que ", "qué ", "quien ", "quién ", "cuando ", "cuándo ", "como ", "cómo ")):
-        return (
-            "La tinta tarda unos segundos en moverse, como si estuviera decidiendo "
-            "cuanto puede decir sin romper una norma antigua.\n\n"
-            "Todavia no todas las preguntas tienen permiso para abrirse. Pero si has "
-            "recibido esto, es porque Valdralis ya sabe que estas cerca."
-        )
-    if any(word in lowered for word in ("hola", "buenas", "holi")):
-        return (
-            "Durante un instante, el chat queda en silencio.\n\n"
-            "Luego aparece una sola linea, escrita con una calma demasiado antigua:\n\n"
-            "Hola, Sandra. Aun no es la noche de abrir la carta."
-        )
-    if any(word in lowered for word in ("gracias", "jaj", "jeje", "xd")):
-        return (
-            "El sello rojo parece calentarse al otro lado de la pantalla.\n\n"
-            "No responde del todo. Solo deja una sensacion: algo sonrie en algun pasillo "
-            "donde todavia no has puesto un pie."
-        )
     return (
-        "La carta no se abre todavia.\n\n"
-        "Pero algo al otro lado parece haber leido tus palabras. Por un momento, muy breve, "
-        "huele a lluvia sobre piedra antigua y a cera roja recien partida.\n\n"
-        "Quedan noches antes de Valdralis."
+        "Aun no ha empezado la partida.\n\n"
+        "Estos mensajes son solo el preludio: pequenas senales antes de abrir la carta. "
+        "El 13 de julio a las 00:01 recibiras el primer mensaje de la historia.\n\n"
+        "Cuando empiece, solo tendras que responder que haces, que dices o que sientes. "
+        "Hasta entonces, puedes leer las pistas y dejar que Valdralis se acerque."
     )
-
-
-def append_prelude_interaction(incoming_text: str, reply: str) -> None:
-    data = load_data()
-    data.setdefault("prelude_interactions", []).append(
-        {
-            "incoming": incoming_text,
-            "reply": reply,
-            "at": now_iso(),
-        }
-    )
-    data["prelude_interactions"] = data["prelude_interactions"][-100:]
-    save_data(data)
-
-
-def prelude_interactions_text(limit: int = 20) -> str:
-    interactions = load_data().get("prelude_interactions", [])[-limit:]
-    if not interactions:
-        return "No hay respuestas de Sandra durante la antesala."
-    lines = []
-    for item in interactions:
-        lines.append(
-            "Sandra:\n"
-            f"{item.get('incoming', '')}\n\n"
-            "Bot:\n"
-            f"{item.get('reply', '')}"
-        )
-    return "\n\n---\n\n".join(lines)
 
 
 def admin_notes_text() -> str:
@@ -589,11 +560,10 @@ async def handle_sandra_message(update: Update, context: ContextTypes.DEFAULT_TY
 
     if prelude_guard_active():
         reply = prelude_reply_for_text(text)
-        append_prelude_interaction(text, reply)
         await context.bot.send_chat_action(update.effective_chat.id, ChatAction.TYPING)
         await update.effective_chat.send_message(reply)
         await send_admin(
-            "Sandra ha escrito durante la antesala. No he iniciado la partida ni tocado memoria.\n\n"
+            "Sandra ha escrito durante el preludio. No he llamado a la IA, no he iniciado la partida y no he guardado memoria.\n\n"
             f"Sandra:\n{text}\n\n"
             f"Respuesta enviada:\n{reply}"
         )
@@ -646,7 +616,7 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         f"- Modelo: {OPENAI_MODEL}",
         f"- Mensajes guardados: {len(data.get('history', []))}",
         f"- Antesala activa: {'si' if prelude_guard_active() else 'no'}",
-        f"- Inicio de partida: {STORY_START_DATE.isoformat()}",
+        f"- Inicio de partida: {STORY_START_DATE.isoformat()} {STORY_START_HOUR:02d}:{STORY_START_MINUTE:02d}",
         f"- Resumen diario: {DAILY_SUMMARY_HOUR:02d}:{DAILY_SUMMARY_MINUTE:02d}",
     ]
     await update.effective_chat.send_message("\n".join(lines))
@@ -784,6 +754,35 @@ async def send_prelude_for_day(day: date, *, manual: bool = False) -> bool:
     return True
 
 
+async def send_story_start_message(*, manual: bool = False) -> bool:
+    if not narrador_app:
+        await send_admin("No puedo enviar inicio: narrador no inicializado.")
+        return False
+    data = load_data()
+    sandra_id = data.get("sandra_chat_id")
+    if not sandra_id:
+        await send_admin("No puedo enviar inicio: falta SANDRA_CHAT_ID.")
+        return False
+    if data.get("story_start_sent") and not manual:
+        return False
+
+    message = read_start_message()
+    await narrador_app.bot.send_message(chat_id=int(sandra_id), text=message)
+    append_history("Narrador", message)
+    data = load_data()
+    data["story_start_sent"] = True
+    data["state"] = {
+        **(data.get("state") or default_state()),
+        "chapter": "Capitulo 1: La carta bajo la puerta",
+        "location": "Casa de Dario",
+        "current_scene": "Sandra acaba de recibir la carta de Valdralis",
+        "next_suggested_scene": "Sandra decide si abre la carta, la esconde o escucha a su padre",
+    }
+    save_data(data)
+    await send_admin(f"Inicio de partida enviado a Sandra:\n{message}")
+    return True
+
+
 async def cmd_preludio_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not update.effective_chat or not is_admin(update):
         return
@@ -806,16 +805,6 @@ async def cmd_preludio_preview(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.effective_chat.send_message(f"No hay mensaje de preludio para {day.isoformat()}.")
         return
     await update.effective_chat.send_message(f"Previsualizacion {day.isoformat()}:\n\n{message}")
-
-
-async def cmd_preludio_respuestas(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not update.effective_chat or not is_admin(update):
-        return
-    limit = 20
-    if context.args and context.args[0].isdigit():
-        limit = max(1, min(80, int(context.args[0])))
-    for chunk in split_long(prelude_interactions_text(limit)):
-        await update.effective_chat.send_message(chunk)
 
 
 async def cmd_preludio_on(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -849,6 +838,23 @@ async def cmd_preludio_enviar_hoy(update: Update, context: ContextTypes.DEFAULT_
     sent = await send_prelude_for_day(day, manual=True)
     if not sent:
         await update.effective_chat.send_message("No se ha enviado ningun preludio.")
+
+
+async def cmd_inicio_preview(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    await update.effective_chat.send_message(
+        f"Previsualizacion inicio {STORY_START_DATE.isoformat()} {STORY_START_HOUR:02d}:{STORY_START_MINUTE:02d}:\n\n"
+        f"{read_start_message()}"
+    )
+
+
+async def cmd_inicio_enviar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    sent = await send_story_start_message(manual=True)
+    if not sent:
+        await update.effective_chat.send_message("No se ha enviado el inicio.")
 
 
 async def cmd_probar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -911,6 +917,15 @@ async def daily_summary_loop() -> None:
             today = today_date.isoformat()
 
             if (
+                today_date == STORY_START_DATE
+                and now.hour == STORY_START_HOUR
+                and now.minute == STORY_START_MINUTE
+                and not data.get("story_start_sent")
+            ):
+                await send_story_start_message()
+
+            data = load_data()
+            if (
                 data.get("prelude_enabled")
                 and now.hour == PRELUDE_HOUR
                 and now.minute == PRELUDE_MINUTE
@@ -952,10 +967,11 @@ def build_control_app() -> Application:
     app.add_handler(CommandHandler("probar", cmd_probar))
     app.add_handler(CommandHandler("preludio_status", cmd_preludio_status))
     app.add_handler(CommandHandler("preludio_preview", cmd_preludio_preview))
-    app.add_handler(CommandHandler("preludio_respuestas", cmd_preludio_respuestas))
     app.add_handler(CommandHandler("preludio_on", cmd_preludio_on))
     app.add_handler(CommandHandler("preludio_off", cmd_preludio_off))
     app.add_handler(CommandHandler("preludio_enviar_hoy", cmd_preludio_enviar_hoy))
+    app.add_handler(CommandHandler("inicio_preview", cmd_inicio_preview))
+    app.add_handler(CommandHandler("inicio_enviar", cmd_inicio_enviar))
     app.add_handler(CommandHandler("nota", cmd_nota))
     app.add_handler(CommandHandler("corregir_memoria", cmd_corregir_memoria))
     app.add_handler(CommandHandler("pausar", cmd_pausar))

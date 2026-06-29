@@ -2,6 +2,12 @@
 
 Mensajes diarios previos al inicio de la partida. Se envian desde el bot narrador, uno por dia, si el preludio esta activado.
 
+## 2026-06-29
+
+Hoy no empieza la historia.
+
+Pero algo, en algun lugar que todavia no conoces, acaba de despertar al oir tu nombre.
+
 ## 2026-06-30
 
 Hay cartas que no llegan por correo.
@@ -79,11 +85,3 @@ Algunas noches, si el castillo esta muy quieto, esa puerta susurra un nombre.
 Manana, si decides abrir la carta, no empezara una historia.
 
 Empezara lo que llevaba anos intentando encontrarte.
-
-## 2026-07-13
-
-Sandra, esta historia existe solo para ti.
-
-No necesitas saber jugar rol. Solo responde que haces, que dices o que sientes.
-
-Valdralis se encargara del resto.
