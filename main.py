@@ -58,6 +58,16 @@ MAX_HISTORY = int(os.getenv("MAX_HISTORY", "500"))
 RECENT_HISTORY_FOR_AI = int(os.getenv("RECENT_HISTORY_FOR_AI", "24"))
 
 LORE_PATH = Path("lore/biblia.md")
+CHAPTER_TITLES = {
+    1: "La carta bajo la puerta",
+    2: "El tren de medianoche",
+    3: "Bienvenida a Valdralis",
+    4: "La Ceremonia del Umbral",
+    5: "La primera clase",
+    6: "La noche del pacto",
+    7: "El Ala Norte",
+    8: "El Sello del Umbral",
+}
 
 control_app: Application | None = None
 narrador_app: Application | None = None
@@ -78,6 +88,9 @@ def now_iso() -> str:
 def default_state() -> dict[str, Any]:
     return {
         "chapter": "Prologo",
+        "current_chapter_number": 0,
+        "completed_chapters": [],
+        "season_complete": False,
         "location": "Casa de Dario",
         "current_scene": "Antes de leer la carta de Valdralis",
         "known_facts": [],
@@ -150,6 +163,61 @@ def markdown_list(items: list[Any]) -> str:
     return "\n".join(f"- {item}" for item in clean_items)
 
 
+def chapter_label(number: int) -> str:
+    title = CHAPTER_TITLES.get(number)
+    return f"Capitulo {number}: {title}" if title else f"Capitulo {number}"
+
+
+def course_complete_reply() -> str:
+    return (
+        "El primer curso ha terminado.\n\n"
+        "Valdralis cierra sus puertas por ahora. Hay promesas que aun no se han roto, "
+        "nombres que nadie se atreve a decir en voz alta y miradas que quedaron demasiado "
+        "cerca de convertirse en algo mas.\n\n"
+        "Cuando llegue el curso que viene, la carta volvera a moverse."
+    )
+
+
+def apply_chapter_transition(data: dict[str, Any], transition: Any) -> str:
+    if not isinstance(transition, dict) or not transition.get("completed"):
+        return ""
+
+    state = data.setdefault("state", default_state())
+    try:
+        completed = int(transition.get("completed_chapter") or state.get("current_chapter_number") or 0)
+    except (TypeError, ValueError):
+        completed = 0
+    try:
+        next_chapter = int(transition.get("next_chapter") or completed + 1)
+    except (TypeError, ValueError):
+        next_chapter = completed + 1
+
+    if completed < 1 or completed > 8:
+        return ""
+
+    completed_chapters = set(state.get("completed_chapters") or [])
+    completed_chapters.add(completed)
+    state["completed_chapters"] = sorted(completed_chapters)
+
+    if completed >= 8 or transition.get("season_complete"):
+        state["current_chapter_number"] = 8
+        state["chapter"] = chapter_label(8)
+        state["season_complete"] = True
+        state["current_scene"] = "Primer curso terminado"
+        state["next_suggested_scene"] = "Esperar al curso que viene"
+        return (
+            f"{chapter_label(8)} terminado.\n\n"
+            "Primer curso terminado.\n\n"
+            "La historia se detiene aqui, por ahora. Valdralis volvera a abrir sus puertas el curso que viene."
+        )
+
+    next_chapter = max(1, min(8, next_chapter))
+    state["current_chapter_number"] = next_chapter
+    state["chapter"] = chapter_label(next_chapter)
+    state["season_complete"] = False
+    return f"{chapter_label(completed)} terminado.\n\n{chapter_label(next_chapter)}"
+
+
 def write_memory_markdown(data: dict[str, Any]) -> None:
     state = data.get("state") or default_state()
     relationships = state.get("relationships") or {}
@@ -178,6 +246,9 @@ Actualizado: {updated_at}
 ## Estado
 
 - Capitulo: {state.get('chapter', 'Pendiente')}
+- Numero de capitulo: {state.get('current_chapter_number', 'Pendiente')}
+- Capitulos completados: {', '.join(map(str, state.get('completed_chapters') or [])) or 'Ninguno'}
+- Primer curso terminado: {'si' if state.get('season_complete') else 'no'}
 - Lugar: {state.get('location', 'Pendiente')}
 - Escena actual: {state.get('current_scene', 'Pendiente')}
 - Siguiente tension sugerida: {state.get('next_suggested_scene', 'Pendiente')}
@@ -403,6 +474,9 @@ REGLAS DE ESTILO:
 - Termina cada respuesta con una puerta abierta: decision, mirada, amenaza, pista o pregunta implicita.
 - No reveles secretos grandes antes de tiempo.
 - Si la accion de Sandra rompe el guion, reconduce con consecuencias naturales.
+- Manten el capitulo actual salvo que se haya cumplido claramente su objetivo dramatico.
+- Cuando termine un capitulo, marca chapter_transition.completed=true, pero no escribas tu el cartel de "Capitulo terminado"; el sistema lo anadira.
+- Tras completar el capitulo 8, marca season_complete=true y no abras un capitulo 9.
 
 BIBLIA DE LA PARTIDA:
 {read_lore()}
@@ -424,6 +498,9 @@ Devuelve SOLO JSON valido con este formato:
   "reply": "respuesta narrativa para Sandra, 3 a 8 parrafos",
   "state": {{
     "chapter": "capitulo actual",
+    "current_chapter_number": 1,
+    "completed_chapters": [1],
+    "season_complete": false,
     "location": "lugar actual",
     "current_scene": "escena actual",
     "known_facts": ["hechos que Sandra ya sabe"],
@@ -433,6 +510,12 @@ Devuelve SOLO JSON valido con este formato:
     "revealed_secrets": ["secretos ya revelados a Sandra"],
     "unrevealed_secrets_reminder": ["secretos importantes aun no revelados"],
     "next_suggested_scene": "siguiente tension sugerida"
+  }},
+  "chapter_transition": {{
+    "completed": false,
+    "completed_chapter": null,
+    "next_chapter": null,
+    "season_complete": false
   }},
   "admin_note": "nota breve para Miguel solo si hay duda importante de lore o direccion; si no, cadena vacia"
 }}
@@ -561,6 +644,15 @@ async def handle_sandra_message(update: Update, context: ContextTypes.DEFAULT_TY
         await update.effective_chat.send_message("La historia esta pausada un momento.")
         return
 
+    if (data.get("state") or {}).get("season_complete"):
+        reply = course_complete_reply()
+        await update.effective_chat.send_message(reply)
+        await send_admin(
+            "Sandra ha escrito despues del final del primer curso. No he llamado a la IA.\n\n"
+            f"Sandra:\n{text}"
+        )
+        return
+
     if prelude_guard_active():
         reply = prelude_reply_for_text(text)
         await context.bot.send_chat_action(update.effective_chat.id, ChatAction.TYPING)
@@ -595,7 +687,12 @@ async def handle_sandra_message(update: Update, context: ContextTypes.DEFAULT_TY
 
     reply = str(scene["reply"]).strip()
     data = load_data()
-    data["state"] = scene.get("state") or data.get("state", default_state())
+    previous_state = data.get("state") or default_state()
+    scene_state = scene.get("state") if isinstance(scene.get("state"), dict) else {}
+    data["state"] = {**previous_state, **scene_state}
+    chapter_banner = apply_chapter_transition(data, scene.get("chapter_transition"))
+    if chapter_banner:
+        reply = f"{reply}\n\n---\n\n{chapter_banner}"
     save_data(data)
     append_history("Narrador", reply)
 
@@ -611,12 +708,15 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     if not update.effective_chat or not is_admin(update):
         return
     data = load_data()
+    state = data.get("state") or {}
     lines = [
         "Estado Control Partida Sandra",
         f"- Narrador vinculado: {'si' if data.get('sandra_chat_id') else 'no'}",
         f"- Pausado: {'si' if data.get('paused') else 'no'}",
         f"- OpenAI: {'configurado' if openai_available() else 'pendiente'}",
         f"- Modelo: {OPENAI_MODEL}",
+        f"- Capitulo: {state.get('chapter', 'Pendiente')}",
+        f"- Primer curso terminado: {'si' if state.get('season_complete') else 'no'}",
         f"- Mensajes guardados: {len(data.get('history', []))}",
         f"- Antesala activa: {'si' if prelude_guard_active() else 'no'}",
         f"- Inicio de partida: {STORY_START_DATE.isoformat()} {STORY_START_HOUR:02d}:{STORY_START_MINUTE:02d}",
@@ -777,6 +877,9 @@ async def send_story_start_message(*, manual: bool = False) -> bool:
     data["state"] = {
         **(data.get("state") or default_state()),
         "chapter": "Capitulo 1: La carta bajo la puerta",
+        "current_chapter_number": 1,
+        "completed_chapters": [],
+        "season_complete": False,
         "location": "Casa de Dario",
         "current_scene": "Sandra acaba de recibir la carta de Valdralis",
         "next_suggested_scene": "Sandra decide si abre la carta, la esconde o escucha a su padre",

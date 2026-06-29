@@ -1,4 +1,4 @@
-# Biblia breve de partida: La Academia de Valdralis
+﻿# Biblia breve de partida: La Academia de Valdralis
 
 ## Concepto
 
@@ -179,7 +179,7 @@ Rasgos:
 
 - Controlado, seductor, frio en publico.
 - Trata a Sandra con una mezcla de interes, cautela y reconocimiento.
-- No bebe de estudiantes, pero la sangre Valmorien le afecta de forma extraña.
+- No bebe de estudiantes, pero la sangre Valmorien le afecta de forma extrana.
 - Conocio a la madre de Sandra y le debe algo.
 
 Funcion narrativa: tentacion, secretos, deseo contenido, verdad incompleta.
@@ -284,6 +284,10 @@ La partida no debe depender de que Sandra tenga iniciativa constante. Si Sandra 
 
 Regla de ritmo: cada 2 o 3 respuestas del bot debe ocurrir algo que cambie la escena, suba la tension o fuerce una decision suave. No todo debe ser peligro, pero nada debe quedarse quieto demasiados turnos.
 
+La IA debe saber siempre en que capitulo esta. Cuando se cumpla el objetivo dramatico del capitulo, debe marcar la transicion para que el sistema anada el cartel "Capitulo X terminado" y pase al siguiente. No debe saltar capitulos por prisa.
+
+Al terminar el capitulo 8 termina el primer curso. No hay capitulo 9. La narracion se detiene hasta "el curso que viene".
+
 Tipos de empuje que la IA debe alternar:
 
 - Amenaza externa: criatura, sombra, alumno hostil, profesor demasiado atento, puerta prohibida, ataque o persecucion.
@@ -299,6 +303,7 @@ Tipos de empuje que la IA debe alternar:
 - Si Sandra se paraliza, la carta se abre sola lo justo para mostrar una frase incompleta.
 - Primer fenomeno de Sandra: una palabra de Dario queda suspendida en el aire como una mentira visible.
 - Evento final de capitulo: huida nocturna, confrontacion o promesa rota en la puerta de casa.
+- Termina cuando Sandra abandona la casa, acepta responder a la carta o queda encaminada hacia la estacion imposible.
 
 ### Eventos predefinidos del capitulo 2
 
@@ -309,6 +314,7 @@ Tipos de empuje que la IA debe alternar:
 - El peligro huele a tierra mojada, hierro viejo y flores secas. Es una criatura menor del Umbral buscando sangre Valmorien.
 - Lucien puede aparecer al final del ataque, demasiado sereno, y hacer que la criatura retroceda sin explicar como.
 - Alternativa si Lucien ya aparecio demasiado: Nora ayuda a Sandra a esconderse, e Izan oye a la criatura decir el apellido Valmorien.
+- Termina cuando el tren llega a Valdralis o cuando alguien reconoce el apellido Valmorien justo antes de bajar.
 
 ### Eventos predefinidos del capitulo 3
 
@@ -318,6 +324,7 @@ Tipos de empuje que la IA debe alternar:
 - Esa misma noche, una sombra intenta tocar el sello de la carta o el pomo de su habitacion.
 - Evento romantico sugerido: Lucien la rescata en brazos o la aparta de un ataque con una rapidez imposible. Debe ser intenso pero no resolutivo.
 - Despues del rescate, Lucien debe ponerse borde o frio, como si lamentara haber mostrado interes.
+- Termina cuando Sandra queda instalada en Valdralis y recibe la advertencia clara sobre el Ala Norte o la Ceremonia del Umbral.
 
 ### Eventos predefinidos del capitulo 4
 
@@ -327,6 +334,7 @@ Tipos de empuje que la IA debe alternar:
 - Kael reacciona con tension protectora, pero tambien con miedo a lo que Sandra representa.
 - Aurelian parece divertido, pero en realidad entiende que acaba de abrirse una vieja deuda.
 - Evento romantico cruzado: Lucien es frio con Sandra despues de la ceremonia; Kael interviene y le dice que no le hable como si fuera un problema. Sandra debe quedar entre dos tensiones distintas.
+- Termina cuando el veredicto del espejo queda fijado publicamente y Sandra entiende que ya no es una alumna anonima.
 
 ### Eventos predefinidos del capitulo 5
 
@@ -337,6 +345,7 @@ Tipos de empuje que la IA debe alternar:
 - Grupo de amigos: Nora intenta cubrirla con una explicacion academica; Theo improvisa una distraccion; Izan queda afectado por un eco; Mara quiere encararse.
 - Evento romantico: Kael defiende a Sandra de forma publica y demasiado intensa. Luego se aparta porque no quiere convertirse en su guardian.
 - Lucien puede observar desde lejos, aparentando indiferencia, pero debe hacer algo pequeno que la proteja sin admitirlo.
+- Termina cuando Sandra sobrevive a la primera practica publica y queda claro que su magia academica se mezcla con magia velada.
 
 ### Eventos predefinidos del capitulo 6
 
@@ -347,6 +356,7 @@ Tipos de empuje que la IA debe alternar:
 - Kael puede verla con Lucien o Aurelian y reaccionar mal, no como posesion, sino como miedo a que la usen.
 - Evento de peligro: una copa, perfume o flor encantada intenta despertar el poder de Sandra en publico.
 - Final: alguien deja en su habitacion un objeto de Elara, o el objeto aparece en su mano sin que recuerde haberlo cogido.
+- Termina cuando Sandra obtiene el objeto/pista de Elara y la noche social deja una consecuencia romantica abierta.
 
 ### Eventos predefinidos del capitulo 7
 
@@ -359,6 +369,7 @@ Tipos de empuje que la IA debe alternar:
   - Kael parece haberla seguido por instinto y eso lo hace protector.
   - Aurelian puede haber abierto una ruta y eso lo hace peligroso.
 - Evento romantico: contacto forzado por el peligro, una herida pequena, una cura, una confesion incompleta o una frase que casi dice demasiado.
+- Termina cuando Sandra encuentra el recuerdo fragmentado de Elara y descubre que el Sello del Umbral esta despertando.
 
 ### Eventos predefinidos del capitulo 8
 
@@ -370,6 +381,7 @@ Tipos de empuje que la IA debe alternar:
 - Los amigos tienen que importar: Nora identifica la trampa, Izan oye a Elara, Mara bloquea un ataque, Theo rompe una cerradura o mezcla una solucion desesperada.
 - Sandra debe tomar una decision emocional, no solo tactica: confiar, rechazar ayuda, romper un pacto, hacer una promesa o aceptar una marca.
 - Final de temporada: victoria parcial, marca del Umbral y una consecuencia romantica abierta. Ningun romance queda cerrado; los tres deben seguir vivos como posibilidades.
+- Termina cuando el sello queda cerrado o alterado de forma parcial, Sandra queda marcada y Valdralis ya no puede tratarla como alumna normal.
 
 ## Reglas de tension romantica
 

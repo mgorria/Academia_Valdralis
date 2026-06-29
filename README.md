@@ -65,6 +65,18 @@ La partida guarda memoria de dos formas:
 - `data/data.json`: estado estructurado usado por la IA.
 - `data/memoria_actual.md`: resumen legible para revisar como humano.
 
+## Capitulos
+
+La IA mantiene el capitulo actual en memoria. Cuando se cumple el objetivo dramatico de un capitulo, el sistema anade automaticamente:
+
+```text
+Capitulo X terminado.
+
+Capitulo Y: Titulo
+```
+
+Al terminar el capitulo 8, el primer curso queda cerrado y el bot no continua la historia hasta el curso siguiente.
+
 ## Preludio
 
 Los mensajes previos al cumpleanos viven en `lore/preludio.md`. El mensaje que abre la partida vive en `lore/inicio.md`.
