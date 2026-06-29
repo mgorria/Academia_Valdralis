@@ -338,7 +338,7 @@ def prelude_reply_for_text(text: str) -> str:
     return (
         "Aun no ha empezado la partida.\n\n"
         "Estos mensajes son solo el preludio: pequenas senales antes de abrir la carta. "
-        "El 13 de julio a las 00:01 recibiras el primer mensaje de la historia.\n\n"
+        "No tienes que resolver nada todavia, ni responder de una forma concreta.\n\n"
         "Cuando empiece, solo tendras que responder que haces, que dices o que sientes. "
         "Hasta entonces, puedes leer las pistas y dejar que Valdralis se acerque."
     )
