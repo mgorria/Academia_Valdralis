@@ -203,6 +203,17 @@ def init_database() -> None:
                     on story_messages (created_at desc, id desc)
                     """
                 )
+                cur.execute(
+                    """
+                    create table if not exists chapter_summaries (
+                        chapter_number integer primary key,
+                        title text not null,
+                        summary text not null,
+                        created_at timestamptz not null default now(),
+                        updated_at timestamptz not null default now()
+                    )
+                    """
+                )
                 cur.execute("select data from app_state where key = 'main'")
                 row = cur.fetchone()
                 if not row:
@@ -326,6 +337,18 @@ def apply_chapter_transition(data: dict[str, Any], transition: Any) -> str:
     return f"{chapter_label(completed)} terminado.\n\n{chapter_label(next_chapter)}"
 
 
+def completed_chapter_from_transition(state: dict[str, Any], transition: Any) -> int | None:
+    if not isinstance(transition, dict) or not transition.get("completed"):
+        return None
+    try:
+        completed = int(transition.get("completed_chapter") or state.get("current_chapter_number") or 0)
+    except (TypeError, ValueError):
+        return None
+    if completed < 1 or completed > 10:
+        return None
+    return completed
+
+
 def write_memory_markdown(data: dict[str, Any]) -> None:
     state = data.get("state") or default_state()
     relationships = state.get("relationships") or {}
@@ -384,6 +407,10 @@ Actualizado: {updated_at}
 ## Secretos que la IA debe recordar pero no revelar antes de tiempo
 
 {markdown_list(state.get('unrevealed_secrets_reminder') or [])}
+
+## Resumenes canonicos de capitulos cerrados
+
+{chapter_summaries_text()}
 
 ## Notas recientes de Miguel
 
@@ -450,6 +477,76 @@ def recent_history_text(limit: int = RECENT_HISTORY_FOR_AI) -> str:
         text = str(item.get("text", "")).strip()
         lines.append(f"{role}: {text}")
     return "\n".join(lines)
+
+
+def save_chapter_summary(chapter_number: int, title: str, summary: str) -> None:
+    summary = summary.strip()
+    if not summary:
+        return
+
+    if db_enabled():
+        with db_connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    insert into chapter_summaries (chapter_number, title, summary, updated_at)
+                    values (%s, %s, %s, now())
+                    on conflict (chapter_number) do update
+                    set title = excluded.title,
+                        summary = excluded.summary,
+                        updated_at = now()
+                    """,
+                    (chapter_number, title, summary),
+                )
+
+    data = load_data()
+    summaries = [
+        item
+        for item in data.get("chapter_summaries", [])
+        if int(item.get("chapter_number", -1)) != chapter_number
+    ]
+    summaries.append(
+        {
+            "chapter_number": chapter_number,
+            "title": title,
+            "summary": summary,
+            "at": now_iso(),
+        }
+    )
+    data["chapter_summaries"] = sorted(summaries, key=lambda item: int(item.get("chapter_number", 0)))
+    save_data(data)
+
+
+def chapter_summaries_text() -> str:
+    rows: list[tuple[int, str, str]] = []
+    if db_enabled():
+        with db_connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    select chapter_number, title, summary
+                    from chapter_summaries
+                    order by chapter_number asc
+                    """
+                )
+                rows = [(int(number), str(title), str(summary)) for number, title, summary in cur.fetchall()]
+    else:
+        rows = [
+            (
+                int(item.get("chapter_number", 0)),
+                str(item.get("title", "")),
+                str(item.get("summary", "")),
+            )
+            for item in load_data().get("chapter_summaries", [])
+        ]
+
+    if not rows:
+        return "No hay resumenes de capitulos cerrados todavia."
+    return "\n\n".join(
+        f"Capitulo {number}: {title}\n{summary.strip()}"
+        for number, title, summary in rows
+        if summary.strip()
+    )
 
 
 def state_text() -> str:
@@ -618,6 +715,9 @@ ESTADO ACTUAL:
 NOTAS RECIENTES DE MIGUEL:
 {admin_notes_text()}
 
+RESUMENES CANONICOS DE CAPITULOS CERRADOS:
+{chapter_summaries_text()}
+
 HISTORIAL RECIENTE:
 {recent_history_text()}
 
@@ -679,6 +779,49 @@ HISTORIAL RECIENTE:
 
 Devuelve SOLO JSON valido:
 {{"summary": "Resumen breve..."}}
+"""
+    response = await openai_client().responses.create(
+        model=OPENAI_MODEL,
+        input=prompt,
+        text={"format": {"type": "json_object"}},
+    )
+    data = extract_json(response.output_text or "{}")
+    return str(data.get("summary") or "").strip()
+
+
+async def generate_chapter_summary(
+    *,
+    chapter_number: int,
+    title: str,
+    scene_reply: str,
+    state: dict[str, Any],
+) -> str:
+    prompt = f"""
+Resume el capitulo cerrado de una partida de novela interactiva.
+Debe ser memoria canonica para continuidad futura, no prosa bonita.
+
+Capitulo: {chapter_number}: {title}
+
+Estado al cerrar:
+{json.dumps(state, ensure_ascii=False, indent=2)}
+
+Ultima respuesta del narrador:
+{scene_reply}
+
+Historial reciente:
+{recent_history_text(80)}
+
+Incluye en 8-14 bullets:
+- hechos importantes;
+- decisiones de Sandra;
+- cambios de relaciones;
+- pistas descubiertas;
+- objetos, marcas o heridas;
+- tension romantica relevante;
+- hilos pendientes para capitulos futuros.
+
+Devuelve SOLO JSON valido:
+{{"summary": "- punto\\n- punto"}}
 """
     response = await openai_client().responses.create(
         model=OPENAI_MODEL,
@@ -816,7 +959,28 @@ async def process_sandra_message_batch(chat_id: int) -> None:
     previous_state = data.get("state") or default_state()
     scene_state = scene.get("state") if isinstance(scene.get("state"), dict) else {}
     data["state"] = {**previous_state, **scene_state}
-    chapter_banner = apply_chapter_transition(data, scene.get("chapter_transition"))
+    transition = scene.get("chapter_transition")
+    completed_chapter = completed_chapter_from_transition(data["state"], transition)
+    if completed_chapter:
+        title = CHAPTER_TITLES.get(completed_chapter, f"Capitulo {completed_chapter}")
+        try:
+            summary = await generate_chapter_summary(
+                chapter_number=completed_chapter,
+                title=title,
+                scene_reply=reply,
+                state=data["state"],
+            )
+        except Exception as exc:
+            logger.exception("No se pudo generar resumen de capitulo")
+            summary = (
+                f"- Resumen automatico no disponible por {type(exc).__name__}: {exc}\n"
+                f"- Capitulo cerrado: {chapter_label(completed_chapter)}\n"
+                f"- Escena de cierre: {data['state'].get('current_scene', 'sin escena registrada')}"
+            )
+        save_chapter_summary(completed_chapter, title, summary)
+        await send_admin(f"Resumen canonico guardado para {chapter_label(completed_chapter)}:\n{summary}")
+
+    chapter_banner = apply_chapter_transition(data, transition)
     if chapter_banner:
         reply = f"{reply}\n\n---\n\n{chapter_banner}"
     save_data(data)
@@ -919,6 +1083,13 @@ async def cmd_memoria(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     if not update.effective_chat or not is_admin(update):
         return
     for chunk in split_long(memory_markdown_text()):
+        await update.effective_chat.send_message(chunk)
+
+
+async def cmd_capitulos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    for chunk in split_long(chapter_summaries_text()):
         await update.effective_chat.send_message(chunk)
 
 
@@ -1251,6 +1422,7 @@ def build_control_app() -> Application:
     app.add_handler(CommandHandler("status", cmd_status))
     app.add_handler(CommandHandler("estado", cmd_estado))
     app.add_handler(CommandHandler("memoria", cmd_memoria))
+    app.add_handler(CommandHandler("capitulos", cmd_capitulos))
     app.add_handler(CommandHandler("historial", cmd_historial))
     app.add_handler(CommandHandler("resumen", cmd_resumen))
     app.add_handler(CommandHandler("probar", cmd_probar))

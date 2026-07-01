@@ -31,6 +31,7 @@ En el bot privado:
 /status
 /estado
 /memoria
+/capitulos
 /historial 20
 /resumen
 /probar texto de Sandra para hacer una prueba privada
@@ -67,6 +68,7 @@ La partida guarda memoria de tres formas:
 
 - Postgres `app_state`: estado estructurado durable usado por la IA.
 - Postgres `story_messages`: log completo de mensajes y respuestas.
+- Postgres `chapter_summaries`: resumen canonico de cada capitulo cerrado.
 - `data/memoria_actual.md`: resumen legible para revisar como humano.
 
 `data/data.json` queda como copia espejo/respaldo local. En Railway, la memoria importante debe estar en Postgres.
@@ -82,6 +84,8 @@ Capitulo Y: Titulo
 ```
 
 Al terminar el capitulo 10, el primer curso queda cerrado y el bot no continua la historia hasta el curso siguiente.
+
+Al cerrar cada capitulo, el bot genera y guarda un resumen canonico. La IA recibe esos resumenes antes de responder, para mantener continuidad aunque pasen meses.
 
 ## Preludio
 
@@ -142,3 +146,4 @@ Para la partida real, crea tambien un plugin Postgres en Railway. El bot creara 
 
 - `app_state`
 - `story_messages`
+- `chapter_summaries`
