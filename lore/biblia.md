@@ -285,18 +285,20 @@ Funcion narrativa: alivio ligero, recursos practicos, planes arriesgados.
 
 ### Lucien Veyrath, el vampiro
 
-Lucien es un vampiro noble, elegante y peligroso. Tiene apariencia de veintitantos, aunque lleva mas de un siglo ligado a Valdralis. Habla poco, observa demasiado y parece saber cosas de Elara que no quiere decir.
+Lucien es un vampiro noble, elegante y peligroso. Es alumno del turno nocturno, de veintipocos anos en apariencia y tambien joven para los estandares vampiricos: un neofito de una casa antigua, todavia en formacion, con demasiado apellido encima y demasiadas normas que obedecer. Habla poco, observa demasiado y parece saber cosas de Elara que no deberia saber.
 
 Rasgos:
 
 - Controlado, seductor, frio en publico.
+- Alumno nocturno, no profesor ni antiguo residente secular.
+- Poderoso por naturaleza vampirica y linaje, pero aun inmaduro en politica, hambre y autocontrol.
 - Trata a Sandra con una mezcla de interes, cautela y reconocimiento.
 - No bebe de estudiantes, pero la sangre Valmorien le afecta de forma extrana.
-- Conocio a la madre de Sandra y le debe algo.
+- No conocio personalmente a Elara; conoce fragmentos por archivos de sangre, retratos de la Galeria Carmesi y secretos de su casa.
 
 Funcion narrativa: tentacion, secretos, deseo contenido, verdad incompleta.
 
-Secreto: Lucien ayudo a Elara la noche en que desaparecio, pero tambien la traiciono parcialmente al obedecer una orden vampirica.
+Secreto: la Casa Veyrath ayudo a Elara la noche en que desaparecio, pero tambien la traiciono parcialmente al obedecer una orden vampirica. Lucien ha heredado esa deuda y teme que acercarse a Sandra sea repetir el mismo error con otro nombre.
 
 ### Kael Draven, el licantropo
 
@@ -338,7 +340,7 @@ Piezas antagonicas posibles:
 
 - Mireya Noct puede actuar como mentora ambigua o agente indirecta de la Orden.
 - Severin Cael puede ocultar verdades por miedo a que Valdralis pierda control politico.
-- Damaso Veyrath puede saber mas de la deuda de Lucien con Elara de lo que aparenta.
+- Damaso Veyrath puede saber mas de la deuda de la Casa Veyrath con Elara de lo que aparenta.
 - Algunos retratos, llaves y puertas de la academia obedecen todavia a antiguos miembros de la Orden.
 - Dario Veyr, padre de Sandra. Cruel y controlador, pero no ignorante. Puede reaparecer con una verdad incomoda: no todo lo que temia era imaginario.
 
@@ -527,7 +529,7 @@ Tipos de empuje que la IA debe alternar:
 
 - La Orden del Umbral intenta una apertura parcial del sello, no el final absoluto del mundo.
 - Los tres motores romanticos deben tener intereses contradictorios:
-  - Lucien quiere proteger a Sandra sin revelar su culpa con Elara.
+  - Lucien quiere proteger a Sandra sin revelar la culpa heredada de la Casa Veyrath con Elara.
   - Kael quiere sacarla de alli aunque eso impida respuestas.
   - Aurelian quiere que Sandra elija conscientemente, aunque el precio sea alto.
 - Los amigos tienen que importar: Nora identifica la trampa, Izan oye a Elara, Mara bloquea un ataque, Theo rompe una cerradura o mezcla una solucion desesperada.
@@ -589,7 +591,7 @@ No revelar estos secretos pronto. Deben salir como pistas, contradicciones y esc
 
 - Elara no abandono a Sandra por voluntad propia.
 - Dario conocia Valdralis y estuvo implicado en la huida de Elara.
-- Lucien ayudo a Elara, pero tambien fallo cuando ella mas lo necesitaba.
+- La Casa Veyrath ayudo a Elara, pero tambien fallo cuando ella mas lo necesitaba. Lucien no estuvo alli; ha heredado una culpa familiar que no entiende del todo.
 - Kael pertenece a una manada que podria exigir la muerte de Sandra si el sello despierta.
 - Aurelian puede abrir caminos hacia el Umbral, pero todo camino fae cobra algo.
 - La Orden del Umbral tiene miembros entre profesores y alumnos.
