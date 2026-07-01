@@ -12,6 +12,7 @@ El proyecto usa dos bots:
 1. Crea un archivo `.env` a partir de `.env.example`.
 2. Rellena `TOKEN_NARRADOR`, `TOKEN_CONTROL`, `MI_CHAT_ID` y `OPENAI_API_KEY`.
 3. `SANDRA_CHAT_ID` puede quedarse vacio: se captura cuando Sandra escribe `/start` al narrador.
+4. En Railway, usa Postgres y configura `DATABASE_URL`. Es la memoria durable de la partida.
 
 Instalacion:
 
@@ -62,10 +63,13 @@ Sandra escribe al narrador como si escribiera una novela. El bot:
 
 Los mensajes de Sandra se agrupan durante `MESSAGE_BUFFER_SECONDS` segundos. Si Sandra manda varias frases seguidas, el bot espera 25 segundos desde el ultimo mensaje y responde a todo junto.
 
-La partida guarda memoria de dos formas:
+La partida guarda memoria de tres formas:
 
-- `data/data.json`: estado estructurado usado por la IA.
+- Postgres `app_state`: estado estructurado durable usado por la IA.
+- Postgres `story_messages`: log completo de mensajes y respuestas.
 - `data/memoria_actual.md`: resumen legible para revisar como humano.
+
+`data/data.json` queda como copia espejo/respaldo local. En Railway, la memoria importante debe estar en Postgres.
 
 ## Capitulos
 
@@ -112,6 +116,7 @@ MI_CHAT_ID=...
 SANDRA_CHAT_ID=
 OPENAI_API_KEY=...
 OPENAI_MODEL=gpt-5.5
+DATABASE_URL=postgresql://...
 DATA_FILE=/app/data/data.json
 MEMORY_MD_PATH=/app/data/memoria_actual.md
 APP_TIMEZONE=Europe/Madrid
@@ -132,3 +137,8 @@ MESSAGE_BUFFER_SECONDS=25
 ```
 
 Para persistencia simple en Railway, crea un Volume y monta `/app/data`.
+
+Para la partida real, crea tambien un plugin Postgres en Railway. El bot creara automaticamente:
+
+- `app_state`
+- `story_messages`

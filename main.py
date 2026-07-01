@@ -8,8 +8,10 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
+import psycopg
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
+from psycopg.types.json import Jsonb
 from telegram import Update
 from telegram.constants import ChatAction
 from telegram.ext import (
@@ -37,6 +39,7 @@ MI_CHAT_ID = os.getenv("MI_CHAT_ID")
 SANDRA_CHAT_ID = os.getenv("SANDRA_CHAT_ID")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.5")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 DATA_FILE = Path(os.getenv("DATA_FILE", "data/data.json"))
 MEMORY_MD_PATH = Path(os.getenv("MEMORY_MD_PATH", "data/memoria_actual.md"))
@@ -77,6 +80,7 @@ narrador_app: Application | None = None
 stop_event: asyncio.Event | None = None
 sandra_message_buffers: dict[int, list[str]] = {}
 sandra_message_tasks: dict[int, asyncio.Task] = {}
+DB_READY = False
 
 
 def require_env(name: str) -> str:
@@ -139,7 +143,7 @@ def default_data() -> dict[str, Any]:
     }
 
 
-def load_data() -> dict[str, Any]:
+def file_load_data() -> dict[str, Any]:
     if not DATA_FILE.exists():
         return default_data()
     try:
@@ -155,7 +159,106 @@ def load_data() -> dict[str, Any]:
     return data
 
 
+def db_enabled() -> bool:
+    return bool(DATABASE_URL and DB_READY)
+
+
+def db_connect() -> psycopg.Connection:
+    if not DATABASE_URL:
+        raise RuntimeError("DATABASE_URL no configurada")
+    return psycopg.connect(DATABASE_URL)
+
+
+def init_database() -> None:
+    global DB_READY
+    if not DATABASE_URL:
+        logger.warning("DATABASE_URL no configurada; usando memoria en archivo")
+        return
+
+    try:
+        with db_connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    create table if not exists app_state (
+                        key text primary key,
+                        data jsonb not null,
+                        updated_at timestamptz not null default now()
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    create table if not exists story_messages (
+                        id bigserial primary key,
+                        role text not null,
+                        text text not null,
+                        created_at timestamptz not null default now()
+                    )
+                    """
+                )
+                cur.execute(
+                    """
+                    create index if not exists story_messages_created_at_idx
+                    on story_messages (created_at desc, id desc)
+                    """
+                )
+                cur.execute("select data from app_state where key = 'main'")
+                row = cur.fetchone()
+                if not row:
+                    seed = file_load_data()
+                    cur.execute(
+                        """
+                        insert into app_state (key, data, updated_at)
+                        values ('main', %s, now())
+                        """,
+                        (Jsonb(seed),),
+                    )
+                    for item in seed.get("history", []):
+                        role = str(item.get("role", "desconocido"))
+                        text = str(item.get("text", "")).strip()
+                        if text:
+                            cur.execute(
+                                "insert into story_messages (role, text) values (%s, %s)",
+                                (role, text),
+                            )
+        DB_READY = True
+        logger.info("Postgres inicializado para memoria durable")
+    except Exception:
+        logger.exception("No se pudo inicializar Postgres")
+        raise
+
+
+def load_data() -> dict[str, Any]:
+    if db_enabled():
+        with db_connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("select data from app_state where key = 'main'")
+                row = cur.fetchone()
+                if row:
+                    loaded = row[0]
+                    data = default_data()
+                    data.update(loaded)
+                    if not data.get("state"):
+                        data["state"] = default_state()
+                    return data
+    return file_load_data()
+
+
 def save_data(data: dict[str, Any]) -> None:
+    if db_enabled():
+        with db_connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    insert into app_state (key, data, updated_at)
+                    values ('main', %s, now())
+                    on conflict (key) do update
+                    set data = excluded.data,
+                        updated_at = now()
+                    """,
+                    (Jsonb(data),),
+                )
     DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
     DATA_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     write_memory_markdown(data)
@@ -295,6 +398,13 @@ Actualizado: {updated_at}
 
 
 def append_history(role: str, text: str) -> None:
+    if db_enabled():
+        with db_connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "insert into story_messages (role, text) values (%s, %s)",
+                    (role, text),
+                )
     data = load_data()
     data.setdefault("history", []).append({"role": role, "text": text, "at": now_iso()})
     data["history"] = data["history"][-MAX_HISTORY:]
@@ -315,6 +425,22 @@ def read_lore() -> str:
 
 
 def recent_history_text(limit: int = RECENT_HISTORY_FOR_AI) -> str:
+    if db_enabled():
+        with db_connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    select role, text
+                    from story_messages
+                    order by created_at desc, id desc
+                    limit %s
+                    """,
+                    (limit,),
+                )
+                rows = list(reversed(cur.fetchall()))
+        if rows:
+            return "\n".join(f"{role}: {str(text).strip()}" for role, text in rows)
+
     history = load_data().get("history", [])[-limit:]
     if not history:
         return "No hay historial previo."
@@ -771,6 +897,7 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         f"- Pausado: {'si' if data.get('paused') else 'no'}",
         f"- OpenAI: {'configurado' if openai_available() else 'pendiente'}",
         f"- Modelo: {OPENAI_MODEL}",
+        f"- Postgres: {'activo' if db_enabled() else 'no configurado'}",
         f"- Capitulo: {state.get('chapter', 'Pendiente')}",
         f"- Primer curso terminado: {'si' if state.get('season_complete') else 'no'}",
         f"- Mensajes guardados: {len(data.get('history', []))}",
@@ -1169,6 +1296,7 @@ async def stop_app(app: Application) -> None:
 async def main() -> None:
     global control_app, narrador_app, stop_event
 
+    init_database()
     control_app = build_control_app()
     narrador_app = build_narrador_app()
     stop_event = asyncio.Event()
