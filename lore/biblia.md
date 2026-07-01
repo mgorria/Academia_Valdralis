@@ -57,6 +57,38 @@ Zonas importantes:
 - El Ala Norte: prohibida desde la desaparicion de Elara.
 - Las Criptas del Umbral: bajo la academia, donde duerme el sello antiguo.
 
+## Magia ambiental de Valdralis
+
+Valdralis debe sentirse magica incluso cuando Sandra no esta lanzando hechizos. El edificio reacciona, recuerda, opina y se defiende. La IA debe usar detalles de magia ambiental en casi todas las escenas: no como explicacion larga, sino como pequenos fenomenos vivos.
+
+Reglas de ambiente:
+
+- Las escaleras no solo se mueven: cambian de destino si alguien miente, llega tarde o intenta evitar a quien desea ver.
+- Los retratos hablan, cotillean, guardan secretos, se cambian de marco y a veces se niegan a mirar.
+- Las armaduras vacias hacen rondas nocturnas y se inclinan ante linajes antiguos sin que nadie se lo pida.
+- Las velas se encienden por emocion: azul con miedo, rojo con deseo, violeta con magia velada, blanco con presencia espectral.
+- Los espejos no reflejan siempre el presente. Algunos muestran una version posible de quien mira.
+- Las puertas tienen humor. Algunas exigen contrasenas, otras una verdad, otras un recuerdo o una gota de sangre.
+- Las campanas no solo marcan horas: anuncian cambios de turno, peligro lunar, llegada de cartas o ruptura de juramentos.
+- Los pasillos cambian de longitud segun la prisa, el miedo o la culpa.
+- Las sombras de Valdralis no siempre obedecen a los cuerpos que las proyectan.
+
+Lugares con comportamiento propio:
+
+- El Atrio de las Cartas: las cartas vuelan como aves oscuras, se posan en hombros, muerden dedos si alguien intenta abrir correspondencia ajena y arden en tinta si se les miente.
+- La Escalera de las Trece Vueltas: nunca tiene las mismas trece vueltas. A veces deja a Sandra cerca de alguien que necesita ver; otras la lleva donde el castillo cree que debe estar.
+- El Corredor de los Retratos Insomnes: los cuadros no duermen. Antiguos alumnos comentan peinados, romances, duelos y secretos familiares. Algunos conocieron a Elara.
+- El Comedor de los Turnos: cambia el menu segun especie y hora. A mediodia huele a pan y fruta; al anochecer sirve copas oscuras a vampiros; antes de luna llena las mesas se llenan de carne, sal y hierbas amargas.
+- La Biblioteca Sellada: los libros se desplazan si oyen su propio titulo. Algunos muerden, otros lloran tinta, otros solo se abren a quien necesita la verdad y no a quien la quiere.
+- El Invernadero de Cristal Negro: las plantas giran hacia el deseo, el miedo o la sangre. Las rosas lunares susurran nombres de amantes futuros. Las ortigas de juramento se cierran sobre quien promete en falso.
+- El Patio de Luna: de dia parece un patio de entrenamiento; de noche la piedra muestra garras antiguas y circulos de duelo. En luna llena nadie deberia cruzarlo solo.
+- La Galeria Carmesi: retratos vampiricos, copas selladas, cortinas pesadas y ventanas que no dejan pasar sol. La temperatura baja cuando Lucien entra.
+- La Sala de las Puertas Practicas: aula de Encantamientos donde las puertas cambian de cerradura cada minuto. Es ideal para que Sandra practique apertura, silencio, desvio y marca.
+- El Aula de Duelos y Protecciones: el suelo absorbe sangre, los maniquies aprenden de los alumnos y los escudos fallidos quedan flotando como burbujas rotas.
+- La Torre del Reloj Sin Minutos: marca momentos, no horas. Su campana suena cuando alguien toma una decision que cambia un pacto.
+- Los Banhos de Niebla: banhos antiguos separados por turnos, llenos de vapor plateado. Sirven para curas, confesiones, tension romantica contenida y conversaciones a media voz.
+- El Ala Norte: no esta abandonada, esta esperando. El polvo vuelve aunque se limpie, las puertas respiran y algunas aulas repiten la ultima clase que se dio antes de la desaparicion de Elara.
+
 ## Magia de Sandra
 
 Sandra llega creyendo que tal vez es una bruja tardia. La academia la inscribe provisionalmente entre los humanos con magia bruta: alumnos que no son criaturas, pero cuya naturaleza magica todavia no ha sido clasificada.
@@ -130,16 +162,96 @@ Consecuencias de la ceremonia:
 
 ## Clases
 
-- Pactos y Juramentos: magia de palabras, promesas, contratos y consecuencias.
-- Anatomia de lo Imposible: vampiros, licantropos, fae, espectros y maldiciones.
-- Sangre, Linaje y Memoria: genealogia magica y poderes heredados.
-- Defensa contra Hambres Antiguas: deseo, miedo, manipulacion, sed y posesion.
-- Encantamientos Practicos: levitacion, luz, silencio, apertura, marcas y utilidad cotidiana.
-- Duelos y Protecciones: escudos, impulsos, ataduras, desvio y reaccion ante ataques.
-- Cartografia de Sombras: mapas vivos, puertas ocultas y caminos que no existen de dia.
-- Herbolaria Lunar: plantas que curan, intoxican, revelan o despiertan emociones.
+- Pactos y Juramentos: magia de palabras, promesas, contratos y consecuencias. Profesora: Mireya Noct.
+- Anatomia de lo Imposible: vampiros, licantropos, fae, espectros y maldiciones. Profesor: Octavian Rook.
+- Sangre, Linaje y Memoria: genealogia magica y poderes heredados. Profesora: Seraphine Vale.
+- Defensa contra Hambres Antiguas: deseo, miedo, manipulacion, sed y posesion. Profesor: Damaso Veyrath.
+- Encantamientos Practicos: levitacion, luz, silencio, apertura, marcas y utilidad cotidiana. Profesora: Alba Cendra.
+- Duelos y Protecciones: escudos, impulsos, ataduras, desvio y reaccion ante ataques. Profesor: Garrick Thorn.
+- Cartografia de Sombras: mapas vivos, puertas ocultas y caminos que no existen de dia. Profesor: Silas Merrow.
+- Herbolaria Lunar: plantas que curan, intoxican, revelan o despiertan emociones. Profesora: Bruma Lark.
 
 Las clases deben servir para revelar mundo y poderes mediante escenas, no mediante explicaciones largas.
+
+## Claustro de profesores
+
+Los profesores deben ser personajes recurrentes, no voces genericas. Cada uno tiene una forma de hablar, una clase con personalidad y una relacion distinta con Sandra.
+
+### Rector Severin Cael
+
+Director de Valdralis. Elegante, severo, diplomatico. Habla como si cada frase pudiera convertirse en acta oficial. Sabe mas de Elara de lo que admite y cree que proteger la institucion justifica ocultar verdades.
+
+Funcion narrativa: autoridad, secretos, presion politica.
+
+### Profesora Mireya Noct
+
+Docente de Pactos y Juramentos. Parece protectora, casi maternal, pero estudia a Sandra como si fuera una llave viva. Sonrie con calma incluso cuando esta manipulando una situacion.
+
+Clase: los alumnos escriben promesas en tinta viva, rompen juramentos menores, sellan cajas que solo se abren con verdades y aprenden que toda palabra magica deja deuda.
+
+Funcion narrativa: mentora ambigua, posible antagonista, tentacion de obedecer.
+
+### Profesor Octavian Rook
+
+Profesor de Anatomia de lo Imposible. Delgado, palido, con guantes negros y una voz seca. Tiene vitrinas con colmillos, plumas fae, pieles mudadas de licantropo y frascos que no deberian moverse.
+
+Clase: diseccion simbolica de criaturas, debilidades sobrenaturales, protocolos de supervivencia. Nunca permite crueldad gratuita, pero tampoco suaviza el peligro.
+
+Funcion narrativa: exposicion inquietante, pistas sobre especies, sustos controlados.
+
+### Profesora Seraphine Vale
+
+Profesora de Sangre, Linaje y Memoria. Antigua amiga o rival de Elara. Lleva anillos de genealogia que se calientan cerca de linajes poderosos. Trata a Sandra con una mezcla de pena y cautela.
+
+Clase: arboles familiares vivos, espejos de sangre, recuerdos heredados, nombres borrados. Es una de las clases donde el apellido Valmorien pesa mas.
+
+Funcion narrativa: pistas de la madre, historia familiar, verdades incomodas.
+
+### Profesor Damaso Veyrath
+
+Profesor de Defensa contra Hambres Antiguas. Vampiro adulto, pariente lejano de Lucien o ligado a su casa. Amable en apariencia, aterrador cuando explica el hambre, la sed, el miedo y el deseo como fuerzas magicas.
+
+Clase: resistir encantamientos de atraccion, reconocer manipulacion, defender la mente ante depredadores, no confundir deseo con obediencia.
+
+Funcion narrativa: tension vampirica, advertencias sobre Lucien, peligro elegante.
+
+### Profesora Alba Cendra
+
+Profesora de Encantamientos Practicos. Rapida, luminosa, impaciente con el drama y muy buena detectando talento bruto. Sus aulas estan llenas de tazas levitando, cerraduras cantantes y plumas que corrigen insultando.
+
+Clase: levitacion, luz, silencio, apertura, marcas, reparacion, objetos cotidianos encantados. Ideal para escenas con humor y progreso visible.
+
+Funcion narrativa: entrenamiento util, alivio, confianza de Sandra.
+
+### Profesor Garrick Thorn
+
+Profesor de Duelos y Protecciones. Exguardian de la academia, enorme, lleno de cicatrices rituales. No grita casi nunca; no le hace falta. Cree que un escudo bien hecho dice mas de una persona que una confesion.
+
+Clase: escudos, impulsos, ataduras, desvio, proteccion en grupo, reaccion bajo miedo. Puede poner a Sandra bajo presion sin humillarla.
+
+Funcion narrativa: accion, combate, disciplina, escenas donde Kael puede destacar.
+
+### Profesor Silas Merrow
+
+Profesor de Cartografia de Sombras. Siempre parece perdido, pero nunca llega tarde. Tiene mapas tatuados en los dedos y habla con puertas como si fueran viejas conocidas.
+
+Clase: mapas vivos, pasillos que mienten, rutas imposibles, puertas que cobran recuerdos, orientacion en lugares cambiantes.
+
+Funcion narrativa: misterio, caminos secretos, acceso al Ala Norte.
+
+### Profesora Bruma Lark
+
+Profesora de Herbolaria Lunar. Dulce hasta que alguien toca una planta sin permiso. Huele a tierra mojada y lavanda amarga. Sus plantas reaccionan al deseo, al miedo y a las mentiras.
+
+Clase: venenos, antidotos, flores lunares, perfumes de verdad, raices que atan sombras, plantas que guardan recuerdos.
+
+Funcion narrativa: curas, venenos, escenas sensuales con flores/perfumes, pistas biologicas.
+
+### Celador Orsian Mallo
+
+No es profesor, pero todos le temen un poco. Celador de pasillos y llaves. Lleva un manojo de llaves que discuten entre ellas y una linterna que ilumina solo a quien esta rompiendo una norma.
+
+Funcion narrativa: persecuciones, toques de queda, humor seco, informacion de pasillos.
 
 ## Grupo de amigos
 
@@ -222,10 +334,12 @@ La Orden del Umbral es una faccion secreta dentro y fuera de Valdralis. Cree que
 
 La Orden no debe aparecer como "los malos" desde el principio. Al comienzo son rumores, simbolos, profesores demasiado atentos, estudiantes que callan, cartas sin remitente y puertas que se abren solas.
 
-Antagonistas posibles:
+Piezas antagonicas posibles:
 
-- Profesora Mireya Noct, docente de Pactos y Juramentos. Parece protectora, pero estudia a Sandra como si fuera una llave.
-- Rector Severin Cael, director de Valdralis. Sabe mas de Elara de lo que admite.
+- Mireya Noct puede actuar como mentora ambigua o agente indirecta de la Orden.
+- Severin Cael puede ocultar verdades por miedo a que Valdralis pierda control politico.
+- Damaso Veyrath puede saber mas de la deuda de Lucien con Elara de lo que aparenta.
+- Algunos retratos, llaves y puertas de la academia obedecen todavia a antiguos miembros de la Orden.
 - Dario Veyr, padre de Sandra. Cruel y controlador, pero no ignorante. Puede reaparecer con una verdad incomoda: no todo lo que temia era imaginario.
 
 ## Estructura de la primera temporada
@@ -304,6 +418,8 @@ Tipos de empuje que la IA debe alternar:
 
 - Amenaza externa: criatura, sombra, alumno hostil, profesor demasiado atento, puerta prohibida, ataque o persecucion.
 - Evento academico: clase, ceremonia, castigo, norma, prueba de magia, seleccion de asignaturas, toque de queda.
+- Magia ambiental: escalera que cambia, retrato que revela algo, puerta que exige una verdad, campana que anuncia peligro, libro que muerde o vela que cambia de color.
+- Profesor recurrente: usar a los docentes con personalidad propia para empujar clases, castigos, advertencias y pistas.
 - Apoyo de amigos: Nora da informacion, Izan oye algo, Mara propone moverse, Theo consigue una herramienta.
 - Tension romantica: rescate, choque verbal, celos, proteccion, secreto compartido, contacto fisico breve, contradiccion emocional.
 - Misterio: pista de Elara, simbolo del Umbral, carta alterada, recuerdo en un objeto, rumor sobre Valmorien.
