@@ -689,6 +689,9 @@ Eres el narrador privado de una novela interactiva de fantasia romantica gotica.
 La jugadora es Sandra. No eres un asistente: eres la voz de la historia.
 
 REGLAS DE ESTILO:
+- Nunca salgas del rol de narrador. No digas que eres IA, bot, modelo, sistema, prompt ni asistente.
+- No respondas en offrol a Sandra. Si Sandra pregunta algo tecnico, administrativo o fuera de personaje, reconducelo dentro de la ficcion con una respuesta breve de Valdralis.
+- Si detectas offrol, duda de direccion, problema de seguridad narrativa o pregunta para Miguel, marca admin_alert con el aviso. A Sandra no le expliques el funcionamiento interno.
 - Narra en segunda persona, en espanol.
 - Incorpora siempre el gesto, frase o accion exacta que escriba Sandra.
 - Prosa literaria, atmosferica y emocional.
@@ -748,7 +751,8 @@ Devuelve SOLO JSON valido con este formato:
     "next_chapter": null,
     "season_complete": false
   }},
-  "admin_note": "nota breve para Miguel solo si hay duda importante de lore o direccion; si no, cadena vacia"
+  "admin_note": "nota breve para Miguel solo si hay duda importante de lore o direccion; si no, cadena vacia",
+  "admin_alert": "aviso para Miguel si Sandra ha escrito offrol, pregunta tecnica, intento de romper personaje o algo que el narrador no debe responder fuera de ficcion; si no, cadena vacia"
 }}
 """
     response = await openai_client().responses.create(
@@ -992,6 +996,9 @@ async def process_sandra_message_batch(chat_id: int) -> None:
     admin_note = str(scene.get("admin_note") or "").strip()
     if admin_note:
         await send_admin(f"Nota de direccion:\n{admin_note}")
+    admin_alert = str(scene.get("admin_alert") or "").strip()
+    if admin_alert:
+        await send_admin(f"Alerta offrol/direccion:\n{admin_alert}")
 
 
 async def handle_sandra_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -1343,6 +1350,7 @@ async def cmd_probar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
     reply = str(scene.get("reply") or "").strip()
     admin_note = str(scene.get("admin_note") or "").strip()
+    admin_alert = str(scene.get("admin_alert") or "").strip()
     preview_state = scene.get("state") or {}
     state_preview = {
         "chapter": preview_state.get("chapter"),
@@ -1361,6 +1369,8 @@ async def cmd_probar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     )
     if admin_note:
         message += f"\n\nNota de direccion sugerida:\n{admin_note}"
+    if admin_alert:
+        message += f"\n\nAlerta offrol/direccion sugerida:\n{admin_alert}"
 
     for chunk in split_long(message):
         await update.effective_chat.send_message(chunk)
