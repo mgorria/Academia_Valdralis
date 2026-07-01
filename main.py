@@ -56,6 +56,7 @@ STORY_START_HOUR = int(os.getenv("STORY_START_HOUR", "0"))
 STORY_START_MINUTE = int(os.getenv("STORY_START_MINUTE", "1"))
 MAX_HISTORY = int(os.getenv("MAX_HISTORY", "500"))
 RECENT_HISTORY_FOR_AI = int(os.getenv("RECENT_HISTORY_FOR_AI", "24"))
+MESSAGE_BUFFER_SECONDS = int(os.getenv("MESSAGE_BUFFER_SECONDS", "25"))
 
 LORE_PATH = Path("lore/biblia.md")
 CHAPTER_TITLES = {
@@ -74,6 +75,8 @@ CHAPTER_TITLES = {
 control_app: Application | None = None
 narrador_app: Application | None = None
 stop_event: asyncio.Event | None = None
+sandra_message_buffers: dict[int, list[str]] = {}
+sandra_message_tasks: dict[int, asyncio.Task] = {}
 
 
 def require_env(name: str) -> str:
@@ -625,6 +628,82 @@ async def narrador_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         )
 
 
+async def process_sandra_message_after_idle(chat_id: int) -> None:
+    try:
+        await asyncio.sleep(MESSAGE_BUFFER_SECONDS)
+        sandra_message_tasks.pop(chat_id, None)
+        await process_sandra_message_batch(chat_id)
+    except asyncio.CancelledError:
+        return
+
+
+async def process_sandra_message_batch(chat_id: int) -> None:
+    if not narrador_app:
+        return
+
+    messages = sandra_message_buffers.pop(chat_id, [])
+    sandra_message_tasks.pop(chat_id, None)
+    clean_messages = [message.strip() for message in messages if message.strip()]
+    if not clean_messages:
+        return
+
+    text = "\n".join(clean_messages)
+    append_history("Sandra", text)
+    await send_admin(f"Sandra ({len(clean_messages)} mensaje/s agrupado/s):\n{text}")
+
+    data = load_data()
+    if data.get("paused"):
+        await narrador_app.bot.send_message(chat_id=chat_id, text="La historia esta pausada un momento.")
+        return
+
+    if (data.get("state") or {}).get("season_complete"):
+        reply = course_complete_reply()
+        await narrador_app.bot.send_message(chat_id=chat_id, text=reply)
+        await send_admin(
+            "Sandra ha escrito despues del final del primer curso. No he llamado a la IA.\n\n"
+            f"Sandra:\n{text}"
+        )
+        return
+
+    if not openai_available():
+        await narrador_app.bot.send_message(
+            chat_id=chat_id,
+            text="La tinta de Valdralis se queda inmovil. Falta configurar la llave de la historia.",
+        )
+        await send_admin("Falta OPENAI_API_KEY; no puedo responder como narrador.")
+        return
+
+    await narrador_app.bot.send_chat_action(chat_id, ChatAction.TYPING)
+    try:
+        scene = await generate_scene(text)
+    except Exception as exc:
+        logger.exception("Error generando escena")
+        await narrador_app.bot.send_message(
+            chat_id=chat_id,
+            text="Algo en Valdralis se ha cerrado de golpe. Miguel revisara la escena.",
+        )
+        await send_admin(f"Error generando escena: {type(exc).__name__}: {exc}")
+        return
+
+    reply = str(scene["reply"]).strip()
+    data = load_data()
+    previous_state = data.get("state") or default_state()
+    scene_state = scene.get("state") if isinstance(scene.get("state"), dict) else {}
+    data["state"] = {**previous_state, **scene_state}
+    chapter_banner = apply_chapter_transition(data, scene.get("chapter_transition"))
+    if chapter_banner:
+        reply = f"{reply}\n\n---\n\n{chapter_banner}"
+    save_data(data)
+    append_history("Narrador", reply)
+
+    for chunk in split_long(reply):
+        await narrador_app.bot.send_message(chat_id=chat_id, text=chunk)
+
+    admin_note = str(scene.get("admin_note") or "").strip()
+    if admin_note:
+        await send_admin(f"Nota de direccion:\n{admin_note}")
+
+
 async def handle_sandra_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not update.effective_chat or not update.message:
         return
@@ -666,44 +745,19 @@ async def handle_sandra_message(update: Update, context: ContextTypes.DEFAULT_TY
         )
         return
 
-    append_history("Sandra", text)
-    await send_admin(f"Sandra:\n{text}")
+    chat_id = update.effective_chat.id
+    sandra_message_buffers.setdefault(chat_id, []).append(text)
+    existing_task = sandra_message_tasks.get(chat_id)
+    if existing_task and not existing_task.done():
+        existing_task.cancel()
+    sandra_message_tasks[chat_id] = asyncio.create_task(process_sandra_message_after_idle(chat_id))
 
-    if not openai_available():
-        await update.effective_chat.send_message(
-            "La tinta de Valdralis se queda inmovil. Falta configurar la llave de la historia."
+    if len(sandra_message_buffers[chat_id]) == 1:
+        await context.bot.send_chat_action(chat_id, ChatAction.TYPING)
+        await send_admin(
+            "Sandra ha empezado un lote de mensajes. Esperare "
+            f"{MESSAGE_BUFFER_SECONDS} segundos por si escribe mas."
         )
-        await send_admin("Falta OPENAI_API_KEY; no puedo responder como narrador.")
-        return
-
-    await context.bot.send_chat_action(update.effective_chat.id, ChatAction.TYPING)
-    try:
-        scene = await generate_scene(text)
-    except Exception as exc:
-        logger.exception("Error generando escena")
-        await update.effective_chat.send_message(
-            "Algo en Valdralis se ha cerrado de golpe. Miguel revisara la escena."
-        )
-        await send_admin(f"Error generando escena: {type(exc).__name__}: {exc}")
-        return
-
-    reply = str(scene["reply"]).strip()
-    data = load_data()
-    previous_state = data.get("state") or default_state()
-    scene_state = scene.get("state") if isinstance(scene.get("state"), dict) else {}
-    data["state"] = {**previous_state, **scene_state}
-    chapter_banner = apply_chapter_transition(data, scene.get("chapter_transition"))
-    if chapter_banner:
-        reply = f"{reply}\n\n---\n\n{chapter_banner}"
-    save_data(data)
-    append_history("Narrador", reply)
-
-    for chunk in split_long(reply):
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=chunk)
-
-    admin_note = str(scene.get("admin_note") or "").strip()
-    if admin_note:
-        await send_admin(f"Nota de direccion:\n{admin_note}")
 
 
 async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

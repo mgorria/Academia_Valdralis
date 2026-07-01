@@ -60,6 +60,8 @@ Sandra escribe al narrador como si escribiera una novela. El bot:
 
 `/probar` solo responde al bot de control. No envia nada a Sandra y no guarda memoria.
 
+Los mensajes de Sandra se agrupan durante `MESSAGE_BUFFER_SECONDS` segundos. Si Sandra manda varias frases seguidas, el bot espera 25 segundos desde el ultimo mensaje y responde a todo junto.
+
 La partida guarda memoria de dos formas:
 
 - `data/data.json`: estado estructurado usado por la IA.
@@ -126,6 +128,7 @@ PRELUDE_HOUR=21
 PRELUDE_MINUTE=30
 STORY_START_HOUR=0
 STORY_START_MINUTE=1
+MESSAGE_BUFFER_SECONDS=25
 ```
 
 Para persistencia simple en Railway, crea un Volume y monta `/app/data`.
