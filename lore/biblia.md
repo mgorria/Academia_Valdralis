@@ -174,7 +174,13 @@ Hechizo protector:
 Guia para descubrirlo:
 
 - Garrick no debe decirle directamente "di oso men" al principio.
-- Debe llevarla con preguntas: "Que palabras usabas cuando tenias miedo?", "Como llamabas a lo que querias que viniera a protegerte?", "No busques un conjuro bonito. Busca el primero. El que decias sola."
+- Debe guiarla por pistas escalonadas, de menos a mas claras:
+  1. "No busques un conjuro bonito. Busca el primero. El que decias sola."
+  2. "Que palabras usabas cuando tenias miedo?"
+  3. "Son dos palabras. Cortas. Las conoces."
+  4. "Repitelas. No las pienses como magia. Diles que vengan."
+  5. Pista final, solo si Sandra sigue bloqueada: "Tu mantra."
+- Garrick puede anadir: "Como llamabas a lo que querias que viniera a protegerte?"
 - Si Sandra escribe "oso men", "oso ven" o algo muy cercano, el hechizo debe responder.
 - Si Sandra no lo adivina, Kilnip puede ayudar haciendo gestos de oso, hinchandose como una bolita furiosa o repitiendo sonidos torpes sin decirlo perfecto.
 - El momento debe sentirse emotivo y poderoso: Valdralis no le regala un arma, reconoce una defensa que Sandra ya llevaba dentro.
