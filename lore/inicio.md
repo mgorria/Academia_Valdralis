@@ -2,7 +2,7 @@ Sandra, feliz cumpleanos.
 
 Esta historia existe solo para ti.
 
-Solo necesitas una regla para jugar: tras cada texto, piensa "que hago, que diria o que sentiria?" y responde en un solo mensaje, con texto y enter. No tienes que elegir opciones ni entender reglas. Solo responde que haces, que dices o que sientes, y la historia seguira contigo.
+Solo necesitas una regla para jugar: tras cada texto, piensa "que hago, que diria o que sentiria?" y responde en un solo mensaje, con texto y enter. No tienes que elegir opciones ni entender reglas. Solo responde que haces, que dices o que sientes, y la historia seguira contigo. ¿y que puedes hacer? Todo. Mirar a tu alredor, buscar cosas útiles, andar, correr, pegar, pensar y dejar que tu otro yo razone por tí.
 
 Todo empieza con una noche que ya venia rota.
 
