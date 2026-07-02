@@ -1243,8 +1243,8 @@ async def send_story_start_message(*, manual: bool = False) -> bool:
         "completed_chapters": [],
         "season_complete": False,
         "location": "Casa de Dario",
-        "current_scene": "Sandra acaba de recibir la carta de Valdralis",
-        "next_suggested_scene": "Sandra decide si abre la carta, la esconde o escucha a su padre; si la abre, aparece Kilnip",
+        "current_scene": "Sandra esta encerrada en su habitacion tras discutir con Dario y acaba de oir la carta entrar por debajo de la puerta principal",
+        "next_suggested_scene": "Sandra decide si intenta salir, escucha la carta, busca otra salida o espera a que Dario se aleje",
     }
     save_data(data)
     await send_admin(f"Inicio de partida enviado a Sandra:\n{message}")

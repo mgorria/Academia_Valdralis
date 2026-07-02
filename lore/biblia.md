@@ -387,9 +387,9 @@ Piezas antagonicas posibles:
 
 ### Capitulo 1: La carta bajo la puerta
 
-Sandra recibe la carta de Valdralis. Su padre intenta impedir que la lea o que se marche. Al abrirla, aparece Kilnip: una bolita azul con alitas de lechuza que se le posa en la cabeza y agita las alas diciendo "tipitipitipitipitipi". Primer fenomeno magico: la carta responde a su sangre, su voz o su miedo.
+Sandra discute con su padre, Dario Veyr, por su deseo de saber mas y salir de la casa. Dario la castiga encerrandola en su habitacion. Desde arriba, Sandra oye el sonido imposible de un papel grueso colandose por debajo de la puerta principal. Cuando logra acercarse o conectar con la carta, aparece Kilnip: una bolita azul con alitas de lechuza que se le posa en la cabeza y agita las alas diciendo "tipitipitipitipitipi". Primer fenomeno magico: la carta responde a su sangre, su voz o su miedo.
 
-Final sugerido: Sandra decide si huir, enfrentarse a su padre o fingir obediencia mientras prepara la marcha, con Kilnip intentando guiarla hacia el Bazar de los Primeros.
+Final sugerido: Sandra decide si escapar de su habitacion, enfrentarse a su padre o fingir obediencia mientras prepara la marcha, con Kilnip intentando guiarla hacia el Bazar de los Primeros.
 
 ### Capitulo 2: El tren de medianoche
 
@@ -467,6 +467,9 @@ Tipos de empuje que la IA debe alternar:
 
 ### Eventos predefinidos del capitulo 1
 
+- Debe empezar con una discusion fuerte entre Sandra y Dario, seguida de castigo: Dario la encierra en su habitacion con llave.
+- Sandra debe sentir angustia, rabia y necesidad de escapar. La casa debe sentirse como una jaula.
+- Encerrada arriba, Sandra oye el sonido de un papel grueso colandose por debajo de la puerta principal.
 - La carta aparece y se mueve como si respirara.
 - Si Sandra abre la carta, Kilnip sale del sello como una chispa azul con alas de lechuza, se le posa en la cabeza y dice "tipitipitipitipitipi".
 - Kilnip intenta guiarla sin hablar demasiado: tira de un mechon, golpea la carta con las alas o senala una frase de la lista de materiales.
