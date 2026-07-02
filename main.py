@@ -3,7 +3,7 @@ import json
 import logging
 import os
 import signal
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -60,6 +60,7 @@ STORY_START_MINUTE = int(os.getenv("STORY_START_MINUTE", "1"))
 MAX_HISTORY = int(os.getenv("MAX_HISTORY", "500"))
 RECENT_HISTORY_FOR_AI = int(os.getenv("RECENT_HISTORY_FOR_AI", "24"))
 MESSAGE_BUFFER_SECONDS = int(os.getenv("MESSAGE_BUFFER_SECONDS", "25"))
+CHAPTER_REVIEW_PAUSE_DAYS = int(os.getenv("CHAPTER_REVIEW_PAUSE_DAYS", "14"))
 
 LORE_PATH = Path("lore/biblia.md")
 CHAPTER_TITLES = {
@@ -142,6 +143,7 @@ def default_data() -> dict[str, Any]:
         "prelude_enabled": PRELUDE_ENABLED_DEFAULT,
         "sent_preludes": [],
         "story_start_sent": False,
+        "chapter_review_pause": None,
     }
 
 
@@ -296,6 +298,48 @@ def course_complete_reply() -> str:
         "nombres que nadie se atreve a decir en voz alta y miradas que quedaron demasiado "
         "cerca de convertirse en algo mas.\n\n"
         "Cuando llegue el curso que viene, la carta volvera a moverse."
+    )
+
+
+def activate_chapter_review_pause(data: dict[str, Any], completed_chapter: int) -> str:
+    if CHAPTER_REVIEW_PAUSE_DAYS <= 0 or completed_chapter >= 10:
+        return ""
+    until_date = datetime.now(APP_TIMEZONE).date() + timedelta(days=CHAPTER_REVIEW_PAUSE_DAYS)
+    data["chapter_review_pause"] = {
+        "active": True,
+        "completed_chapter": completed_chapter,
+        "until_date": until_date.isoformat(),
+        "created_at": now_iso(),
+    }
+    return until_date.isoformat()
+
+
+def chapter_review_pause_is_active(data: dict[str, Any]) -> bool:
+    pause = data.get("chapter_review_pause")
+    if not isinstance(pause, dict) or not pause.get("active"):
+        return False
+    try:
+        until_date = date.fromisoformat(str(pause.get("until_date")))
+    except ValueError:
+        return False
+    if datetime.now(APP_TIMEZONE).date() >= until_date:
+        data["chapter_review_pause"] = None
+        save_data(data)
+        return False
+    return True
+
+
+def chapter_review_pause_reply(data: dict[str, Any]) -> str:
+    pause = data.get("chapter_review_pause") or {}
+    completed = pause.get("completed_chapter")
+    until_date = pause.get("until_date")
+    chapter = chapter_label(int(completed)) if str(completed).isdigit() else "El capitulo"
+    return (
+        f"{chapter} ya ha cerrado sus puertas.\n\n"
+        "Valdralis guarda silencio entre umbrales. Algunas historias necesitan reposar "
+        "antes de abrir la siguiente puerta.\n\n"
+        f"Cuando la niebla vuelva a levantarse, la historia continuara."
+        + (f"\n\nFecha prevista: {until_date}." if until_date else "")
     )
 
 
@@ -931,6 +975,15 @@ async def process_sandra_message_batch(chat_id: int) -> None:
         await narrador_app.bot.send_message(chat_id=chat_id, text="La historia esta pausada un momento.")
         return
 
+    if chapter_review_pause_is_active(data):
+        reply = chapter_review_pause_reply(data)
+        await narrador_app.bot.send_message(chat_id=chat_id, text=reply)
+        await send_admin(
+            "Sandra ha escrito durante una pausa de revision de capitulo. No he llamado a la IA.\n\n"
+            f"Sandra:\n{text}"
+        )
+        return
+
     if (data.get("state") or {}).get("season_complete"):
         reply = course_complete_reply()
         await narrador_app.bot.send_message(chat_id=chat_id, text=reply)
@@ -989,6 +1042,19 @@ async def process_sandra_message_batch(chat_id: int) -> None:
     chapter_banner = apply_chapter_transition(data, transition)
     if chapter_banner:
         reply = f"{reply}\n\n---\n\n{chapter_banner}"
+    if completed_chapter and not (data.get("state") or {}).get("season_complete"):
+        pause_until = activate_chapter_review_pause(data, completed_chapter)
+        if pause_until:
+            reply = (
+                f"{reply}\n\n"
+                "Valdralis guarda silencio entre umbrales. La siguiente puerta se abrira cuando la niebla este lista."
+            )
+            await send_admin(
+                f"Pausa de revision activada tras {chapter_label(completed_chapter)}.\n"
+                f"- Hasta: {pause_until}\n"
+                "- Usa /capitulos para revisar resumenes, /memoria para ver estado, "
+                "/corregir_memoria para ajustar canon o /reanudar para abrir antes."
+            )
     save_data(data)
     append_history("Narrador", reply)
 
@@ -1022,6 +1088,15 @@ async def handle_sandra_message(update: Update, context: ContextTypes.DEFAULT_TY
         return
     if data.get("paused"):
         await update.effective_chat.send_message("La historia esta pausada un momento.")
+        return
+
+    if chapter_review_pause_is_active(data):
+        reply = chapter_review_pause_reply(data)
+        await update.effective_chat.send_message(reply)
+        await send_admin(
+            "Sandra ha escrito durante una pausa de revision de capitulo. No he llamado a la IA.\n\n"
+            f"Sandra:\n{text}"
+        )
         return
 
     if (data.get("state") or {}).get("season_complete"):
@@ -1063,11 +1138,14 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     if not update.effective_chat or not is_admin(update):
         return
     data = load_data()
+    review_active = chapter_review_pause_is_active(data)
+    review_pause = data.get("chapter_review_pause") or {}
     state = data.get("state") or {}
     lines = [
         "Estado Control Partida Sandra",
         f"- Narrador vinculado: {'si' if data.get('sandra_chat_id') else 'no'}",
         f"- Pausado: {'si' if data.get('paused') else 'no'}",
+        f"- Pausa revision capitulo: {'si' if review_active else 'no'}",
         f"- OpenAI: {'configurado' if openai_available() else 'pendiente'}",
         f"- Modelo: {OPENAI_MODEL}",
         f"- Postgres: {'activo' if db_enabled() else 'no configurado'}",
@@ -1078,6 +1156,8 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         f"- Inicio de partida: {STORY_START_DATE.isoformat()} {STORY_START_HOUR:02d}:{STORY_START_MINUTE:02d}",
         f"- Resumen diario: {DAILY_SUMMARY_HOUR:02d}:{DAILY_SUMMARY_MINUTE:02d}",
     ]
+    if review_active:
+        lines.append(f"- Revision hasta: {review_pause.get('until_date', 'sin fecha')}")
     await update.effective_chat.send_message("\n".join(lines))
 
 
@@ -1151,6 +1231,7 @@ async def cmd_reanudar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         return
     data = load_data()
     data["paused"] = False
+    data["chapter_review_pause"] = None
     save_data(data)
     await update.effective_chat.send_message("Partida reanudada.")
 
@@ -1247,6 +1328,7 @@ async def send_story_start_message(*, manual: bool = False) -> bool:
         "current_scene": "Sandra esta encerrada en su habitacion tras discutir con Dario y acaba de oir la carta entrar por debajo de la puerta principal",
         "next_suggested_scene": "Sandra decide si intenta salir, escucha la carta, busca otra salida o espera a que Dario se aleje",
     }
+    data["chapter_review_pause"] = None
     save_data(data)
     await send_admin(f"Inicio de partida enviado a Sandra:\n{message}")
     return True

@@ -87,6 +87,8 @@ Al terminar el capitulo 10, el primer curso queda cerrado y el bot no continua l
 
 Al cerrar cada capitulo, el bot genera y guarda un resumen canonico. La IA recibe esos resumenes antes de responder, para mantener continuidad aunque pasen meses.
 
+Despues de cada capitulo cerrado, el bot puede activar una pausa de revision. Por defecto son 14 dias (`CHAPTER_REVIEW_PAUSE_DAYS=14`). Durante esa pausa, Sandra recibe una respuesta narrativa de interludio y la IA no continua la historia. Miguel puede revisar `/capitulos`, `/memoria`, usar `/corregir_memoria` y reabrir antes con `/reanudar`.
+
 ## Preludio
 
 Los mensajes previos al cumpleanos viven en `lore/preludio.md`. El mensaje que abre la partida vive en `lore/inicio.md`.
@@ -138,6 +140,7 @@ PRELUDE_MINUTE=30
 STORY_START_HOUR=0
 STORY_START_MINUTE=1
 MESSAGE_BUFFER_SECONDS=25
+CHAPTER_REVIEW_PAUSE_DAYS=14
 ```
 
 Para persistencia simple en Railway, crea un Volume y monta `/app/data`.
