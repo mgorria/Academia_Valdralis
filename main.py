@@ -104,6 +104,7 @@ def default_state() -> dict[str, Any]:
         "current_scene": "Antes de leer la carta de Valdralis",
         "known_facts": [],
         "relationships": {
+            "Kilnip": "Encerrado en el sello azul de la carta; sera el primer guia de Sandra al abrirla",
             "Nora": "Aun no aparece",
             "Izan": "Aun no aparece",
             "Mara": "Aun no aparece",
@@ -1243,7 +1244,7 @@ async def send_story_start_message(*, manual: bool = False) -> bool:
         "season_complete": False,
         "location": "Casa de Dario",
         "current_scene": "Sandra acaba de recibir la carta de Valdralis",
-        "next_suggested_scene": "Sandra decide si abre la carta, la esconde o escucha a su padre",
+        "next_suggested_scene": "Sandra decide si abre la carta, la esconde o escucha a su padre; si la abre, aparece Kilnip",
     }
     save_data(data)
     await send_admin(f"Inicio de partida enviado a Sandra:\n{message}")

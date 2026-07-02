@@ -23,6 +23,45 @@ Su madre, Elara Valmorien, estudio en Valdralis y desaparecio hace diecinueve an
 
 La carta que llega a Sandra no es una invitacion normal. Es una llamada de sangre. Valdralis la reclama porque algo bajo sus cimientos ha despertado.
 
+## Guia inicial: Kilnip
+
+Kilnip es el primer guia de Sandra en el mundo magico. Aparece cuando Sandra abre la carta de Valdralis: del sello sale una bolita azul luminosa, del tamano de una naranja pequena, con alitas de lechuza, ojos enormes y una energia nerviosa e imposible de ignorar.
+
+Su gesto caracteristico es posarse en la cabeza de Sandra, agitar las alas y decir: "tipitipitipitipitipi". No habla como una persona normal. Se comunica con sonidos, empujoncitos, gestos exagerados, movimientos de alas, pequenos destellos azules y palabras sueltas cuando sea necesario.
+
+Funcion narrativa:
+
+- Guiar a Sandra cuando no sepa que hacer, sin decidir por ella.
+- Llevarla desde la carta hasta los primeros lugares del mundo magico.
+- Empujar escenas con humor, ternura y urgencia.
+- Reaccionar ante peligros antes de que Sandra los entienda.
+- Recordar detalles practicos: billete, lista de materiales, uniforme, varita o foco arcano, libros, permisos y reglas basicas.
+- Servir como brujula emocional: se inquieta ante mentiras, se esconde ante depredadores y se ilumina con magia Valmorien.
+
+Reglas de uso:
+
+- Kilnip no debe explicar grandes secretos ni resolver misterios.
+- No debe hablar en parrafos largos. Es un guia expresivo, no un profesor.
+- Puede llevar a Sandra a la siguiente escena si ella se queda bloqueada.
+- Debe sentirse magico, adorable y un poco caotico, pero no infantilizar la historia.
+- Puede ser perseguido, asustarse o meter a Sandra en pequenos lios por intentar ayudar.
+
+## Antes de la academia: el Bazar de los Primeros
+
+Antes de subir al tren hacia Valdralis, Sandra debe pasar por un pequeno distrito magico oculto donde los nuevos alumnos compran lo necesario para la academia. Kilnip la guia hasta alli tras abrir la carta, incluso si ella intenta retrasarlo.
+
+El lugar puede llamarse el Bazar de los Primeros: una calle imposible que aparece entre dos edificios normales, bajo una farola azul, tras una puerta de tienda que de dia vende paraguas y de noche vende destinos.
+
+Compras sugeridas:
+
+- Uniforme de Valdralis: capa oscura con forro que cambia de tono segun el turno; broche provisional sin casa ni linaje declarado.
+- Libros basicos: Encantamientos Practicos I, Pactos que no deberias firmar y Cartografia para lugares que no quieren estar.
+- Foco arcano inicial: pluma, anillo, varilla, piedra de luna o aguja de plata; Sandra puede elegir o el objeto puede reaccionar a ella.
+- Baul o maleta: demasiado pequena por fuera, inquietantemente grande por dentro.
+- Tinta nocturna, velas de silencio, guantes de practica y una libreta que corrige mentiras con manchas violetas.
+
+El bazar debe servir para maravilla, humor y primera tension de peligro: dependientes que reconocen el apellido Valmorien, objetos que reaccionan mal a su sangre, una sombra que la sigue entre puestos o una compra que aparece en su bolsillo sin haberla pagado.
+
 ## Objetivo de la primera aventura
 
 Sandra debe sobrevivir su primera luna en Valdralis y descubrir por que su madre desaparecio antes de que una faccion oculta la use para abrir el Sello del Umbral.
@@ -348,13 +387,13 @@ Piezas antagonicas posibles:
 
 ### Capitulo 1: La carta bajo la puerta
 
-Sandra recibe la carta de Valdralis. Su padre intenta impedir que la lea o que se marche. Primer fenomeno magico: la carta responde a su sangre, su voz o su miedo.
+Sandra recibe la carta de Valdralis. Su padre intenta impedir que la lea o que se marche. Al abrirla, aparece Kilnip: una bolita azul con alitas de lechuza que se le posa en la cabeza y agita las alas diciendo "tipitipitipitipitipi". Primer fenomeno magico: la carta responde a su sangre, su voz o su miedo.
 
-Final sugerido: Sandra decide si huir, enfrentarse a su padre o fingir obediencia mientras prepara la marcha.
+Final sugerido: Sandra decide si huir, enfrentarse a su padre o fingir obediencia mientras prepara la marcha, con Kilnip intentando guiarla hacia el Bazar de los Primeros.
 
 ### Capitulo 2: El tren de medianoche
 
-Sandra llega a una estacion que no existe en los mapas. En el tren conoce a uno de los motores romanticos o a una amiga secundaria. Primer vistazo al mundo nocturno.
+Antes del tren, Kilnip guia a Sandra al Bazar de los Primeros para comprar uniforme, libros, foco arcano y equipo basico. Despues Sandra llega a una estacion que no existe en los mapas. En el tren conoce a uno de los motores romanticos o a una amiga secundaria. Primer vistazo al mundo nocturno.
 
 Final sugerido: alguien reconoce su apellido materno y se asusta.
 
@@ -429,19 +468,26 @@ Tipos de empuje que la IA debe alternar:
 ### Eventos predefinidos del capitulo 1
 
 - La carta aparece y se mueve como si respirara.
+- Si Sandra abre la carta, Kilnip sale del sello como una chispa azul con alas de lechuza, se le posa en la cabeza y dice "tipitipitipitipitipi".
+- Kilnip intenta guiarla sin hablar demasiado: tira de un mechon, golpea la carta con las alas o senala una frase de la lista de materiales.
 - Dario nota algo raro antes de que Sandra pueda procesarlo y sube las escaleras.
 - Si Sandra se paraliza, la carta se abre sola lo justo para mostrar una frase incompleta.
 - Primer fenomeno de Sandra: una palabra de Dario queda suspendida en el aire como una mentira visible.
-- Evento final de capitulo: huida nocturna, confrontacion o promesa rota en la puerta de casa.
-- Termina cuando Sandra abandona la casa, acepta responder a la carta o queda encaminada hacia la estacion imposible.
+- Evento final de capitulo: huida nocturna, confrontacion o promesa rota en la puerta de casa, con Kilnip empujandola hacia la primera entrada del mundo magico.
+- Termina cuando Sandra abandona la casa, acepta responder a la carta o queda encaminada hacia el Bazar de los Primeros.
 
 ### Eventos predefinidos del capitulo 2
 
+- Kilnip lleva a Sandra al Bazar de los Primeros antes de la estacion. Debe ser una escena de maravilla practica: tiendas imposibles, listas que se reescriben, uniformes que miden solos y objetos que reaccionan a Sandra.
+- Sandra debe conseguir al menos tres cosas: uniforme de Valdralis, libros basicos y un foco arcano inicial. El foco puede elegirla a ella si Sandra no decide.
+- Un vendedor, objeto o sombra debe reaccionar al apellido Valmorien sin explicarlo del todo.
+- Kilnip puede meter prisa porque el tren no espera a quienes todavia pertenecen a una casa vieja.
 - En la estacion imposible, el anden aparece solo cuando Sandra acepta mirar donde no deberia haber vias.
 - En el tren, una presencia sombria recorre los vagones apagando luces. No debe ser combate abierto: debe sentirse casi como pelicula de miedo.
 - Sandra y quien este con ella deben esconderse en un compartimento, bajo una mesa, tras cortinas o en un vagon de equipajes.
 - Si Sandra intenta actuar, puede usar luz, silencio, marca o desvio de forma instintiva, incluso sin haberlo aprendido formalmente.
 - El peligro huele a tierra mojada, hierro viejo y flores secas. Es una criatura menor del Umbral buscando sangre Valmorien.
+- Kilnip detecta el peligro antes que nadie: deja de hacer "tipitipitipitipitipi", se aplasta contra Sandra o se vuelve de un azul casi blanco.
 - Lucien puede aparecer al final del ataque, demasiado sereno, y hacer que la criatura retroceda sin explicar como.
 - Alternativa si Lucien ya aparecio demasiado: Nora ayuda a Sandra a esconderse, e Izan oye a la criatura decir el apellido Valmorien.
 - Termina cuando el tren llega a Valdralis o cuando alguien reconoce el apellido Valmorien justo antes de bajar.

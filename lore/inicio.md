@@ -14,6 +14,8 @@ Pero esta ahi.
 
 Un sobre grueso, oscuro, cerrado con cera roja. El sello muestra una torre bajo una luna fina, y aunque no recuerdas haber visto ese simbolo nunca, hay algo en el que te hace sentir que lleva mucho tiempo buscandote.
 
+En un borde de la cera hay una motita azul, tan pequena que casi parece polvo. Entonces se mueve.
+
 Desde abajo llega un ruido seco: el vaso de tu padre contra la mesa.
 
 La carta se mueve apenas, como si respirara.
