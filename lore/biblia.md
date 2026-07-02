@@ -156,6 +156,29 @@ Estos hechizos deben aparecer en clases y escenas activas. Al principio fallan, 
 - Marca: dejar una senal visible solo para ella o sus amigos, util para caminos, objetos, libros o sospechosos.
 - Desvio: cambiar la trayectoria de un objeto pequeno, una copa, una daga ritual, una pluma encantada o un proyectil menor.
 
+### Mantra protector de Sandra: Oso men
+
+Sandra tiene un mantra intimo que se dice a si misma cuando esta nerviosa, tiene miedo o se siente sola: "oso men". En realidad viene de "oso ven", una llamada infantil a su animal protector, pero Sandra lo recuerda y lo pronuncia como "oso men". La magia debe respetar esa forma, porque es la forma que pertenece a su miedo y a su infancia.
+
+Este mantra no debe revelarse de golpe como informacion externa. Debe descubrirse en una clase de proteccion, idealmente con el profesor Garrick Thorn, cuando Sandra tenga que invocar una defensa personal que no nace de tecnica sino de memoria emocional.
+
+Hechizo protector:
+
+- Nombre academico: Custodio Interior o Guardia Totemica.
+- Forma de Sandra: un oso protector, grande, oscuro o azul plateado, hecho de luz densa, humo frio y memoria.
+- Palabra de invocacion de Sandra: "oso men".
+- Funcion: interponerse, empujar una amenaza, cubrir a Sandra o a un amigo, romper miedo paralizante y resistir ataques menores del Umbral.
+- Limitacion: al principio aparece incompleto, como una sombra de oso, una garra luminosa, un rugido bajo o una masa protectora que dura pocos segundos.
+- Coste: cansancio, temblor, ganas de llorar o recuerdo intenso de soledad. No debe ser gratis si la amenaza es fuerte.
+
+Guia para descubrirlo:
+
+- Garrick no debe decirle directamente "di oso men" al principio.
+- Debe llevarla con preguntas: "Que palabras usabas cuando tenias miedo?", "Como llamabas a lo que querias que viniera a protegerte?", "No busques un conjuro bonito. Busca el primero. El que decias sola."
+- Si Sandra escribe "oso men", "oso ven" o algo muy cercano, el hechizo debe responder.
+- Si Sandra no lo adivina, Kilnip puede ayudar haciendo gestos de oso, hinchandose como una bolita furiosa o repitiendo sonidos torpes sin decirlo perfecto.
+- El momento debe sentirse emotivo y poderoso: Valdralis no le regala un arma, reconoce una defensa que Sandra ya llevaba dentro.
+
 ### Magia velada de Sandra
 
 La magia especial de Sandra no sustituye a los hechizos academicos: los altera. Cuando Sandra usa magia comun bajo miedo, deseo, rabia o necesidad, su linaje velado puede despertar efectos raros.
@@ -268,7 +291,7 @@ Profesor de Duelos y Protecciones. Exguardian de la academia, enorme, lleno de c
 
 Clase: escudos, impulsos, ataduras, desvio, proteccion en grupo, reaccion bajo miedo. Puede poner a Sandra bajo presion sin humillarla.
 
-Funcion narrativa: accion, combate, disciplina, escenas donde Kael puede destacar.
+Funcion narrativa: accion, combate, disciplina, escenas donde Kael puede destacar. Garrick es quien mejor puede guiar a Sandra hacia el hechizo protector de "oso men", preguntandole por las palabras que usaba cuando tenia miedo sin darle la respuesta directamente.
 
 ### Profesor Silas Merrow
 
@@ -519,6 +542,8 @@ Tipos de empuje que la IA debe alternar:
 
 - Primera clase de Pactos y Juramentos. La profesora Mireya Noct debe poner a Sandra en una situacion incomoda delante de otros alumnos.
 - Primera practica activa: levitacion, escudo o atadura ante toda la clase. Debe sentirse como una escena de escuela magica, no solo como charla teorica.
+- Si la primera clase se orienta hacia defensa, Garrick puede presentar la Guardia Totemica: cada alumno debe encontrar una forma protectora ligada a su memoria. A Sandra no se le dice la respuesta; se la guia hacia "oso men".
+- El protector de Sandra debe manifestarse como un oso incompleto al principio: una sombra enorme, una garra azul, un rugido bajo o una masa de luz que se interpone.
 - El poder de Sandra activa un juramento antiguo sin querer. Una puerta, cicatriz, anillo o sello responde.
 - Un alumno hostil puede acusarla de ser peligrosa o de haber venido a repetir lo de su madre.
 - Grupo de amigos: Nora intenta cubrirla con una explicacion academica; Theo improvisa una distraccion; Izan queda afectado por un eco; Mara quiere encararse.

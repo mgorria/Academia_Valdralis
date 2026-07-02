@@ -124,6 +124,7 @@ def default_state() -> dict[str, Any]:
             "Elara no abandono a Sandra por voluntad propia",
             "Dario conocia Valdralis",
             "Sandra puede alterar pactos, no solo abrirlos o cerrarlos",
+            "El mantra infantil de Sandra, 'oso men', invoca a su oso protector; no corregirlo a 'oso ven' ante ella",
         ],
         "next_suggested_scene": "La carta bajo la puerta",
     }
