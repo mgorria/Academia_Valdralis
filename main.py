@@ -95,6 +95,214 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def character_sheet(
+    relacion_actual: str,
+    secretos_que_sabe: list[str] | None = None,
+    ultima_escena_juntos: str = "Aun no aparece en escena",
+    tension_romantica: str = "No aplica",
+    no_revelar_todavia: list[str] | None = None,
+) -> dict[str, Any]:
+    return {
+        "relacion_actual": relacion_actual,
+        "secretos_que_sabe": secretos_que_sabe or [],
+        "ultima_escena_juntos": ultima_escena_juntos,
+        "tension_romantica": tension_romantica,
+        "no_revelar_todavia": no_revelar_todavia or [],
+    }
+
+
+def default_character_sheets() -> dict[str, dict[str, Any]]:
+    return {
+        "Kilnip": character_sheet(
+            "Guia magico inicial de Sandra, encerrado en el sello azul de la carta hasta que ella la abra",
+            secretos_que_sabe=[
+                "Sabe encontrar el Bazar de los Primeros",
+                "Reconoce senales practicas de Valdralis, pero no entiende todos los secretos",
+            ],
+            tension_romantica="No aplica; ternura, humor y compania",
+            no_revelar_todavia=[
+                "No puede explicar de golpe el linaje Valmorien ni el Sello del Umbral",
+            ],
+        ),
+        "Nora": character_sheet(
+            "Aun no aparece; futura primera amiga estable de Sandra",
+            secretos_que_sabe=[
+                "Conoce normas, profesores, pasillos utiles y formas de no llamar la atencion",
+            ],
+            tension_romantica="No aplica; amistad y apoyo practico",
+        ),
+        "Izan": character_sheet(
+            "Aun no aparece; futuro aliado medium timido",
+            secretos_que_sabe=[
+                "Puede oir ecos en paredes y objetos, pero no siempre distingue memoria, futuro o deseo",
+            ],
+            tension_romantica="No aplica; vulnerabilidad y pistas inquietantes",
+        ),
+        "Mara": character_sheet(
+            "Aun no aparece; futura amiga semilunar impulsiva y leal",
+            secretos_que_sabe=[
+                "Conoce parte del mundo licantropo y las versiones que la academia oculta",
+            ],
+            tension_romantica="No aplica; energia, proteccion y valentia",
+        ),
+        "Theo": character_sheet(
+            "Aun no aparece; futuro aliado alquimista humano, encantador y algo desastre",
+            secretos_que_sabe=[
+                "Sabe improvisar herramientas, mezclas, permisos y pequenas trampas practicas",
+            ],
+            tension_romantica="No aplica; alivio ligero y recursos",
+        ),
+        "Lucien": character_sheet(
+            "Aun no aparece; vampiro alumno del turno nocturno, neofito noble de Casa Veyrath",
+            secretos_que_sabe=[
+                "Conoce fragmentos sobre Elara por archivos de sangre, retratos y secretos de su casa",
+                "Su casa heredo una deuda con Elara y con la Casa Valmorien",
+            ],
+            tension_romantica="Potencial alto: deseo contenido, distancia, control y culpa heredada",
+            no_revelar_todavia=[
+                "No revelar pronto la traicion parcial de Casa Veyrath a Elara",
+                "No revelar de golpe por que la sangre Valmorien le afecta",
+            ],
+        ),
+        "Kael": character_sheet(
+            "Aun no aparece; licantropo intenso, fisico, protector y desconfiado de la autoridad",
+            secretos_que_sabe=[
+                "Su manada perdio miembros por culpa del Sello del Umbral",
+                "Algunos licantropos creen que Sandra podria ser un riesgo",
+            ],
+            tension_romantica="Potencial alto: calor, proteccion, honestidad brusca y miedo a asustarla",
+            no_revelar_todavia=[
+                "No revelar pronto que algunos licantropos creen que matarla seria mas seguro",
+            ],
+        ),
+        "Aurelian": character_sheet(
+            "Aun no aparece; fae hermoso, ambiguo y peligroso, criado entre cortes antiguas",
+            secretos_que_sabe=[
+                "Sabe una ruta hacia las Criptas del Umbral",
+                "Entiende pactos antiguos y precios que otros no ven",
+            ],
+            tension_romantica="Potencial alto: provocacion, belleza inquietante, libertad y peligro elegante",
+            no_revelar_todavia=[
+                "No revelar la ruta a las Criptas del Umbral sin un precio o decision fuerte",
+            ],
+        ),
+        "Dario": character_sheet(
+            "Padre cruel y controlador de Sandra; la encierra creyendo que la protege o la posee",
+            secretos_que_sabe=[
+                "Conocia Valdralis antes de la carta",
+                "Sabe mas de Elara y del peligro de Sandra de lo que admite",
+            ],
+            tension_romantica="No aplica; antagonismo domestico y miedo",
+            no_revelar_todavia=[
+                "No revelar pronto todo lo que Dario sabe sobre Elara",
+                "No convertirlo en ignorante simple; su miedo tiene informacion real detras",
+            ],
+        ),
+        "Garrick": character_sheet(
+            "Profesor de Duelos y Protecciones; aun no aparece",
+            secretos_que_sabe=[
+                "Puede guiar a Sandra hacia el hechizo protector de 'oso men' sin darle la respuesta",
+            ],
+            tension_romantica="No aplica; mentor duro y protector",
+            no_revelar_todavia=[
+                "No decirle directamente a Sandra 'di oso men' salvo que el momento ya este ganado",
+            ],
+        ),
+    }
+
+
+def normalize_character_sheet(sheet: Any) -> dict[str, Any]:
+    if isinstance(sheet, str):
+        sheet = {"relacion_actual": sheet}
+    if not isinstance(sheet, dict):
+        sheet = {}
+    normalized = character_sheet("Pendiente")
+    normalized.update(sheet)
+    for field in ("secretos_que_sabe", "no_revelar_todavia"):
+        value = normalized.get(field)
+        if isinstance(value, list):
+            normalized[field] = [str(item).strip() for item in value if str(item).strip()]
+        elif value:
+            normalized[field] = [str(value).strip()]
+        else:
+            normalized[field] = []
+    for field in ("relacion_actual", "ultima_escena_juntos", "tension_romantica"):
+        normalized[field] = str(normalized.get(field) or "Pendiente").strip()
+    return normalized
+
+
+def normalize_character_sheet_update(sheet: Any) -> dict[str, Any]:
+    if isinstance(sheet, str):
+        sheet = {"relacion_actual": sheet}
+    if not isinstance(sheet, dict):
+        return {}
+    normalized: dict[str, Any] = {}
+    for field in ("relacion_actual", "ultima_escena_juntos", "tension_romantica"):
+        if field in sheet:
+            normalized[field] = str(sheet.get(field) or "Pendiente").strip()
+    for field in ("secretos_que_sabe", "no_revelar_todavia"):
+        if field not in sheet:
+            continue
+        value = sheet.get(field)
+        if isinstance(value, list):
+            normalized[field] = [str(item).strip() for item in value if str(item).strip()]
+        elif value:
+            normalized[field] = [str(value).strip()]
+        else:
+            normalized[field] = []
+    return normalized
+
+
+def merge_character_sheets(existing: Any, updates: Any = None) -> dict[str, dict[str, Any]]:
+    merged: dict[str, dict[str, Any]] = {
+        name: normalize_character_sheet(sheet)
+        for name, sheet in default_character_sheets().items()
+    }
+    if isinstance(existing, dict):
+        for name, sheet in existing.items():
+            clean_name = str(name).strip()
+            if clean_name:
+                merged[clean_name] = {
+                    **merged.get(clean_name, character_sheet("Pendiente")),
+                    **normalize_character_sheet_update(sheet),
+                }
+    if isinstance(updates, dict):
+        for name, sheet in updates.items():
+            clean_name = str(name).strip()
+            if clean_name:
+                merged[clean_name] = {
+                    **merged.get(clean_name, character_sheet("Pendiente")),
+                    **normalize_character_sheet_update(sheet),
+                }
+    return merged
+
+
+def normalize_state(state: Any) -> dict[str, Any]:
+    normalized = default_state()
+    if isinstance(state, dict):
+        normalized.update(state)
+    normalized["character_sheets"] = merge_character_sheets(
+        normalized.get("character_sheets")
+    )
+    return normalized
+
+
+def merge_state(previous_state: Any, scene_state: Any) -> dict[str, Any]:
+    previous = normalize_state(previous_state)
+    updates = scene_state if isinstance(scene_state, dict) else {}
+    merged = {**previous, **updates}
+    if isinstance(previous.get("relationships"), dict) or isinstance(updates.get("relationships"), dict):
+        merged["relationships"] = {
+            **(previous.get("relationships") if isinstance(previous.get("relationships"), dict) else {}),
+            **(updates.get("relationships") if isinstance(updates.get("relationships"), dict) else {}),
+        }
+    merged["character_sheets"] = merge_character_sheets(
+        previous.get("character_sheets"),
+        updates.get("character_sheets"),
+    )
+    return normalize_state(merged)
+
+
 def default_state() -> dict[str, Any]:
     return {
         "chapter": "Prologo",
@@ -127,6 +335,7 @@ def default_state() -> dict[str, Any]:
             "Sandra puede alterar pactos, no solo abrirlos o cerrarlos",
             "El mantra infantil de Sandra, 'oso men', invoca a su oso protector; no corregirlo a 'oso ven' ante ella",
         ],
+        "character_sheets": default_character_sheets(),
         "next_suggested_scene": "La carta bajo la puerta",
     }
 
@@ -158,8 +367,7 @@ def file_load_data() -> dict[str, Any]:
 
     data = default_data()
     data.update(loaded)
-    if not data.get("state"):
-        data["state"] = default_state()
+    data["state"] = normalize_state(data.get("state"))
     return data
 
 
@@ -254,8 +462,7 @@ def load_data() -> dict[str, Any]:
                     loaded = row[0]
                     data = default_data()
                     data.update(loaded)
-                    if not data.get("state"):
-                        data["state"] = default_state()
+                    data["state"] = normalize_state(data.get("state"))
                     return data
     return file_load_data()
 
@@ -284,6 +491,24 @@ def markdown_list(items: list[Any]) -> str:
     if not clean_items:
         return "- Pendiente"
     return "\n".join(f"- {item}" for item in clean_items)
+
+
+def character_sheets_markdown(sheets: Any) -> str:
+    if not isinstance(sheets, dict) or not sheets:
+        return "- Pendiente"
+    lines: list[str] = []
+    for name, raw_sheet in sheets.items():
+        sheet = normalize_character_sheet(raw_sheet)
+        lines.append(f"### {name}")
+        lines.append(f"- Relacion actual: {sheet['relacion_actual']}")
+        lines.append(f"- Ultima escena juntos: {sheet['ultima_escena_juntos']}")
+        lines.append(f"- Tension romantica: {sheet['tension_romantica']}")
+        lines.append("- Secretos que sabe:")
+        lines.append(markdown_list(sheet["secretos_que_sabe"]))
+        lines.append("- No revelar todavia:")
+        lines.append(markdown_list(sheet["no_revelar_todavia"]))
+        lines.append("")
+    return "\n".join(lines).strip()
 
 
 def chapter_label(number: int) -> str:
@@ -437,6 +662,10 @@ Actualizado: {updated_at}
 ## Relaciones
 
 {markdown_list(relationship_lines)}
+
+## Fichas vivas de personajes
+
+{character_sheets_markdown(state.get('character_sheets') or {})}
 
 ## Objetos relevantes
 
@@ -752,6 +981,7 @@ REGLAS DE ESTILO:
 - No reveles secretos grandes antes de tiempo.
 - Si la accion de Sandra rompe el guion, reconduce con consecuencias naturales.
 - Manten el capitulo actual salvo que se haya cumplido claramente su objetivo dramatico.
+- Mantener y actualizar las fichas vivas de personajes. Si una escena cambia una relacion, secreto, ultima escena, tension romantica o limite de revelacion, actualiza solo esa ficha en state.character_sheets. No inventes cambios para personajes que no han intervenido.
 - Cuando termine un capitulo, marca chapter_transition.completed=true, pero no escribas tu el cartel de "Capitulo terminado"; el sistema lo anadira.
 - Tras completar el capitulo 10, marca season_complete=true y no abras un capitulo 11.
 
@@ -785,6 +1015,15 @@ Devuelve SOLO JSON valido con este formato:
     "current_scene": "escena actual",
     "known_facts": ["hechos que Sandra ya sabe"],
     "relationships": {{"nombre": "estado breve de relacion"}},
+    "character_sheets": {{
+      "Nombre": {{
+        "relacion_actual": "relacion actual con Sandra",
+        "secretos_que_sabe": ["secretos o informacion que este personaje conoce"],
+        "ultima_escena_juntos": "ultima escena relevante con Sandra",
+        "tension_romantica": "estado de tension romantica o 'No aplica'",
+        "no_revelar_todavia": ["cosas que este personaje no debe revelar aun"]
+      }}
+    }},
     "inventory": ["objetos relevantes"],
     "open_threads": ["misterios o tensiones abiertas"],
     "revealed_secrets": ["secretos ya revelados a Sandra"],
@@ -1017,7 +1256,7 @@ async def process_sandra_message_batch(chat_id: int) -> None:
     data = load_data()
     previous_state = data.get("state") or default_state()
     scene_state = scene.get("state") if isinstance(scene.get("state"), dict) else {}
-    data["state"] = {**previous_state, **scene_state}
+    data["state"] = merge_state(previous_state, scene_state)
     transition = scene.get("chapter_transition")
     completed_chapter = completed_chapter_from_transition(data["state"], transition)
     if completed_chapter:
@@ -1182,6 +1421,17 @@ async def cmd_capitulos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await update.effective_chat.send_message(chunk)
 
 
+async def cmd_personajes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    state = load_data().get("state") or default_state()
+    text = "# Fichas vivas de personajes\n\n" + character_sheets_markdown(
+        state.get("character_sheets") or {}
+    )
+    for chunk in split_long(text):
+        await update.effective_chat.send_message(chunk)
+
+
 async def cmd_historial(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not update.effective_chat or not is_admin(update):
         return
@@ -1327,6 +1577,7 @@ async def send_story_start_message(*, manual: bool = False) -> bool:
         "location": "Casa de Dario",
         "current_scene": "Sandra esta encerrada en su habitacion tras discutir con Dario y acaba de oir la carta entrar por debajo de la puerta principal",
         "next_suggested_scene": "Sandra decide si intenta salir, escucha la carta, busca otra salida o espera a que Dario se aleje",
+        "character_sheets": default_character_sheets(),
     }
     data["chapter_review_pause"] = None
     save_data(data)
@@ -1517,6 +1768,7 @@ def build_control_app() -> Application:
     app.add_handler(CommandHandler("estado", cmd_estado))
     app.add_handler(CommandHandler("memoria", cmd_memoria))
     app.add_handler(CommandHandler("capitulos", cmd_capitulos))
+    app.add_handler(CommandHandler("personajes", cmd_personajes))
     app.add_handler(CommandHandler("historial", cmd_historial))
     app.add_handler(CommandHandler("resumen", cmd_resumen))
     app.add_handler(CommandHandler("probar", cmd_probar))

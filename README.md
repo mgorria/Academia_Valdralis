@@ -32,6 +32,7 @@ En el bot privado:
 /estado
 /memoria
 /capitulos
+/personajes
 /historial 20
 /resumen
 /probar texto de Sandra para hacer una prueba privada
@@ -64,7 +65,7 @@ Sandra escribe al narrador como si escribiera una novela. El bot:
 
 Los mensajes de Sandra se agrupan durante `MESSAGE_BUFFER_SECONDS` segundos. Si Sandra manda varias frases seguidas, el bot espera 25 segundos desde el ultimo mensaje y responde a todo junto.
 
-La partida guarda memoria de tres formas:
+La partida guarda memoria de varias formas:
 
 - Postgres `app_state`: estado estructurado durable usado por la IA.
 - Postgres `story_messages`: log completo de mensajes y respuestas.
@@ -72,6 +73,8 @@ La partida guarda memoria de tres formas:
 - `data/memoria_actual.md`: resumen legible para revisar como humano.
 
 `data/data.json` queda como copia espejo/respaldo local. En Railway, la memoria importante debe estar en Postgres.
+
+El estado incluye fichas vivas de personajes (`character_sheets`) para Lucien, Kael, Aurelian, Kilnip, Nora y otros personajes recurrentes. Cada ficha guarda relacion con Sandra, secretos que sabe, ultima escena juntos, tension romantica y cosas que no debe revelar todavia. Se pueden revisar desde el bot de control con `/personajes` o dentro de `/memoria`.
 
 ## Capitulos
 
