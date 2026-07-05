@@ -76,6 +76,8 @@ La partida guarda memoria de varias formas:
 
 El estado incluye fichas vivas de personajes (`character_sheets`) para Lucien, Kael, Aurelian, Kilnip, Nora y otros personajes recurrentes. Cada ficha guarda relacion con Sandra, secretos que sabe, ultima escena juntos, tension romantica y cosas que no debe revelar todavia. Se pueden revisar desde el bot de control con `/personajes` o dentro de `/memoria`.
 
+La biblia de lore incluye tambien un resumen de trama de temporada, un grimorio practico de hechizos y un bestiario inicial. Estas secciones sirven para que la IA tenga recursos concretos de clases, criaturas, amenazas y soluciones sin improvisar siempre lo mismo.
+
 ## Capitulos
 
 La IA mantiene el capitulo actual en memoria. Cuando se cumple el objetivo dramatico de un capitulo, el sistema anade automaticamente:

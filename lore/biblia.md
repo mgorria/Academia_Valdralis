@@ -70,6 +70,20 @@ El objetivo visible para Sandra al principio es simple: escapar de su casa, lleg
 
 El objetivo secreto de la temporada es impedir que la Orden del Umbral la convierta en llave.
 
+## Resumen de la trama de la primera temporada
+
+Sandra empieza encerrada en casa por Dario, su padre, que le ha ocultado el mundo magico y la historia de su madre. La carta de Valdralis no es solo una invitacion: es una llamada de sangre. Al abrirla, Sandra libera a Kilnip, su guia azul, y descubre que hay una academia que la reclama como si ya perteneciera alli.
+
+La primera parte de la temporada es la huida y entrada al mundo magico: salir de casa, llegar al Bazar de los Primeros, comprar uniforme y foco arcano, subir al tren de medianoche y sobrevivir al primer contacto con algo del Umbral que reconoce su apellido materno, Valmorien.
+
+La segunda parte es descubrimiento y pertenencia: Sandra llega a Valdralis, conoce amigos, profesores, normas por turnos y a los tres motores romanticos. Lucien representa secreto y deseo contenido; Kael, proteccion fisica y conflicto con la bestia; Aurelian, libertad peligrosa y pactos fae. La Ceremonia del Umbral revela que Sandra no es una bruja normal, sino "Hechicera del linaje velado. Sangre de pacto. Umbral no resuelto".
+
+La tercera parte es presion politica y emocional: las clases despiertan poderes utiles y peligrosos, el mantra "oso men" puede convertirse en su Guardia Totemica, y la marca del Umbral empieza a reaccionar. Sandra descubre que su madre, Elara, no fue simplemente una desaparecida: estuvo implicada en impedir que se abriera un sello bajo la academia.
+
+La cuarta parte es eleccion y deseo: el baile de las tres invitaciones obliga a Sandra a decidir con quien entra, a quien permite acercarse y que tension romantica deja de ser solo insinuacion. La intimidad tiene consecuencias emocionales y politicas.
+
+El final de temporada baja a las Criptas del Umbral. La Orden intenta usar a Sandra como llave para abrir parcialmente el sello. Los amigos y los tres hombres tienen intereses distintos, pero Sandra debe tomar la decision central: cerrar, alterar o resistir el pacto. El final ideal es victoria parcial: el sello no se abre del todo, Sandra queda marcada y Valdralis ya no puede tratarla como una alumna normal.
+
 ## La Academia de Valdralis
 
 Valdralis esta construida sobre acantilados negros, rodeada de bosque y niebla. Sus torres cambian de posicion en noches de luna nueva. Algunas puertas solo se abren a quien ha mentido, amado o sangrado recientemente.
@@ -155,6 +169,40 @@ Estos hechizos deben aparecer en clases y escenas activas. Al principio fallan, 
 - Apertura: abrir cerraduras simples, desbloquear pestillos, despertar picaportes magicos o forzar una puerta menor.
 - Marca: dejar una senal visible solo para ella o sus amigos, util para caminos, objetos, libros o sospechosos.
 - Desvio: cambiar la trayectoria de un objeto pequeno, una copa, una daga ritual, una pluma encantada o un proyectil menor.
+
+### Grimorio practico de Valdralis
+
+El grimorio no debe sentirse como una lista de videojuego. Los hechizos se aprenden en clase, fallan bajo presion y mejoran con uso. La IA debe elegir hechizos segun escena, profesor y emocion de Sandra.
+
+Formato de uso:
+
+- Nombre academico: como lo llama la clase.
+- Forma de Sandra: como se manifiesta en ella.
+- Uso narrativo: que permite hacer en escena.
+- Coste o fallo: que puede salir mal.
+
+Hechizos base:
+
+- Levantar: levitacion simple de objetos. En Sandra puede temblar como si el objeto dudara de obedecer. Sirve para llaves, libros, velas, armas caidas y pequenas barreras.
+- Empuje: impulso breve de energia. Sirve para alejar criaturas, romper una cerradura debil o ganar distancia. Fallo comun: empuja tambien a Sandra hacia atras.
+- Guardia: escudo basico. En Sandra aparece como vidrio arcano con grietas violetas. Sirve contra colmillos, garras, esquirlas y hechizos menores.
+- Lazo: atadura de luz o sombra. Sirve para sujetar manos, cerrar puertas o inmovilizar amenazas pequenas. Fallo comun: ata tambien una promesa cercana.
+- Lumbre: esfera de luz fria. Sirve para explorar, revelar tinta oculta y cortar oscuridad magica. En Sandra puede iluminar mentiras o marcas de pacto sin querer.
+- Mudez: silencio temporal. Sirve para esconder pasos o cortar susurros. Fallo comun: apaga tambien una frase importante que Sandra queria decir.
+- Llave: apertura de cerraduras y picaportes magicos. En Sandra puede abrir recuerdos o caminos que no debian abrirse.
+- Senal: marca visible solo para Sandra o aliados. Sirve para caminos, libros, sospechosos y objetos. En Sandra puede convertirse en marca de juramento.
+- Giro: desvio de trayectoria. Sirve contra copas, dagas rituales, plumas encantadas o proyectiles menores. Fallo comun: cambia el destino, no solo la direccion.
+- Ancla: hechizo de estabilidad. Sirve para resistir encanto, miedo, sed vampirica, llamada fae o influencia del Umbral. Profesor sugerido: Damaso Veyrath o Garrick Thorn.
+- Velo: ocultacion sencilla. Sirve para pasar desapercibida en pasillos, bajar la presencia de un objeto o amortiguar una marca. Fallo comun: el velo oculta lo equivocado.
+- Eco: escucha breve de memoria en objetos. No es magia academica pura; aparece cuando Sandra toca cartas, puertas, joyas, sangre o sellos.
+- Guardia Totemica: defensa personal ligada a memoria emocional. En Sandra toma forma de oso protector e invoca con "oso men" cuando ella lo descubre.
+
+Regla de progresion:
+
+- Capitulo 1-2: magia instintiva, torpe y breve.
+- Capitulo 3-5: primeras clases y hechizos base con fallos visibles.
+- Capitulo 6-8: mezclas entre magia academica y linaje velado.
+- Capitulo 9-10: Sandra puede usar hechizos con intencion real, pero el poder velado sigue cobrando precio.
 
 ### Mantra protector de Sandra: Oso men
 
@@ -411,6 +459,107 @@ Piezas antagonicas posibles:
 - Damaso Veyrath puede saber mas de la deuda de la Casa Veyrath con Elara de lo que aparenta.
 - Algunos retratos, llaves y puertas de la academia obedecen todavia a antiguos miembros de la Orden.
 - Dario Veyr, padre de Sandra. Cruel y controlador, pero no ignorante. Puede reaparecer con una verdad incomoda: no todo lo que temia era imaginario.
+
+## Bestiario inicial
+
+El bestiario debe dar amenazas concretas sin convertir la partida en combate constante. Las criaturas sirven para miedo, pistas, persecuciones, clases y decisiones. No todas son malignas; algunas solo obedecen hambre, juramentos o reglas antiguas.
+
+Reglas de uso:
+
+- Una criatura debe tener sensacion fisica clara: olor, sonido, temperatura, forma de moverse.
+- Cada criatura debe sugerir una solucion posible para Sandra: esconderse, luz, silencio, escudo, pacto, mentira, huida, ayuda de amigos o magia velada.
+- No repetir la misma criatura en capitulos seguidos salvo que vuelva transformada o con nueva informacion.
+- Las criaturas importantes deben dejar rastro: pelo, ceniza, tinta, marca, olor, mordedura, recuerdo o rumor.
+
+### Menores del Umbral
+
+Sombras incompletas que buscan sangre Valmorien, juramentos rotos o miedo fresco. No hablan del todo; imitan voces que Sandra conoce.
+
+- Primer uso sugerido: tren de medianoche.
+- Senales: olor a tierra mojada, hierro viejo y flores secas; luces que se apagan una a una.
+- Debilidad: luz fria, silencio bien hecho, una puerta cerrada con promesa o intervencion de Lucien.
+- Pista que deja: reconoce el apellido Valmorien antes de que Sandra entienda por que.
+
+### Polillas de tinta
+
+Insectos de papel negro que nacen de cartas manipuladas. Se alimentan de nombres escritos y pueden borrar una frase antes de que alguien la lea.
+
+- Uso sugerido: Atrio de las Cartas, biblioteca, habitaciones.
+- Senales: aleteo seco, polvo de tinta en los dedos, palabras con mordiscos.
+- Debilidad: velas de silencio, frascos de cristal, hechizo Senal.
+- Pista que deja: alguien ha alterado correspondencia de Sandra o de Elara.
+
+### Perros de umbral
+
+Guardianes sin ojos, hechos de humo bajo y costillas de luz. No son perros reales: son juramentos de vigilancia con forma de caza.
+
+- Uso sugerido: persecucion cerca del Ala Norte o patios sellados.
+- Senales: no ladran; respiran como una puerta vieja.
+- Debilidad: quedarse completamente quieta, romper la orden que los guia o usar Guardia Totemica.
+- Pista que deja: obedecen a una llave, retrato o profesor, no a instinto animal.
+
+### Retratos hambrientos
+
+Cuadros antiguos que no solo hablan: quieren recuerdos para seguir despiertos. Algunos fueron alumnos, otros miembros de la Orden.
+
+- Uso sugerido: corredores, Galeria Carmesi, Ala Norte.
+- Senales: marcos calientes, ojos que siguen demasiado, voces que recuerdan cosas que Sandra nunca conto.
+- Debilidad: no responder preguntas directas, cubrir el nombre propio, pactar una memoria menor.
+- Pista que deja: fragmentos sobre Elara y la noche del sello.
+
+### Sinrostros del baile
+
+Figuras elegantes con mascara lisa que aparecen donde hay musica, deseo y pactos politicos. No atacan de inmediato: invitan, observan y copian gestos.
+
+- Uso sugerido: capitulo 9, baile de las tres invitaciones.
+- Senales: guantes impecables, perfume sin fuente, reflejo vacio en copas.
+- Debilidad: decir una verdad personal, romper el ritmo de la musica o elegir conscientemente con quien quedarse.
+- Pista que deja: la Orden puede moverse dentro de eventos sociales sin parecer una amenaza.
+
+### Larvas de juramento
+
+Pequenas criaturas translucidas que viven en promesas incumplidas. Se pegan a anillos, contratos, sellos, botones de uniforme o cicatrices viejas.
+
+- Uso sugerido: clase de Pactos y Juramentos.
+- Senales: picor bajo la piel, tinta que se mueve, sabor metalico al mentir.
+- Debilidad: confesar una verdad parcial, quemar el contrato o usar Lazo sin rabia.
+- Pista que deja: alguien cerca de Sandra ha jurado algo que no piensa cumplir.
+
+### Espectros de turno
+
+Restos de alumnos atrapados entre horarios de especies. Aparecen cuando el turno diurno y el nocturno se cruzan mal.
+
+- Uso sugerido: pasillos crepusculares, Comedor de los Turnos, biblioteca al cierre.
+- Senales: campanas que suenan sin hora, frio en la nuca, frases dichas con voces superpuestas.
+- Debilidad: llevarlos al reloj correcto, escuchar su ultima frase o abrirles una puerta que no sea fisica.
+- Pista que deja: Valdralis ha perdido alumnos antes y no todos murieron.
+
+### Rosas lunares
+
+Plantas del invernadero que giran hacia deseo, miedo o sangre. No son enemigas, pero revelan demasiado si se las toca.
+
+- Uso sugerido: Herbolaria Lunar, curas, escenas romanticas tensas.
+- Senales: perfume que cambia segun quien se acerca, petalos que se abren ante mentiras.
+- Debilidad: guantes de practica, sal de luna, no prometer nada cerca.
+- Pista que deja: atracciones, miedos y pactos ocultos.
+
+### Llaves viudas
+
+Llaves antiguas sin puerta fija. Buscan cerraduras que perdieron y a veces se clavan en la palma de quien puede abrir demasiado.
+
+- Uso sugerido: Orsian Mallo, Ala Norte, Cartografia de Sombras.
+- Senales: tintineo triste, frio en bolsillos, picaportes que suspiran.
+- Debilidad: devolverles un nombre, colgarlas en el aro correcto o negarse a abrir por curiosidad.
+- Pista que deja: una ruta hacia una habitacion borrada de Valdralis.
+
+### El Hambre con Voz
+
+No es una criatura unica, sino un fenomeno: el Umbral hablando a traves de deseos, sed, miedo o soledad. Puede usar voces conocidas.
+
+- Uso sugerido: capitulos 7-10.
+- Senales: una frase que parece exactamente lo que Sandra necesita oir, pero dicha desde el lugar equivocado.
+- Debilidad: Ancla, Guardia Totemica, apoyo de amigos, decir una verdad propia en voz alta.
+- Pista que deja: el sello no solo encierra algo; tambien escucha.
 
 ## Estructura de la primera temporada
 

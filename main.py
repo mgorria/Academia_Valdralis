@@ -198,6 +198,64 @@ def default_character_sheets() -> dict[str, dict[str, Any]]:
                 "No convertirlo en ignorante simple; su miedo tiene informacion real detras",
             ],
         ),
+        "Severin Cael": character_sheet(
+            "Rector de Valdralis; autoridad elegante, severa y politica",
+            secretos_que_sabe=[
+                "Sabe mas de Elara de lo que admite",
+                "Oculta verdades para proteger la estabilidad de Valdralis",
+            ],
+            tension_romantica="No aplica; presion institucional",
+            no_revelar_todavia=[
+                "No revelar pronto que decisiones tomo la rectoria la noche en que Elara desaparecio",
+            ],
+        ),
+        "Mireya Noct": character_sheet(
+            "Profesora de Pactos y Juramentos; protectora en apariencia, calculadora por debajo",
+            secretos_que_sabe=[
+                "Entiende que Sandra puede alterar pactos antiguos",
+                "Puede estar vinculada directa o indirectamente a la Orden del Umbral",
+            ],
+            tension_romantica="No aplica; mentora ambigua y posible amenaza",
+            no_revelar_todavia=[
+                "No confirmar pronto si sirve a la Orden del Umbral",
+            ],
+        ),
+        "Octavian Rook": character_sheet(
+            "Profesor de Anatomia de lo Imposible; seco, preciso e inquietante",
+            secretos_que_sabe=[
+                "Conoce debilidades de vampiros, licantropos, fae, espectros y criaturas del Umbral",
+            ],
+            tension_romantica="No aplica; exposicion inquietante y supervivencia",
+        ),
+        "Seraphine Vale": character_sheet(
+            "Profesora de Sangre, Linaje y Memoria; antigua amiga o rival de Elara",
+            secretos_que_sabe=[
+                "Reconoce indicios del linaje Valmorien",
+                "Sabe fragmentos personales sobre Elara que le cuesta decir",
+            ],
+            tension_romantica="No aplica; memoria familiar y verdades incomodas",
+            no_revelar_todavia=[
+                "No revelar de golpe que ocurrio entre ella y Elara",
+            ],
+        ),
+        "Damaso Veyrath": character_sheet(
+            "Profesor vampiro de Defensa contra Hambres Antiguas; amable, peligroso y ligado a Casa Veyrath",
+            secretos_que_sabe=[
+                "Conoce parte de la deuda de Casa Veyrath con Elara",
+                "Sabe mas de la naturaleza de Lucien de lo que dira en publico",
+            ],
+            tension_romantica="No aplica; tension vampirica y advertencias sobre deseo, sed y obediencia",
+            no_revelar_todavia=[
+                "No revelar pronto toda la culpa de Casa Veyrath",
+            ],
+        ),
+        "Alba Cendra": character_sheet(
+            "Profesora de Encantamientos Practicos; rapida, luminosa e impaciente con el drama",
+            secretos_que_sabe=[
+                "Detecta talento bruto y fallos de tecnica en Sandra antes que otros profesores",
+            ],
+            tension_romantica="No aplica; progreso visible, humor y confianza",
+        ),
         "Garrick": character_sheet(
             "Profesor de Duelos y Protecciones; aun no aparece",
             secretos_que_sabe=[
@@ -206,6 +264,34 @@ def default_character_sheets() -> dict[str, dict[str, Any]]:
             tension_romantica="No aplica; mentor duro y protector",
             no_revelar_todavia=[
                 "No decirle directamente a Sandra 'di oso men' salvo que el momento ya este ganado",
+            ],
+        ),
+        "Silas Merrow": character_sheet(
+            "Profesor de Cartografia de Sombras; habla con puertas y rutas imposibles",
+            secretos_que_sabe=[
+                "Conoce caminos hacia zonas que no existen de dia",
+                "Puede saber rutas cercanas al Ala Norte sin admitirlo claramente",
+            ],
+            tension_romantica="No aplica; misterio, caminos secretos y humor raro",
+            no_revelar_todavia=[
+                "No entregar rutas prohibidas sin precio, prueba o consecuencia",
+            ],
+        ),
+        "Bruma Lark": character_sheet(
+            "Profesora de Herbolaria Lunar; dulce hasta que alguien toca una planta sin permiso",
+            secretos_que_sabe=[
+                "Conoce plantas que reaccionan al deseo, miedo, sangre, mentiras y recuerdos",
+            ],
+            tension_romantica="No aplica; curas, venenos y escenas sensoriales",
+        ),
+        "Orsian Mallo": character_sheet(
+            "Celador de pasillos y llaves; no es profesor, pero todos lo temen un poco",
+            secretos_que_sabe=[
+                "Sabe que puertas se abren de noche y que alumnos mienten al volver tarde",
+            ],
+            tension_romantica="No aplica; persecuciones, llaves y humor seco",
+            no_revelar_todavia=[
+                "No revelar pronto a quien obedecen algunas llaves antiguas",
             ],
         ),
     }
