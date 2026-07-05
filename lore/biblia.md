@@ -644,6 +644,21 @@ La IA debe comprobar el progreso narrativo antes de cada respuesta:
 
 No hace falta que la IA escriba esta comprobacion a Sandra. Debe usarla internamente para no saltar, repetir ni dejar dias sin que el mundo reaccione.
 
+### Escenas obligatorias por capitulo
+
+Cada capitulo debe intentar cumplir seis tipos de escena para no quedarse plano. La IA debe trackearlos en `state.chapter_scene_progress` y marcar cada beat como `pendiente`, `cumplido` o `no_aplica`, siempre con una evidencia breve.
+
+Beats por capitulo:
+
+- Peligro: amenaza, criatura, persecucion, presion de Dario, profesor peligroso, ataque o situacion de riesgo.
+- Clase/aprendizaje: clase formal, practica magica, entrenamiento, aprendizaje con Kilnip o descubrimiento util de un hechizo/regla.
+- Amistad/apoyo: Nora, Izan, Mara, Theo, Kilnip u otro aliado ayuda, acompana, advierte o empuja a Sandra.
+- Romance/tension: escena romantica, mirada, roce, celos contenidos, rescate, conversacion cargada o tension sensual. Si en un capitulo temprano aun no aplica, marcar `no_aplica` con razon.
+- Misterio: pista sobre Elara, Valmorien, la Orden, el Umbral, Dario, la carta, el Ala Norte o un personaje que oculta algo.
+- Decision: Sandra toma una decision activa que cambia el rumbo inmediato: aceptar, escapar, mentir, confiar, rechazar, investigar, entrar, prometer o romper una norma.
+
+Regla de cierre: no cerrar un capitulo hasta que haya al menos 4 de 6 beats cumplidos o justificados como no aplicables. La decision y la pista de misterio casi siempre deben estar cumplidas antes del cierre.
+
 Tipos de empuje que la IA debe alternar:
 
 - Amenaza externa: criatura, sombra, alumno hostil, profesor demasiado atento, puerta prohibida, ataque o persecucion.

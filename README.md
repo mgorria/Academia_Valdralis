@@ -33,6 +33,7 @@ En el bot privado:
 /memoria
 /capitulos
 /personajes
+/progreso
 /historial 20
 /resumen
 /probar texto de Sandra para hacer una prueba privada
@@ -77,6 +78,8 @@ La partida guarda memoria de varias formas:
 El estado incluye fichas vivas de personajes (`character_sheets`) para Lucien, Kael, Aurelian, Kilnip, Nora y otros personajes recurrentes. Cada ficha guarda relacion con Sandra, secretos que sabe, ultima escena juntos, tension romantica y cosas que no debe revelar todavia. Se pueden revisar desde el bot de control con `/personajes` o dentro de `/memoria`.
 
 La biblia de lore incluye tambien un resumen de trama de temporada, un grimorio practico de hechizos y un bestiario inicial. Estas secciones sirven para que la IA tenga recursos concretos de clases, criaturas, amenazas y soluciones sin improvisar siempre lo mismo.
+
+El estado tambien trackea el progreso de escenas obligatorias por capitulo (`chapter_scene_progress`): peligro, clase/aprendizaje, amistad/apoyo, romance/tension, misterio y decision. Se revisa con `/progreso` o `/progreso 5`. Si la IA intenta cerrar un capitulo con menos de 4 beats cumplidos/no aplicables, el sistema no lo cierra y avisa a Miguel.
 
 ## Capitulos
 

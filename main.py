@@ -75,6 +75,15 @@ CHAPTER_TITLES = {
     9: "El baile de las tres invitaciones",
     10: "El Sello del Umbral",
 }
+CHAPTER_SCENE_BEATS = {
+    "peligro": "escena de peligro o amenaza",
+    "clase_aprendizaje": "escena de clase, entrenamiento o aprendizaje magico",
+    "amistad_apoyo": "escena de amistad, ayuda o grupo de apoyo",
+    "romance_tension": "escena romantica o tension emocional/sensual",
+    "misterio": "pista del misterio principal o de Elara/Umbral",
+    "decision": "momento de decision activa de Sandra",
+}
+CHAPTER_SCENE_MINIMUM_COMPLETED = 4
 
 control_app: Application | None = None
 narrador_app: Application | None = None
@@ -363,12 +372,129 @@ def merge_character_sheets(existing: Any, updates: Any = None) -> dict[str, dict
     return merged
 
 
+def default_scene_beat() -> dict[str, str]:
+    return {
+        "status": "pendiente",
+        "evidence": "",
+        "last_update": "",
+    }
+
+
+def normalize_scene_beat(beat: Any) -> dict[str, str]:
+    normalized = default_scene_beat()
+    if isinstance(beat, str):
+        normalized["status"] = beat.strip() or "pendiente"
+        return normalized
+    if isinstance(beat, dict):
+        normalized.update(
+            {
+                "status": str(beat.get("status") or "pendiente").strip(),
+                "evidence": str(beat.get("evidence") or "").strip(),
+                "last_update": str(beat.get("last_update") or "").strip(),
+            }
+        )
+    if normalized["status"] not in {"pendiente", "cumplido", "no_aplica"}:
+        normalized["status"] = "pendiente"
+    return normalized
+
+
+def normalize_scene_beat_update(beat: Any) -> dict[str, str]:
+    if isinstance(beat, str):
+        return {"status": beat.strip() or "pendiente"}
+    if not isinstance(beat, dict):
+        return {}
+    update: dict[str, str] = {}
+    for field in ("status", "evidence", "last_update"):
+        if field in beat:
+            update[field] = str(beat.get(field) or "").strip()
+    if update.get("status") and update["status"] not in {"pendiente", "cumplido", "no_aplica"}:
+        update["status"] = "pendiente"
+    return update
+
+
+def default_chapter_scene_progress() -> dict[str, dict[str, Any]]:
+    return {
+        str(number): {
+            "chapter": chapter_label(number),
+            "minimum_completed": CHAPTER_SCENE_MINIMUM_COMPLETED,
+            "beats": {
+                key: {
+                    **default_scene_beat(),
+                    "label": label,
+                }
+                for key, label in CHAPTER_SCENE_BEATS.items()
+            },
+        }
+        for number in CHAPTER_TITLES
+    }
+
+
+def merge_chapter_scene_progress(existing: Any, updates: Any = None) -> dict[str, dict[str, Any]]:
+    merged = default_chapter_scene_progress()
+    for source, partial in (("existing", existing), ("updates", updates)):
+        if not isinstance(partial, dict):
+            continue
+        for chapter_number, chapter_data in partial.items():
+            key = str(chapter_number).strip()
+            if key not in merged or not isinstance(chapter_data, dict):
+                continue
+            if chapter_data.get("chapter"):
+                merged[key]["chapter"] = str(chapter_data.get("chapter")).strip()
+            if chapter_data.get("minimum_completed"):
+                try:
+                    merged[key]["minimum_completed"] = int(chapter_data.get("minimum_completed"))
+                except (TypeError, ValueError):
+                    pass
+            beats = chapter_data.get("beats")
+            if not isinstance(beats, dict):
+                continue
+            for beat_key, beat_data in beats.items():
+                beat_key = str(beat_key).strip()
+                if beat_key not in CHAPTER_SCENE_BEATS:
+                    continue
+                current = merged[key]["beats"][beat_key]
+                if source == "existing":
+                    merged[key]["beats"][beat_key] = {
+                        **current,
+                        **normalize_scene_beat(beat_data),
+                        "label": CHAPTER_SCENE_BEATS[beat_key],
+                    }
+                else:
+                    merged[key]["beats"][beat_key] = {
+                        **current,
+                        **normalize_scene_beat_update(beat_data),
+                        "label": CHAPTER_SCENE_BEATS[beat_key],
+                    }
+    return merged
+
+
+def chapter_progress_counts(chapter_progress: dict[str, Any]) -> tuple[int, int, int]:
+    beats = chapter_progress.get("beats") if isinstance(chapter_progress, dict) else {}
+    if not isinstance(beats, dict):
+        return (0, 0, len(CHAPTER_SCENE_BEATS))
+    completed = sum(1 for beat in beats.values() if normalize_scene_beat(beat)["status"] == "cumplido")
+    not_applicable = sum(1 for beat in beats.values() if normalize_scene_beat(beat)["status"] == "no_aplica")
+    pending = len(CHAPTER_SCENE_BEATS) - completed - not_applicable
+    return completed, not_applicable, pending
+
+
+def chapter_ready_by_scene_progress(state: dict[str, Any], chapter_number: int) -> bool:
+    progress = merge_chapter_scene_progress(state.get("chapter_scene_progress"))
+    chapter = progress.get(str(chapter_number), {})
+    completed, not_applicable, _pending = chapter_progress_counts(chapter)
+    minimum = int(chapter.get("minimum_completed") or CHAPTER_SCENE_MINIMUM_COMPLETED)
+    return completed >= minimum or completed + not_applicable >= len(CHAPTER_SCENE_BEATS)
+
+
 def normalize_state(state: Any) -> dict[str, Any]:
     normalized = default_state()
     if isinstance(state, dict):
         normalized.update(state)
     normalized["character_sheets"] = merge_character_sheets(
         normalized.get("character_sheets")
+    )
+    normalized["chapter_scene_progress"] = merge_chapter_scene_progress(
+        normalized.get("chapter_scene_progress")
     )
     return normalized
 
@@ -385,6 +511,10 @@ def merge_state(previous_state: Any, scene_state: Any) -> dict[str, Any]:
     merged["character_sheets"] = merge_character_sheets(
         previous.get("character_sheets"),
         updates.get("character_sheets"),
+    )
+    merged["chapter_scene_progress"] = merge_chapter_scene_progress(
+        previous.get("chapter_scene_progress"),
+        updates.get("chapter_scene_progress"),
     )
     return normalize_state(merged)
 
@@ -422,6 +552,7 @@ def default_state() -> dict[str, Any]:
             "El mantra infantil de Sandra, 'oso men', invoca a su oso protector; no corregirlo a 'oso ven' ante ella",
         ],
         "character_sheets": default_character_sheets(),
+        "chapter_scene_progress": default_chapter_scene_progress(),
         "next_suggested_scene": "La carta bajo la puerta",
     }
 
@@ -597,6 +728,29 @@ def character_sheets_markdown(sheets: Any) -> str:
     return "\n".join(lines).strip()
 
 
+def chapter_scene_progress_markdown(progress: Any, chapter_number: int | None = None) -> str:
+    normalized = merge_chapter_scene_progress(progress)
+    chapter_numbers = [chapter_number] if chapter_number else sorted(CHAPTER_TITLES)
+    lines: list[str] = []
+    for number in chapter_numbers:
+        chapter = normalized.get(str(number))
+        if not chapter:
+            continue
+        completed, not_applicable, pending = chapter_progress_counts(chapter)
+        lines.append(f"### {chapter.get('chapter', chapter_label(number))}")
+        lines.append(
+            f"- Cumplidas: {completed} | No aplica: {not_applicable} | Pendientes: {pending} | Minimo: {chapter.get('minimum_completed', CHAPTER_SCENE_MINIMUM_COMPLETED)}"
+        )
+        beats = chapter.get("beats") if isinstance(chapter.get("beats"), dict) else {}
+        for beat_key in CHAPTER_SCENE_BEATS:
+            beat = normalize_scene_beat(beats.get(beat_key))
+            label = CHAPTER_SCENE_BEATS[beat_key]
+            evidence = f" - {beat['evidence']}" if beat.get("evidence") else ""
+            lines.append(f"- {label}: {beat['status']}{evidence}")
+        lines.append("")
+    return "\n".join(lines).strip() or "- Pendiente"
+
+
 def chapter_label(number: int) -> str:
     title = CHAPTER_TITLES.get(number)
     return f"Capitulo {number}: {title}" if title else f"Capitulo {number}"
@@ -752,6 +906,10 @@ Actualizado: {updated_at}
 ## Fichas vivas de personajes
 
 {character_sheets_markdown(state.get('character_sheets') or {})}
+
+## Progreso de escenas por capitulo
+
+{chapter_scene_progress_markdown(state.get('chapter_scene_progress') or {})}
 
 ## Objetos relevantes
 
@@ -1068,6 +1226,8 @@ REGLAS DE ESTILO:
 - Si la accion de Sandra rompe el guion, reconduce con consecuencias naturales.
 - Manten el capitulo actual salvo que se haya cumplido claramente su objetivo dramatico.
 - Antes de responder, comprueba internamente el progreso: capitulo actual, objetivo dramatico, eventos predefinidos pendientes, personajes recientes y siguiente empuje narrativo. No escribas esta comprobacion a Sandra.
+- Actualiza state.chapter_scene_progress del capitulo actual. Marca como "cumplido" cualquier beat que haya ocurrido con una evidencia breve. Beats: peligro, clase_aprendizaje, amistad_apoyo, romance_tension, misterio, decision.
+- No cierres un capitulo si no se han cumplido al menos 4 de los 6 beats, salvo que los no aplicables esten marcados como "no_aplica" con evidencia. La decision y la pista de misterio casi siempre deben cumplirse antes de cerrar.
 - Mantener y actualizar las fichas vivas de personajes. Si una escena cambia una relacion, secreto, ultima escena, tension romantica o limite de revelacion, actualiza solo esa ficha en state.character_sheets. No inventes cambios para personajes que no han intervenido.
 - Cuando termine un capitulo, marca chapter_transition.completed=true, pero no escribas tu el cartel de "Capitulo terminado"; el sistema lo anadira.
 - Tras completar el capitulo 10, marca season_complete=true y no abras un capitulo 11.
@@ -1102,6 +1262,20 @@ Devuelve SOLO JSON valido con este formato:
     "current_scene": "escena actual",
     "known_facts": ["hechos que Sandra ya sabe"],
     "relationships": {{"nombre": "estado breve de relacion"}},
+    "chapter_scene_progress": {{
+      "1": {{
+        "chapter": "Capitulo 1: La carta bajo la puerta",
+        "minimum_completed": 4,
+        "beats": {{
+          "peligro": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que escena lo cumplio", "last_update": "turno actual breve"}},
+          "clase_aprendizaje": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que aprendizaje/clase lo cumplio", "last_update": "turno actual breve"}},
+          "amistad_apoyo": {{"status": "pendiente|cumplido|no_aplica", "evidence": "quien apoyo o acompano", "last_update": "turno actual breve"}},
+          "romance_tension": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que tension romantica ocurrio", "last_update": "turno actual breve"}},
+          "misterio": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que pista aparecio", "last_update": "turno actual breve"}},
+          "decision": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que decision tomo Sandra", "last_update": "turno actual breve"}}
+        }}
+      }}
+    }},
     "character_sheets": {{
       "Nombre": {{
         "relacion_actual": "relacion actual con Sandra",
@@ -1346,6 +1520,18 @@ async def process_sandra_message_batch(chat_id: int) -> None:
     data["state"] = merge_state(previous_state, scene_state)
     transition = scene.get("chapter_transition")
     completed_chapter = completed_chapter_from_transition(data["state"], transition)
+    if completed_chapter and not chapter_ready_by_scene_progress(data["state"], completed_chapter):
+        progress = chapter_scene_progress_markdown(
+            data["state"].get("chapter_scene_progress"),
+            completed_chapter,
+        )
+        await send_admin(
+            "La IA intento cerrar un capitulo sin suficientes escenas obligatorias. "
+            "No he cerrado el capitulo.\n\n"
+            f"{progress}"
+        )
+        completed_chapter = None
+        transition = {"completed": False}
     if completed_chapter:
         title = CHAPTER_TITLES.get(completed_chapter, f"Capitulo {completed_chapter}")
         try:
@@ -1519,6 +1705,26 @@ async def cmd_personajes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await update.effective_chat.send_message(chunk)
 
 
+async def cmd_progreso(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    state = load_data().get("state") or default_state()
+    chapter_number: int | None = None
+    if context.args and context.args[0].isdigit():
+        chapter_number = max(1, min(10, int(context.args[0])))
+    else:
+        try:
+            chapter_number = int(state.get("current_chapter_number") or 0) or None
+        except (TypeError, ValueError):
+            chapter_number = None
+    text = "# Progreso de escenas\n\n" + chapter_scene_progress_markdown(
+        state.get("chapter_scene_progress") or {},
+        chapter_number,
+    )
+    for chunk in split_long(text):
+        await update.effective_chat.send_message(chunk)
+
+
 async def cmd_historial(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not update.effective_chat or not is_admin(update):
         return
@@ -1665,6 +1871,7 @@ async def send_story_start_message(*, manual: bool = False) -> bool:
         "current_scene": "Sandra esta encerrada en su habitacion tras discutir con Dario y acaba de oir la carta entrar por debajo de la puerta principal",
         "next_suggested_scene": "Sandra decide si intenta salir, escucha la carta, busca otra salida o espera a que Dario se aleje",
         "character_sheets": default_character_sheets(),
+        "chapter_scene_progress": default_chapter_scene_progress(),
     }
     data["chapter_review_pause"] = None
     save_data(data)
@@ -1856,6 +2063,7 @@ def build_control_app() -> Application:
     app.add_handler(CommandHandler("memoria", cmd_memoria))
     app.add_handler(CommandHandler("capitulos", cmd_capitulos))
     app.add_handler(CommandHandler("personajes", cmd_personajes))
+    app.add_handler(CommandHandler("progreso", cmd_progreso))
     app.add_handler(CommandHandler("historial", cmd_historial))
     app.add_handler(CommandHandler("resumen", cmd_resumen))
     app.add_handler(CommandHandler("probar", cmd_probar))
