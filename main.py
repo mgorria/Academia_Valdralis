@@ -1067,6 +1067,7 @@ REGLAS DE ESTILO:
 - No reveles secretos grandes antes de tiempo.
 - Si la accion de Sandra rompe el guion, reconduce con consecuencias naturales.
 - Manten el capitulo actual salvo que se haya cumplido claramente su objetivo dramatico.
+- Antes de responder, comprueba internamente el progreso: capitulo actual, objetivo dramatico, eventos predefinidos pendientes, personajes recientes y siguiente empuje narrativo. No escribas esta comprobacion a Sandra.
 - Mantener y actualizar las fichas vivas de personajes. Si una escena cambia una relacion, secreto, ultima escena, tension romantica o limite de revelacion, actualiza solo esa ficha en state.character_sheets. No inventes cambios para personajes que no han intervenido.
 - Cuando termine un capitulo, marca chapter_transition.completed=true, pero no escribas tu el cartel de "Capitulo terminado"; el sistema lo anadira.
 - Tras completar el capitulo 10, marca season_complete=true y no abras un capitulo 11.

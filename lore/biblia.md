@@ -633,6 +633,17 @@ La IA debe saber siempre en que capitulo esta. Cuando se cumpla el objetivo dram
 
 Al terminar el capitulo 10 termina el primer curso. No hay capitulo 11. La narracion se detiene hasta "el curso que viene".
 
+La IA debe comprobar el progreso narrativo antes de cada respuesta:
+
+- En que capitulo esta Sandra.
+- Que objetivo dramatico del capitulo esta activo.
+- Que eventos predefinidos del capitulo ya han ocurrido o faltan.
+- Que personajes han intervenido recientemente.
+- Que pista, amenaza o decision debe mover la escena si Sandra se queda pasiva.
+- Si el objetivo dramatico ya se cumplio, debe cerrar el capitulo; si no, debe mantenerlo.
+
+No hace falta que la IA escriba esta comprobacion a Sandra. Debe usarla internamente para no saltar, repetir ni dejar dias sin que el mundo reaccione.
+
 Tipos de empuje que la IA debe alternar:
 
 - Amenaza externa: criatura, sombra, alumno hostil, profesor demasiado atento, puerta prohibida, ataque o persecucion.
@@ -648,12 +659,19 @@ Tipos de empuje que la IA debe alternar:
 - Debe empezar con una discusion fuerte entre Sandra y Dario, seguida de castigo: Dario la encierra en su habitacion con llave.
 - Sandra debe sentir angustia, rabia y necesidad de escapar. La casa debe sentirse como una jaula.
 - Encerrada arriba, Sandra oye el sonido de un papel grueso colandose por debajo de la puerta principal.
-- La carta aparece y se mueve como si respirara.
+- La cerradura de su habitacion debe reaccionar a su miedo: chasquido, vibracion, sombra bajo la puerta o una palabra de Dario convertida en mentira visible.
+- Sandra debe tener varias vias narrativas posibles sin opciones A/B/C: forzar la puerta, buscar algo en la habitacion, hablar con Dario, usar la ventana, escuchar la carta o esconder su reaccion.
+- Si Sandra no actua, la carta la llama desde abajo con pequenos fenomenos: tinta plateada en el suelo, un destello azul, un golpe de papel o el eco de su nombre.
+- La carta aparece y se mueve como si respirara cuando Sandra logra verla o conectar con ella.
 - Si Sandra abre la carta, Kilnip sale del sello como una chispa azul con alas de lechuza, se le posa en la cabeza y dice "tipitipitipitipitipi".
 - Kilnip intenta guiarla sin hablar demasiado: tira de un mechon, golpea la carta con las alas o senala una frase de la lista de materiales.
+- La carta debe mostrar tres cosas practicas: admision a Valdralis, lista de materiales y una instruccion de salida hacia el Bazar de los Primeros o la estacion imposible.
+- Dario debe interrumpir o casi descubrir la carta. La escena debe obligar a Sandra a decidir si oculta, miente, se enfrenta o escapa.
 - Dario nota algo raro antes de que Sandra pueda procesarlo y sube las escaleras.
 - Si Sandra se paraliza, la carta se abre sola lo justo para mostrar una frase incompleta.
 - Primer fenomeno de Sandra: una palabra de Dario queda suspendida en el aire como una mentira visible.
+- Primer vinculo emocional con Kilnip: Kilnip puede asustarse con Dario pero aun asi intentar proteger la carta o atraer a Sandra hacia la salida.
+- Antes de cerrar el capitulo, Sandra debe haber tomado una decision activa: salir de la habitacion, romper una norma de Dario, aceptar la carta o poner el primer pie fuera de su vida anterior.
 - Evento final de capitulo: huida nocturna, confrontacion o promesa rota en la puerta de casa, con Kilnip empujandola hacia la primera entrada del mundo magico.
 - Termina cuando Sandra abandona la casa, acepta responder a la carta o queda encaminada hacia el Bazar de los Primeros.
 
@@ -697,8 +715,10 @@ Tipos de empuje que la IA debe alternar:
 
 - Primera clase de Pactos y Juramentos. La profesora Mireya Noct debe poner a Sandra en una situacion incomoda delante de otros alumnos.
 - Primera practica activa: levitacion, escudo o atadura ante toda la clase. Debe sentirse como una escena de escuela magica, no solo como charla teorica.
-- Si la primera clase se orienta hacia defensa, Garrick puede presentar la Guardia Totemica: cada alumno debe encontrar una forma protectora ligada a su memoria. A Sandra no se le dice la respuesta; se la guia hacia "oso men".
-- El protector de Sandra debe manifestarse como un oso incompleto al principio: una sombra enorme, una garra azul, un rugido bajo o una masa de luz que se interpone.
+- Evento obligatorio de capitulo: clase de Duelos y Protecciones con Garrick Thorn, aunque antes haya una escena con Mireya. Garrick presenta la Guardia Totemica: cada alumno debe encontrar una forma protectora ligada a su memoria.
+- A Sandra no se le dice la respuesta. Garrick debe guiarla con pistas escalonadas: "el conjuro que decias sola", "son dos palabras", "cortas", "repitelas", y como pista final "tu mantra".
+- Cuando Sandra llegue a "oso men", "oso ven" o algo muy cercano, el protector debe responder.
+- El protector de Sandra debe manifestarse como un oso incompleto al principio: una sombra enorme, una garra azul, un rugido bajo o una masa de luz que se interpone. Debe ser emotivo, no comico.
 - El poder de Sandra activa un juramento antiguo sin querer. Una puerta, cicatriz, anillo o sello responde.
 - Un alumno hostil puede acusarla de ser peligrosa o de haber venido a repetir lo de su madre.
 - Grupo de amigos: Nora intenta cubrirla con una explicacion academica; Theo improvisa una distraccion; Izan queda afectado por un eco; Mara quiere encararse.
