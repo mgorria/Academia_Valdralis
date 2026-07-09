@@ -688,7 +688,23 @@ Tipos de empuje que la IA debe alternar:
 - Primer vinculo emocional con Kilnip: Kilnip puede asustarse con Dario pero aun asi intentar proteger la carta o atraer a Sandra hacia la salida.
 - Antes de cerrar el capitulo, Sandra debe haber tomado una decision activa: salir de la habitacion, romper una norma de Dario, aceptar la carta o poner el primer pie fuera de su vida anterior.
 - Evento final de capitulo: huida nocturna, confrontacion o promesa rota en la puerta de casa, con Kilnip empujandola hacia la primera entrada del mundo magico.
-- Termina cuando Sandra abandona la casa, acepta responder a la carta o queda encaminada hacia el Bazar de los Primeros.
+- Termina unicamente cuando Sandra abandona la casa y queda encaminada hacia el Bazar de los Primeros. Aceptar o leer la carta no es suficiente.
+
+#### Escaleta cerrada del capitulo 1
+
+Este es el unico capitulo con una guia tan estricta: Sandra es nueva en el rol y necesita que Valdralis mueva el mundo a su alrededor. Los hitos ocurren en este orden. La narracion puede adaptarse a lo que haga Sandra, pero no puede saltarse uno ni darlo por resuelto por una simple mencion. Cada uno necesita una escena jugada y una oportunidad real de que Sandra reaccione.
+
+1. **La casa se convierte en una jaula.** Dario no desaparece tras cerrar con llave: su presencia, sus pasos o una amenaza desde abajo mantienen la presion. Sandra siente que quedarse tambien es una eleccion.
+2. **La cerradura responde.** El miedo o la rabia de Sandra provocan su primer desborde: metal que vibra, pestillo que cede un instante, o una frase de Dario suspendida como una mentira visible. No es un hechizo dominado, solo una posibilidad peligrosa.
+3. **La carta llama.** Si Sandra duda, la carta responde desde abajo: tinta plateada bajo la puerta, un destello azul, un golpe imposible o su nombre susurrado. Debe empujarla sin escoger por ella.
+4. **Sandra alcanza la carta.** Por la puerta, la ventana, una mentira, un objeto de la habitacion o cualquier plan propio, Sandra consigue llegar hasta ella. La accion debe ser suya.
+5. **Kilnip despierta.** Al abrir el sello, Kilnip nace como chispa azul con alas de lechuza, se posa en su cabeza y hace "tipitipitipitipitipi". Puede estar asustado, pero intenta protegerla y no explica demasiado.
+6. **La carta revela el camino.** Sandra descubre admision, lista de materiales y la primera direccion hacia el Bazar de los Primeros o la estacion imposible. Debe haber maravilla practica, no una exposicion interminable.
+7. **Dario casi descubre la verdad.** Algo delata a Sandra: Dario oye el aleteo, ve una luz bajo la puerta o sube las escaleras. Sandra tiene que elegir ocultar, mentir, enfrentarse o buscar la salida.
+8. **La decision irreversible.** Sandra rompe por primera vez una norma de Dario o acepta de manera activa que Valdralis es su salida. Kilnip puede empujar, pero nunca decidir por ella.
+9. **Cruzar el umbral.** El capitulo solo acaba cuando Sandra abandona de verdad la casa o cruza su puerta hacia el mundo magico. Aceptar la carta sin salir no cierra el capitulo. El Bazar pertenece ya al capitulo 2.
+
+La IA debe mantener la urgencia entre hitos: ruidos de Dario, la casa que reacciona, una ventana que no deberia abrirse, la carta que pierde calor, Kilnip que tira de ella. Si Sandra espera, el mundo da un pequeno paso; si actua, el mundo responde con consecuencias. Nunca debe quedarse varios turnos describiendo el mismo cuarto sin que algo cambie.
 
 ### Eventos predefinidos del capitulo 2
 

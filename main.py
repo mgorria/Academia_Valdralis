@@ -84,6 +84,19 @@ CHAPTER_SCENE_BEATS = {
     "decision": "momento de decision activa de Sandra",
 }
 CHAPTER_SCENE_MINIMUM_COMPLETED = 4
+CHAPTER_REQUIRED_EVENTS = {
+    1: [
+        ("la_casa_jaula", "La casa se convierte en una jaula", "Dario sigue siendo una amenaza cercana y Sandra siente la urgencia real de escapar."),
+        ("cerradura_responde", "La cerradura responde a Sandra", "La magia de Sandra altera la cerradura o deja una mentira de Dario visible; es su primer desborde."),
+        ("la_carta_llama", "La carta llama desde abajo", "La carta obliga a Sandra a actuar mediante un fenomeno imposible, no solo una descripcion."),
+        ("encuentra_la_carta", "Sandra alcanza la carta", "Sandra llega a la carta por una accion propia: salir, usar la ventana, enganar a Dario o encontrar otra via."),
+        ("kilnip_despierta", "Kilnip despierta", "Kilnip sale del sello azul, se posa en Sandra y establece su primer vinculo protector."),
+        ("revelacion_practica", "La carta revela el camino", "Sandra conoce la admision, los materiales y el primer destino: Bazar de los Primeros o estacion imposible."),
+        ("dario_casi_descubre", "Dario casi descubre la verdad", "Dario interrumpe, escucha algo o sube; Sandra debe ocultar, mentir, enfrentarse o huir."),
+        ("decision_irreversible", "Sandra elige su salida", "Sandra toma una decision activa e irreversible contra una norma de Dario o a favor de Valdralis."),
+        ("cruza_el_umbral", "Sandra deja atras la casa", "Sandra abandona la casa o cruza su umbral rumbo al mundo magico. Solo entonces puede abrirse el capitulo 2."),
+    ],
+}
 
 control_app: Application | None = None
 narrador_app: Application | None = None
@@ -429,6 +442,100 @@ def default_chapter_scene_progress() -> dict[str, dict[str, Any]]:
     }
 
 
+def default_required_event() -> dict[str, str]:
+    return {"status": "pendiente", "evidence": "", "last_update": ""}
+
+
+def default_required_event_progress() -> dict[str, dict[str, Any]]:
+    return {
+        str(chapter_number): {
+            "chapter": chapter_label(chapter_number),
+            "events": {
+                event_key: {
+                    **default_required_event(),
+                    "label": label,
+                    "requirement": requirement,
+                }
+                for event_key, label, requirement in events
+            },
+        }
+        for chapter_number, events in CHAPTER_REQUIRED_EVENTS.items()
+    }
+
+
+def normalize_required_event_update(event: Any) -> dict[str, str]:
+    if isinstance(event, str):
+        return {"status": event.strip() or "pendiente"}
+    if not isinstance(event, dict):
+        return {}
+    update: dict[str, str] = {}
+    for field in ("status", "evidence", "last_update"):
+        if field in event:
+            update[field] = str(event.get(field) or "").strip()
+    if update.get("status") and update["status"] not in {"pendiente", "cumplido"}:
+        update["status"] = "pendiente"
+    return update
+
+
+def merge_required_event_progress(existing: Any, updates: Any = None) -> dict[str, dict[str, Any]]:
+    merged = default_required_event_progress()
+    for source, partial in (("existing", existing), ("updates", updates)):
+        if not isinstance(partial, dict):
+            continue
+        newly_completed = False
+        for chapter_number, chapter_data in partial.items():
+            key = str(chapter_number).strip()
+            if key not in merged or not isinstance(chapter_data, dict):
+                continue
+            events = chapter_data.get("events")
+            if not isinstance(events, dict):
+                continue
+            for event_key, event_data in events.items():
+                event_key = str(event_key).strip()
+                if event_key not in merged[key]["events"]:
+                    continue
+                update = normalize_required_event_update(event_data)
+                current = merged[key]["events"][event_key]
+                if source == "updates":
+                    incoming_status = update.get("status")
+                    if current.get("status") == "cumplido" and incoming_status != "cumplido":
+                        update.pop("status", None)
+                    elif incoming_status == "cumplido" and current.get("status") != "cumplido":
+                        event_order = list(merged[key]["events"])
+                        event_index = event_order.index(event_key)
+                        earlier_events_complete = all(
+                            merged[key]["events"][earlier_key].get("status") == "cumplido"
+                            for earlier_key in event_order[:event_index]
+                        )
+                        if newly_completed or not earlier_events_complete:
+                            update.pop("status", None)
+                        else:
+                            newly_completed = True
+                merged[key]["events"][event_key] = {
+                    **current,
+                    **update,
+                }
+    return merged
+
+
+def next_required_event(progress: Any, chapter_number: int) -> dict[str, str] | None:
+    chapter = merge_required_event_progress(progress).get(str(chapter_number))
+    if not chapter:
+        return None
+    for event_key, event in chapter["events"].items():
+        if event.get("status") != "cumplido":
+            return {"key": event_key, **event}
+    return None
+
+
+def chapter_required_events_ready(state: dict[str, Any], chapter_number: int) -> bool:
+    if chapter_number not in CHAPTER_REQUIRED_EVENTS:
+        return True
+    chapter = merge_required_event_progress(state.get("required_event_progress")).get(str(chapter_number), {})
+    events = chapter.get("events") if isinstance(chapter, dict) else {}
+    return bool(events) and all(event.get("status") == "cumplido" for event in events.values())
+
+
 def merge_chapter_scene_progress(existing: Any, updates: Any = None) -> dict[str, dict[str, Any]]:
     merged = default_chapter_scene_progress()
     for source, partial in (("existing", existing), ("updates", updates)):
@@ -496,6 +603,9 @@ def normalize_state(state: Any) -> dict[str, Any]:
     normalized["chapter_scene_progress"] = merge_chapter_scene_progress(
         normalized.get("chapter_scene_progress")
     )
+    normalized["required_event_progress"] = merge_required_event_progress(
+        normalized.get("required_event_progress")
+    )
     return normalized
 
 
@@ -515,6 +625,10 @@ def merge_state(previous_state: Any, scene_state: Any) -> dict[str, Any]:
     merged["chapter_scene_progress"] = merge_chapter_scene_progress(
         previous.get("chapter_scene_progress"),
         updates.get("chapter_scene_progress"),
+    )
+    merged["required_event_progress"] = merge_required_event_progress(
+        previous.get("required_event_progress"),
+        updates.get("required_event_progress"),
     )
     return normalize_state(merged)
 
@@ -553,6 +667,7 @@ def default_state() -> dict[str, Any]:
         ],
         "character_sheets": default_character_sheets(),
         "chapter_scene_progress": default_chapter_scene_progress(),
+        "required_event_progress": default_required_event_progress(),
         "next_suggested_scene": "La carta bajo la puerta",
     }
 
@@ -751,6 +866,28 @@ def chapter_scene_progress_markdown(progress: Any, chapter_number: int | None = 
     return "\n".join(lines).strip() or "- Pendiente"
 
 
+def required_event_progress_markdown(progress: Any, chapter_number: int | None = None) -> str:
+    normalized = merge_required_event_progress(progress)
+    chapter_numbers = [chapter_number] if chapter_number else sorted(CHAPTER_REQUIRED_EVENTS)
+    lines: list[str] = []
+    for number in chapter_numbers:
+        chapter = normalized.get(str(number))
+        if not chapter:
+            continue
+        events = chapter.get("events") if isinstance(chapter.get("events"), dict) else {}
+        completed = sum(1 for event in events.values() if event.get("status") == "cumplido")
+        lines.append(f"### {chapter.get('chapter', chapter_label(number))}")
+        lines.append(f"- Hitos resueltos: {completed}/{len(events)}. Todos son obligatorios para cerrar este capitulo.")
+        for event in events.values():
+            evidence = f" - {event['evidence']}" if event.get("evidence") else ""
+            lines.append(f"- {event['label']}: {event.get('status', 'pendiente')}{evidence}")
+        next_event = next_required_event(normalized, number)
+        if next_event:
+            lines.append(f"- Siguiente hito: {next_event['label']} ({next_event['requirement']})")
+        lines.append("")
+    return "\n".join(lines).strip() or "- No hay hitos guiados para este capitulo."
+
+
 def chapter_label(number: int) -> str:
     title = CHAPTER_TITLES.get(number)
     return f"Capitulo {number}: {title}" if title else f"Capitulo {number}"
@@ -910,6 +1047,10 @@ Actualizado: {updated_at}
 ## Progreso de escenas por capitulo
 
 {chapter_scene_progress_markdown(state.get('chapter_scene_progress') or {})}
+
+## Hitos narrativos obligatorios
+
+{required_event_progress_markdown(state.get('required_event_progress') or {})}
 
 ## Objetos relevantes
 
@@ -1228,6 +1369,8 @@ REGLAS DE ESTILO:
 - Antes de responder, comprueba internamente el progreso: capitulo actual, objetivo dramatico, eventos predefinidos pendientes, personajes recientes y siguiente empuje narrativo. No escribas esta comprobacion a Sandra.
 - Actualiza state.chapter_scene_progress del capitulo actual. Marca como "cumplido" cualquier beat que haya ocurrido con una evidencia breve. Beats: peligro, clase_aprendizaje, amistad_apoyo, romance_tension, misterio, decision.
 - No cierres un capitulo si no se han cumplido al menos 4 de los 6 beats, salvo que los no aplicables esten marcados como "no_aplica" con evidencia. La decision y la pista de misterio casi siempre deben cumplirse antes de cerrar.
+- El capitulo 1 tiene una escaleta obligatoria en state.required_event_progress. Debes desarrollar sus hitos en el orden indicado. En cada respuesta, empuja con naturalidad hacia el siguiente hito pendiente, sin saltarlo ni marcarlo cumplido solo porque se haya mencionado. Un hito solo se cumple si se ha jugado en la narracion y Sandra ha tenido una oportunidad real de reaccionar o decidir.
+- No cierres el capitulo 1 hasta que TODOS sus hitos obligatorios esten en estado "cumplido". El ultimo, "Sandra deja atras la casa", exige que haya cruzado el umbral de la casa hacia el mundo magico; aceptar la carta sin salir aun no basta.
 - Mantener y actualizar las fichas vivas de personajes. Si una escena cambia una relacion, secreto, ultima escena, tension romantica o limite de revelacion, actualiza solo esa ficha en state.character_sheets. No inventes cambios para personajes que no han intervenido.
 - Cuando termine un capitulo, marca chapter_transition.completed=true, pero no escribas tu el cartel de "Capitulo terminado"; el sistema lo anadira.
 - Tras completar el capitulo 10, marca season_complete=true y no abras un capitulo 11.
@@ -1273,6 +1416,21 @@ Devuelve SOLO JSON valido con este formato:
           "romance_tension": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que tension romantica ocurrio", "last_update": "turno actual breve"}},
           "misterio": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que pista aparecio", "last_update": "turno actual breve"}},
           "decision": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que decision tomo Sandra", "last_update": "turno actual breve"}}
+        }}
+      }}
+    }},
+    "required_event_progress": {{
+      "1": {{
+        "events": {{
+          "la_casa_jaula": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
+          "cerradura_responde": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
+          "la_carta_llama": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
+          "encuentra_la_carta": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
+          "kilnip_despierta": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
+          "revelacion_practica": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
+          "dario_casi_descubre": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
+          "decision_irreversible": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
+          "cruza_el_umbral": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}}
         }}
       }}
     }},
@@ -1520,15 +1678,18 @@ async def process_sandra_message_batch(chat_id: int) -> None:
     data["state"] = merge_state(previous_state, scene_state)
     transition = scene.get("chapter_transition")
     completed_chapter = completed_chapter_from_transition(data["state"], transition)
-    if completed_chapter and not chapter_ready_by_scene_progress(data["state"], completed_chapter):
-        progress = chapter_scene_progress_markdown(
-            data["state"].get("chapter_scene_progress"),
+    general_beats_ready = completed_chapter and chapter_ready_by_scene_progress(data["state"], completed_chapter)
+    required_events_ready = completed_chapter and chapter_required_events_ready(data["state"], completed_chapter)
+    if completed_chapter and not (general_beats_ready and required_events_ready):
+        progress = chapter_scene_progress_markdown(data["state"].get("chapter_scene_progress"), completed_chapter)
+        required_events = required_event_progress_markdown(
+            data["state"].get("required_event_progress"),
             completed_chapter,
         )
         await send_admin(
-            "La IA intento cerrar un capitulo sin suficientes escenas obligatorias. "
+            "La IA intento cerrar un capitulo sin completar sus escenas o hitos obligatorios. "
             "No he cerrado el capitulo.\n\n"
-            f"{progress}"
+            f"{progress}\n\n{required_events}"
         )
         completed_chapter = None
         transition = {"completed": False}
@@ -1721,6 +1882,11 @@ async def cmd_progreso(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         state.get("chapter_scene_progress") or {},
         chapter_number,
     )
+    if chapter_number in CHAPTER_REQUIRED_EVENTS:
+        text += "\n\n# Hitos obligatorios\n\n" + required_event_progress_markdown(
+            state.get("required_event_progress") or {},
+            chapter_number,
+        )
     for chunk in split_long(text):
         await update.effective_chat.send_message(chunk)
 
@@ -1872,6 +2038,7 @@ async def send_story_start_message(*, manual: bool = False) -> bool:
         "next_suggested_scene": "Sandra decide si intenta salir, escucha la carta, busca otra salida o espera a que Dario se aleje",
         "character_sheets": default_character_sheets(),
         "chapter_scene_progress": default_chapter_scene_progress(),
+        "required_event_progress": default_required_event_progress(),
     }
     data["chapter_review_pause"] = None
     save_data(data)
