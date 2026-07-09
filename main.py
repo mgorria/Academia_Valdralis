@@ -904,6 +904,15 @@ def course_complete_reply() -> str:
 
 
 def activate_chapter_review_pause(data: dict[str, Any], completed_chapter: int) -> str:
+    if completed_chapter == 1:
+        data["chapter_review_pause"] = {
+            "active": True,
+            "completed_chapter": completed_chapter,
+            "until_date": None,
+            "requires_manual_resume": True,
+            "created_at": now_iso(),
+        }
+        return "hasta que Miguel la reanude"
     if CHAPTER_REVIEW_PAUSE_DAYS <= 0 or completed_chapter >= 10:
         return ""
     until_date = datetime.now(APP_TIMEZONE).date() + timedelta(days=CHAPTER_REVIEW_PAUSE_DAYS)
@@ -911,6 +920,7 @@ def activate_chapter_review_pause(data: dict[str, Any], completed_chapter: int) 
         "active": True,
         "completed_chapter": completed_chapter,
         "until_date": until_date.isoformat(),
+        "requires_manual_resume": False,
         "created_at": now_iso(),
     }
     return until_date.isoformat()
@@ -920,6 +930,8 @@ def chapter_review_pause_is_active(data: dict[str, Any]) -> bool:
     pause = data.get("chapter_review_pause")
     if not isinstance(pause, dict) or not pause.get("active"):
         return False
+    if pause.get("requires_manual_resume"):
+        return True
     try:
         until_date = date.fromisoformat(str(pause.get("until_date")))
     except ValueError:
@@ -1625,22 +1637,21 @@ async def process_sandra_message_batch(chat_id: int) -> None:
         return
 
     text = "\n".join(clean_messages)
-    append_history("Sandra", text)
-    await send_admin(f"Sandra ({len(clean_messages)} mensaje/s agrupado/s):\n{text}")
-
     data = load_data()
     if data.get("paused"):
         await narrador_app.bot.send_message(chat_id=chat_id, text="La historia esta pausada un momento.")
         return
 
     if chapter_review_pause_is_active(data):
-        reply = chapter_review_pause_reply(data)
-        await narrador_app.bot.send_message(chat_id=chat_id, text=reply)
         await send_admin(
-            "Sandra ha escrito durante una pausa de revision de capitulo. No he llamado a la IA.\n\n"
+            "Sandra ha escrito durante un cierre de revision de capitulo. "
+            "No he respondido, no he llamado a la IA y no he guardado el mensaje en la memoria narrativa.\n\n"
             f"Sandra:\n{text}"
         )
         return
+
+    append_history("Sandra", text)
+    await send_admin(f"Sandra ({len(clean_messages)} mensaje/s agrupado/s):\n{text}")
 
     if (data.get("state") or {}).get("season_complete"):
         reply = course_complete_reply()
@@ -1726,7 +1737,7 @@ async def process_sandra_message_batch(chat_id: int) -> None:
                 f"Pausa de revision activada tras {chapter_label(completed_chapter)}.\n"
                 f"- Hasta: {pause_until}\n"
                 "- Usa /capitulos para revisar resumenes, /memoria para ver estado, "
-                "/corregir_memoria para ajustar canon o /reanudar para abrir antes."
+                "/corregir_memoria para ajustar canon o /reanudar para abrir el siguiente capitulo."
             )
     save_data(data)
     append_history("Narrador", reply)
@@ -1764,10 +1775,9 @@ async def handle_sandra_message(update: Update, context: ContextTypes.DEFAULT_TY
         return
 
     if chapter_review_pause_is_active(data):
-        reply = chapter_review_pause_reply(data)
-        await update.effective_chat.send_message(reply)
         await send_admin(
-            "Sandra ha escrito durante una pausa de revision de capitulo. No he llamado a la IA.\n\n"
+            "Sandra ha escrito durante un cierre de revision de capitulo. "
+            "No he respondido, no he llamado a la IA y no he guardado el mensaje en la memoria narrativa.\n\n"
             f"Sandra:\n{text}"
         )
         return
@@ -1830,7 +1840,10 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         f"- Resumen diario: {DAILY_SUMMARY_HOUR:02d}:{DAILY_SUMMARY_MINUTE:02d}",
     ]
     if review_active:
-        lines.append(f"- Revision hasta: {review_pause.get('until_date', 'sin fecha')}")
+        if review_pause.get("requires_manual_resume"):
+            lines.append("- Revision: cerrada hasta que Miguel use /reanudar")
+        else:
+            lines.append(f"- Revision hasta: {review_pause.get('until_date', 'sin fecha')}")
     await update.effective_chat.send_message("\n".join(lines))
 
 

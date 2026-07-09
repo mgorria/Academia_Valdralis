@@ -631,6 +631,8 @@ Regla de ritmo: cada 2 o 3 respuestas del bot debe ocurrir algo que cambie la es
 
 La IA debe saber siempre en que capitulo esta. Cuando se cumpla el objetivo dramatico del capitulo, debe marcar la transicion para que el sistema anada el cartel "Capitulo X terminado" y pase al siguiente. No debe saltar capitulos por prisa.
 
+Al cerrar el capitulo 1, Valdralis queda clausurada para Sandra hasta que Miguel revise la partida y la reanude desde el bot de control. No hay respuesta automatica, memoria nueva ni avance narrativo durante ese cierre. El resumen canonico, las fichas de personajes y los hitos del capitulo deben servir para revisar que funciono antes de abrir el capitulo 2.
+
 Al terminar el capitulo 10 termina el primer curso. No hay capitulo 11. La narracion se detiene hasta "el curso que viene".
 
 La IA debe comprobar el progreso narrativo antes de cada respuesta:
