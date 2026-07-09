@@ -946,6 +946,11 @@ def chapter_review_pause_is_active(data: dict[str, Any]) -> bool:
 def chapter_review_pause_reply(data: dict[str, Any]) -> str:
     pause = data.get("chapter_review_pause") or {}
     completed = pause.get("completed_chapter")
+    if completed == 1:
+        return (
+            "Has alcanzado el primer hito de Valdralis.\n\n"
+            "La historia se detiene aqui por ahora. Pronto podras continuar."
+        )
     until_date = pause.get("until_date")
     chapter = chapter_label(int(completed)) if str(completed).isdigit() else "El capitulo"
     return (
@@ -1643,9 +1648,10 @@ async def process_sandra_message_batch(chat_id: int) -> None:
         return
 
     if chapter_review_pause_is_active(data):
+        await narrador_app.bot.send_message(chat_id=chat_id, text=chapter_review_pause_reply(data))
         await send_admin(
             "Sandra ha escrito durante un cierre de revision de capitulo. "
-            "No he respondido, no he llamado a la IA y no he guardado el mensaje en la memoria narrativa.\n\n"
+            "He enviado el aviso fijo de hito alcanzado; no he llamado a la IA ni he guardado el mensaje en la memoria narrativa.\n\n"
             f"Sandra:\n{text}"
         )
         return
@@ -1731,7 +1737,7 @@ async def process_sandra_message_batch(chat_id: int) -> None:
         if pause_until:
             reply = (
                 f"{reply}\n\n"
-                "Valdralis guarda silencio entre umbrales. La siguiente puerta se abrira cuando la niebla este lista."
+                f"{chapter_review_pause_reply(data)}"
             )
             await send_admin(
                 f"Pausa de revision activada tras {chapter_label(completed_chapter)}.\n"
@@ -1775,9 +1781,10 @@ async def handle_sandra_message(update: Update, context: ContextTypes.DEFAULT_TY
         return
 
     if chapter_review_pause_is_active(data):
+        await update.effective_chat.send_message(chapter_review_pause_reply(data))
         await send_admin(
             "Sandra ha escrito durante un cierre de revision de capitulo. "
-            "No he respondido, no he llamado a la IA y no he guardado el mensaje en la memoria narrativa.\n\n"
+            "He enviado el aviso fijo de hito alcanzado; no he llamado a la IA ni he guardado el mensaje en la memoria narrativa.\n\n"
             f"Sandra:\n{text}"
         )
         return
