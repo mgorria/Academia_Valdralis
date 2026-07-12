@@ -62,6 +62,10 @@ Sandra escribe al narrador como si escribiera una novela. El bot:
 5. Actualiza la memoria interna.
 6. Avisa a Miguel si hay una decision de lore importante.
 
+Sandra debe reunir todo lo que quiera hacer, decir o sentir en un unico mensaje por turno. El buffer de 25 segundos se mantiene como proteccion si envia varias frases seguidas, pero el mensaje de inicio le pide expresamente una sola respuesta completa.
+
+Si Sandra pide ayuda, un resumen o un recordatorio, el narrador no sale del papel: Kilnip le recuerda dentro de la escena los hechos conocidos, objetos, hilos abiertos y la urgencia inmediata. Antes de que Kilnip despierte, esa guia llega mediante la carta o el sello azul.
+
 `/probar` solo responde al bot de control. No envia nada a Sandra y no guarda memoria.
 
 Los mensajes de Sandra se agrupan durante `MESSAGE_BUFFER_SECONDS` segundos. Si Sandra manda varias frases seguidas, el bot espera 25 segundos desde el ultimo mensaje y responde a todo junto.
@@ -81,9 +85,11 @@ La biblia de lore incluye tambien un resumen de trama de temporada, un grimorio 
 
 El estado tambien trackea el progreso de escenas obligatorias por capitulo (`chapter_scene_progress`): peligro, clase/aprendizaje, amistad/apoyo, romance/tension, misterio y decision. Se revisa con `/progreso` o `/progreso 5`. Si la IA intenta cerrar un capitulo con menos de 4 beats cumplidos/no aplicables, el sistema no lo cierra y avisa a Miguel.
 
+El capitulo 1 tiene ademas nueve hitos obligatorios y ordenados (`required_event_progress`). Solo puede registrarse un hito nuevo por respuesta. La IA no controla los campos que cambian de capitulo: el codigo ignora esos cambios y valida que toda transicion sea consecutiva y cumpla los requisitos.
+
 ## Capitulos
 
-La IA mantiene el capitulo actual en memoria. Cuando se cumple el objetivo dramatico de un capitulo, el sistema anade automaticamente:
+La IA mantiene el capitulo actual en memoria, pero solo el sistema puede cambiar su numero. Cuando se cumple el objetivo dramatico de un capitulo y se validan sus requisitos, el sistema anade automaticamente el cierre.
 
 ```text
 Capitulo X terminado.
@@ -95,7 +101,9 @@ Al terminar el capitulo 10, el primer curso queda cerrado y el bot no continua l
 
 Al cerrar cada capitulo, el bot genera y guarda un resumen canonico. La IA recibe esos resumenes antes de responder, para mantener continuidad aunque pasen meses.
 
-Despues de cada capitulo cerrado, el bot puede activar una pausa de revision. Por defecto son 14 dias (`CHAPTER_REVIEW_PAUSE_DAYS=14`). Durante esa pausa, Sandra recibe una respuesta narrativa de interludio y la IA no continua la historia. Miguel puede revisar `/capitulos`, `/memoria`, usar `/corregir_memoria` y reabrir antes con `/reanudar`.
+Tras cerrar el capitulo 1, el bot activa una pausa manual de revision. El estado permanece en el capitulo 1 y, escriba lo que escriba Sandra, recibe siempre el aviso fijo de que ha terminado y pronto llegara la continuacion. Esos mensajes no llaman a la IA ni entran en la memoria narrativa. Miguel puede revisar `/capitulos`, `/memoria`, usar `/corregir_memoria` y abrir el capitulo 2 exclusivamente con `/reanudar`.
+
+Los capitulos posteriores conservan la pausa programada por `CHAPTER_REVIEW_PAUSE_DAYS`.
 
 ## Preludio
 

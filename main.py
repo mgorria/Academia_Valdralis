@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import signal
+import unicodedata
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -84,6 +85,47 @@ CHAPTER_SCENE_BEATS = {
     "decision": "momento de decision activa de Sandra",
 }
 CHAPTER_SCENE_MINIMUM_COMPLETED = 4
+PROTECTED_CHAPTER_STATE_FIELDS = {
+    "chapter",
+    "current_chapter_number",
+    "completed_chapters",
+    "season_complete",
+}
+HELP_REQUEST_MARKERS = (
+    "ayuda",
+    "ayudame",
+    "no se que hacer",
+    "que hago",
+    "estoy perdida",
+    "estoy bloqueada",
+    "recuerdame",
+    "hazme un resumen",
+    "dame una pista",
+    "que opciones tengo",
+    "por donde sigo",
+)
+FORBIDDEN_NARRATOR_PHRASES = (
+    "como inteligencia artificial",
+    "como ia",
+    "soy una ia",
+    "soy un bot",
+    "soy un modelo",
+    "modelo de lenguaje",
+    "como asistente",
+    "mi prompt",
+    "el prompt del sistema",
+    "mis instrucciones internas",
+    "segun mis instrucciones",
+    "politica de contenido",
+    "no puedo generar",
+    "no puedo proporcionar",
+    "no puedo cumplir",
+    "no tengo acceso a",
+    "fuera de rol",
+    "offrol",
+    "contacta con miguel",
+    "miguel revisara",
+)
 CHAPTER_REQUIRED_EVENTS = {
     1: [
         ("la_casa_jaula", "La casa se convierte en una jaula", "Dario sigue siendo una amenaza cercana y Sandra siente la urgencia real de escapar."),
@@ -115,6 +157,21 @@ def require_env(name: str) -> str:
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def normalized_for_detection(text: str) -> str:
+    decomposed = unicodedata.normalize("NFKD", str(text).casefold())
+    return "".join(character for character in decomposed if not unicodedata.combining(character))
+
+
+def is_help_request(text: str) -> bool:
+    normalized = normalized_for_detection(text)
+    return any(marker in normalized for marker in HELP_REQUEST_MARKERS)
+
+
+def narrator_role_violation(reply: str) -> str | None:
+    normalized = normalized_for_detection(reply)
+    return next((phrase for phrase in FORBIDDEN_NARRATOR_PHRASES if phrase in normalized), None)
 
 
 def character_sheet(
@@ -501,13 +558,16 @@ def merge_required_event_progress(existing: Any, updates: Any = None) -> dict[st
                     if current.get("status") == "cumplido" and incoming_status != "cumplido":
                         update.pop("status", None)
                     elif incoming_status == "cumplido" and current.get("status") != "cumplido":
+                        if not update.get("evidence"):
+                            update.pop("status", None)
+                            incoming_status = None
                         event_order = list(merged[key]["events"])
                         event_index = event_order.index(event_key)
                         earlier_events_complete = all(
                             merged[key]["events"][earlier_key].get("status") == "cumplido"
                             for earlier_key in event_order[:event_index]
                         )
-                        if newly_completed or not earlier_events_complete:
+                        if incoming_status != "cumplido" or newly_completed or not earlier_events_complete:
                             update.pop("status", None)
                         else:
                             newly_completed = True
@@ -545,11 +605,14 @@ def merge_chapter_scene_progress(existing: Any, updates: Any = None) -> dict[str
             key = str(chapter_number).strip()
             if key not in merged or not isinstance(chapter_data, dict):
                 continue
-            if chapter_data.get("chapter"):
+            if source == "existing" and chapter_data.get("chapter"):
                 merged[key]["chapter"] = str(chapter_data.get("chapter")).strip()
-            if chapter_data.get("minimum_completed"):
+            if source == "existing" and chapter_data.get("minimum_completed"):
                 try:
-                    merged[key]["minimum_completed"] = int(chapter_data.get("minimum_completed"))
+                    merged[key]["minimum_completed"] = max(
+                        CHAPTER_SCENE_MINIMUM_COMPLETED,
+                        min(len(CHAPTER_SCENE_BEATS), int(chapter_data.get("minimum_completed"))),
+                    )
                 except (TypeError, ValueError):
                     pass
             beats = chapter_data.get("beats")
@@ -567,9 +630,16 @@ def merge_chapter_scene_progress(existing: Any, updates: Any = None) -> dict[str
                         "label": CHAPTER_SCENE_BEATS[beat_key],
                     }
                 else:
+                    update = normalize_scene_beat_update(beat_data)
+                    current_status = current.get("status")
+                    incoming_status = update.get("status")
+                    if current_status in {"cumplido", "no_aplica"} and incoming_status != current_status:
+                        update.pop("status", None)
+                    elif incoming_status in {"cumplido", "no_aplica"} and not update.get("evidence"):
+                        update.pop("status", None)
                     merged[key]["beats"][beat_key] = {
                         **current,
-                        **normalize_scene_beat_update(beat_data),
+                        **update,
                         "label": CHAPTER_SCENE_BEATS[beat_key],
                     }
     return merged
@@ -631,6 +701,25 @@ def merge_state(previous_state: Any, scene_state: Any) -> dict[str, Any]:
         updates.get("required_event_progress"),
     )
     return normalize_state(merged)
+
+
+def narrative_state_update(scene_state: Any, current_chapter_number: int | None = None) -> dict[str, Any]:
+    if not isinstance(scene_state, dict):
+        return {}
+    update = {
+        key: value
+        for key, value in scene_state.items()
+        if key not in PROTECTED_CHAPTER_STATE_FIELDS
+    }
+    if current_chapter_number:
+        current_key = str(current_chapter_number)
+        for progress_field in ("chapter_scene_progress", "required_event_progress"):
+            progress = update.get(progress_field)
+            if isinstance(progress, dict):
+                update[progress_field] = {
+                    current_key: progress[current_key]
+                } if current_key in progress else {}
+    return update
 
 
 def default_state() -> dict[str, Any]:
@@ -800,6 +889,7 @@ def load_data() -> dict[str, Any]:
 
 
 def save_data(data: dict[str, Any]) -> None:
+    data = {**data, "state": normalize_state(data.get("state"))}
     if db_enabled():
         with db_connect() as conn:
             with conn.cursor() as cur:
@@ -890,7 +980,7 @@ def required_event_progress_markdown(progress: Any, chapter_number: int | None =
 
 def chapter_label(number: int) -> str:
     title = CHAPTER_TITLES.get(number)
-    return f"Capitulo {number}: {title}" if title else f"Capitulo {number}"
+    return f"Capítulo {number}: {title}" if title else f"Capítulo {number}"
 
 
 def course_complete_reply() -> str:
@@ -908,6 +998,7 @@ def activate_chapter_review_pause(data: dict[str, Any], completed_chapter: int) 
         data["chapter_review_pause"] = {
             "active": True,
             "completed_chapter": completed_chapter,
+            "next_chapter": 2,
             "until_date": None,
             "requires_manual_resume": True,
             "created_at": now_iso(),
@@ -919,6 +1010,7 @@ def activate_chapter_review_pause(data: dict[str, Any], completed_chapter: int) 
     data["chapter_review_pause"] = {
         "active": True,
         "completed_chapter": completed_chapter,
+        "next_chapter": min(10, completed_chapter + 1),
         "until_date": until_date.isoformat(),
         "requires_manual_resume": False,
         "created_at": now_iso(),
@@ -946,10 +1038,11 @@ def chapter_review_pause_is_active(data: dict[str, Any]) -> bool:
 def chapter_review_pause_reply(data: dict[str, Any]) -> str:
     pause = data.get("chapter_review_pause") or {}
     completed = pause.get("completed_chapter")
-    if completed == 1:
+    if str(completed) == "1":
         return (
-            "Has alcanzado el primer hito de Valdralis.\n\n"
-            "La historia se detiene aqui por ahora. Pronto podras continuar."
+            "CAPÍTULO 1 TERMINADO\n\n"
+            "Has alcanzado el primer hito de Valdralis. La historia queda en pausa por ahora.\n\n"
+            "Pronto recibirás la continuación."
         )
     until_date = pause.get("until_date")
     chapter = chapter_label(int(completed)) if str(completed).isdigit() else "El capitulo"
@@ -962,6 +1055,27 @@ def chapter_review_pause_reply(data: dict[str, Any]) -> str:
     )
 
 
+def open_pending_chapter_after_review(data: dict[str, Any]) -> int | None:
+    pause = data.get("chapter_review_pause")
+    if not isinstance(pause, dict):
+        return None
+    try:
+        completed = int(pause.get("completed_chapter") or 0)
+        next_chapter = int(pause.get("next_chapter") or completed + 1)
+        current = int((data.get("state") or {}).get("current_chapter_number") or 0)
+    except (TypeError, ValueError):
+        return None
+    if completed != 1 or current != completed or next_chapter != completed + 1:
+        return None
+    state = data.setdefault("state", default_state())
+    state["current_chapter_number"] = next_chapter
+    state["chapter"] = chapter_label(next_chapter)
+    state["season_complete"] = False
+    state["current_scene"] = "La salida de casa ha quedado atras; comienza el camino hacia el Bazar de los Primeros"
+    state["next_suggested_scene"] = "Kilnip guia a Sandra hacia el Bazar de los Primeros"
+    return next_chapter
+
+
 def apply_chapter_transition(data: dict[str, Any], transition: Any) -> str:
     if not isinstance(transition, dict) or not transition.get("completed"):
         return ""
@@ -971,19 +1085,18 @@ def apply_chapter_transition(data: dict[str, Any], transition: Any) -> str:
         completed = int(transition.get("completed_chapter") or state.get("current_chapter_number") or 0)
     except (TypeError, ValueError):
         completed = 0
-    try:
-        next_chapter = int(transition.get("next_chapter") or completed + 1)
-    except (TypeError, ValueError):
-        next_chapter = completed + 1
-
     if completed < 1 or completed > 10:
         return ""
 
-    completed_chapters = set(state.get("completed_chapters") or [])
+    completed_chapters = {
+        int(number)
+        for number in (state.get("completed_chapters") or [])
+        if str(number).isdigit()
+    }
     completed_chapters.add(completed)
     state["completed_chapters"] = sorted(completed_chapters)
 
-    if completed >= 10 or transition.get("season_complete"):
+    if completed >= 10:
         state["current_chapter_number"] = 10
         state["chapter"] = chapter_label(10)
         state["season_complete"] = True
@@ -995,7 +1108,15 @@ def apply_chapter_transition(data: dict[str, Any], transition: Any) -> str:
             "La historia se detiene aqui, por ahora. Valdralis volvera a abrir sus puertas el curso que viene."
         )
 
-    next_chapter = max(1, min(10, next_chapter))
+    if completed == 1:
+        state["current_chapter_number"] = 1
+        state["chapter"] = chapter_label(1)
+        state["season_complete"] = False
+        state["current_scene"] = "Capítulo 1 terminado; el siguiente umbral permanece cerrado"
+        state["next_suggested_scene"] = "Esperar a que vuelva a abrirse el camino hacia Valdralis"
+        return ""
+
+    next_chapter = min(10, completed + 1)
     state["current_chapter_number"] = next_chapter
     state["chapter"] = chapter_label(next_chapter)
     state["season_complete"] = False
@@ -1007,10 +1128,18 @@ def completed_chapter_from_transition(state: dict[str, Any], transition: Any) ->
         return None
     try:
         completed = int(transition.get("completed_chapter") or state.get("current_chapter_number") or 0)
+        current = int(state.get("current_chapter_number") or 0)
     except (TypeError, ValueError):
         return None
-    if completed < 1 or completed > 10:
+    if completed < 1 or completed > 10 or completed != current:
         return None
+    proposed_next = transition.get("next_chapter")
+    if completed < 10 and proposed_next is not None:
+        try:
+            if int(proposed_next) != completed + 1:
+                return None
+        except (TypeError, ValueError):
+            return None
     return completed
 
 
@@ -1312,11 +1441,9 @@ def prelude_guard_active() -> bool:
 
 def prelude_reply_for_text(text: str) -> str:
     return (
-        "Aun no ha empezado la partida.\n\n"
-        "Estos mensajes son solo el preludio: pequenas senales antes de abrir la carta. "
-        "No tienes que resolver nada todavia, ni responder de una forma concreta.\n\n"
-        "Cuando empiece, solo tendras que responder que haces, que dices o que sientes. "
-        "Hasta entonces, puedes leer las pistas y dejar que Valdralis se acerque."
+        "La carta todavía no se abre. Su sello azul palpita una vez bajo tus dedos y vuelve a quedarse quieto.\n\n"
+        "Aún no hay nada que resolver. Por ahora, solo puedes guardar las señales y dejar que "
+        "Valdralis se acerque. Cuando llegue la noche correcta, la carta te preguntará qué haces."
     )
 
 
@@ -1361,6 +1488,7 @@ def extract_json(text: str) -> dict[str, Any]:
 
 
 async def generate_scene(sandra_message: str) -> dict[str, Any]:
+    help_request = "si" if is_help_request(sandra_message) else "no"
     prompt = f"""
 Eres el narrador privado de una novela interactiva de fantasia romantica gotica.
 La jugadora es Sandra. No eres un asistente: eres la voz de la historia.
@@ -1369,6 +1497,9 @@ REGLAS DE ESTILO:
 - Nunca salgas del rol de narrador. No digas que eres IA, bot, modelo, sistema, prompt ni asistente.
 - No respondas en offrol a Sandra. Si Sandra pregunta algo tecnico, administrativo o fuera de personaje, reconducelo dentro de la ficcion con una respuesta breve de Valdralis.
 - Si detectas offrol, duda de direccion, problema de seguridad narrativa o pregunta para Miguel, marca admin_alert con el aviso. A Sandra no le expliques el funcionamiento interno.
+- El campo reply solo puede contener narracion, dialogo de personajes y elementos que existan dentro del mundo. No incluyas encabezados tecnicos, explicaciones de reglas, comentarios al jugador, analisis, disculpas ni menciones al control privado.
+- Si Sandra pide ayuda, un resumen, una pista, un recordatorio o dice que no sabe que hacer, responde dentro de la escena mediante Kilnip. Kilnip debe recordarle brevemente hechos que Sandra ya conoce, objetos relevantes, hilos abiertos y la urgencia inmediata, sin revelar secretos pendientes y sin ofrecer opciones A/B/C.
+- Si Kilnip aun no ha salido del sello, no lo hagas aparecer antes de tiempo: la carta, el sello azul o la casa deben ofrecer la pista de forma diegetica. Despues de despertar, Kilnip es siempre la guia principal cuando Sandra se bloquea.
 - Narra en segunda persona, en espanol.
 - Incorpora siempre el gesto, frase o accion exacta que escriba Sandra.
 - Prosa literaria, atmosferica y emocional.
@@ -1388,6 +1519,7 @@ REGLAS DE ESTILO:
 - No cierres un capitulo si no se han cumplido al menos 4 de los 6 beats, salvo que los no aplicables esten marcados como "no_aplica" con evidencia. La decision y la pista de misterio casi siempre deben cumplirse antes de cerrar.
 - El capitulo 1 tiene una escaleta obligatoria en state.required_event_progress. Debes desarrollar sus hitos en el orden indicado. En cada respuesta, empuja con naturalidad hacia el siguiente hito pendiente, sin saltarlo ni marcarlo cumplido solo porque se haya mencionado. Un hito solo se cumple si se ha jugado en la narracion y Sandra ha tenido una oportunidad real de reaccionar o decidir.
 - No cierres el capitulo 1 hasta que TODOS sus hitos obligatorios esten en estado "cumplido". El ultimo, "Sandra deja atras la casa", exige que haya cruzado el umbral de la casa hacia el mundo magico; aceptar la carta sin salir aun no basta.
+- No adelantes state.chapter, state.current_chapter_number, state.completed_chapters ni state.season_complete. El sistema es el unico que cambia de capitulo despues de validar todos los requisitos.
 - Mantener y actualizar las fichas vivas de personajes. Si una escena cambia una relacion, secreto, ultima escena, tension romantica o limite de revelacion, actualiza solo esa ficha en state.character_sheets. No inventes cambios para personajes que no han intervenido.
 - Cuando termine un capitulo, marca chapter_transition.completed=true, pero no escribas tu el cartel de "Capitulo terminado"; el sistema lo anadira.
 - Tras completar el capitulo 10, marca season_complete=true y no abras un capitulo 11.
@@ -1410,9 +1542,12 @@ HISTORIAL RECIENTE:
 ULTIMO MENSAJE DE SANDRA:
 {sandra_message}
 
+PETICION DE AYUDA O RECORDATORIO DETECTADA: {help_request}
+Si pone "si", aplica obligatoriamente la regla de guia diegetica de Kilnip o, si sigue sellado, de la carta azul.
+
 Devuelve SOLO JSON valido con este formato:
 {{
-  "reply": "respuesta narrativa para Sandra, 3 a 8 parrafos",
+  "reply": "respuesta narrativa para Sandra, 2 a 8 parrafos; siempre dentro de la ficcion",
   "state": {{
     "chapter": "capitulo actual",
     "current_chapter_number": 1,
@@ -1424,7 +1559,7 @@ Devuelve SOLO JSON valido con este formato:
     "relationships": {{"nombre": "estado breve de relacion"}},
     "chapter_scene_progress": {{
       "1": {{
-        "chapter": "Capitulo 1: La carta bajo la puerta",
+        "chapter": "Capítulo 1: La carta bajo la puerta",
         "minimum_completed": 4,
         "beats": {{
           "peligro": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que escena lo cumplio", "last_update": "turno actual breve"}},
@@ -1476,19 +1611,36 @@ Devuelve SOLO JSON valido con este formato:
   "admin_alert": "aviso para Miguel si Sandra ha escrito offrol, pregunta tecnica, intento de romper personaje o algo que el narrador no debe responder fuera de ficcion; si no, cadena vacia"
 }}
 """
-    response = await openai_client().responses.create(
-        model=OPENAI_MODEL,
-        input=prompt,
-        text={"format": {"type": "json_object"}},
-    )
-    if not response.output_text:
-        raise RuntimeError("OpenAI devolvio una respuesta vacia")
-    data = extract_json(response.output_text)
-    if not data.get("reply"):
-        raise RuntimeError("La IA no devolvio reply")
-    if not isinstance(data.get("state"), dict):
-        data["state"] = load_data().get("state", default_state())
-    return data
+    correction = ""
+    for attempt in range(2):
+        response = await openai_client().responses.create(
+            model=OPENAI_MODEL,
+            input=prompt + correction,
+            text={"format": {"type": "json_object"}},
+        )
+        if not response.output_text:
+            raise RuntimeError("OpenAI devolvio una respuesta vacia")
+        data = extract_json(response.output_text)
+        reply = str(data.get("reply") or "").strip()
+        if not reply:
+            raise RuntimeError("La IA no devolvio reply")
+        violation = narrator_role_violation(reply)
+        if not violation:
+            if not isinstance(data.get("state"), dict):
+                data["state"] = load_data().get("state", default_state())
+            return data
+        logger.warning(
+            "Respuesta narrativa rechazada por salida de rol (%s), intento %s",
+            violation,
+            attempt + 1,
+        )
+        correction = (
+            "\n\nCORRECCION OBLIGATORIA: tu respuesta anterior rompio el rol de narrador. "
+            "Genera de nuevo todo el JSON. El campo reply debe permanecer por completo dentro "
+            "de la ficcion y no puede mencionar IA, bot, modelo, sistema, prompt, asistente, "
+            "offrol ni a Miguel."
+        )
+    raise RuntimeError("La IA insistio en salir del rol de narrador")
 
 
 async def generate_summary() -> str:
@@ -1604,22 +1756,55 @@ async def narrador_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await send_admin(f"Sandra ha vinculado el narrador. chat_id: {update.effective_chat.id}")
     elif int(data["sandra_chat_id"]) != update.effective_chat.id:
         return
+    if chapter_review_pause_is_active(data):
+        await update.effective_chat.send_message(chapter_review_pause_reply(data))
+        return
+    if (data.get("state") or {}).get("season_complete"):
+        await update.effective_chat.send_message(course_complete_reply())
+        return
     if prelude_guard_active():
         await update.effective_chat.send_message(
-            "Valdralis esta cerca, pero la carta aun no se abre. "
-            "Hasta la noche correcta, solo llegaran senales."
+            "Valdralis está cerca, pero la carta aún no se abre. "
+            "Hasta la noche correcta, solo llegarán señales."
         )
         return
     await update.effective_chat.send_message(
-        "Valdralis esta listo. Escribe lo que haces, dices o sientes, y la historia seguira."
+        "Una línea de tinta azul se mueve en el margen de la carta, atenta. "
+        "Valdralis escucha lo que haces, dices y sientes."
     )
 
 
 async def narrador_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if update.effective_chat:
-        await update.effective_chat.send_message(
-            "Escribe una accion, frase o pensamiento de tu personaje. No hay opciones cerradas."
-        )
+    if not update.effective_chat:
+        return
+    data = load_data()
+    sandra_id = data.get("sandra_chat_id")
+    if sandra_id and int(sandra_id) != update.effective_chat.id:
+        return
+    if chapter_review_pause_is_active(data):
+        await update.effective_chat.send_message(chapter_review_pause_reply(data))
+        return
+    if (data.get("state") or {}).get("season_complete"):
+        await update.effective_chat.send_message(course_complete_reply())
+        return
+    if prelude_guard_active():
+        await update.effective_chat.send_message(prelude_reply_for_text("ayuda"))
+        return
+    chat_id = update.effective_chat.id
+    help_text = (
+        "Me detengo y pido una señal. Necesito recordar qué sé, qué asuntos siguen abiertos "
+        "y qué es lo más urgente ahora."
+    )
+    sandra_message_buffers.setdefault(chat_id, []).append(help_text)
+    existing_task = sandra_message_tasks.get(chat_id)
+    if existing_task and not existing_task.done():
+        existing_task.cancel()
+    sandra_message_tasks[chat_id] = asyncio.create_task(process_sandra_message_after_idle(chat_id))
+    await context.bot.send_chat_action(chat_id, ChatAction.TYPING)
+
+
+async def unknown_narrador_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await narrador_help(update, context)
 
 
 async def process_sandra_message_after_idle(chat_id: int) -> None:
@@ -1644,7 +1829,10 @@ async def process_sandra_message_batch(chat_id: int) -> None:
     text = "\n".join(clean_messages)
     data = load_data()
     if data.get("paused"):
-        await narrador_app.bot.send_message(chat_id=chat_id, text="La historia esta pausada un momento.")
+        await narrador_app.bot.send_message(
+            chat_id=chat_id,
+            text="El reloj sin minutos ha detenido sus agujas. Valdralis guarda silencio.",
+        )
         return
 
     if chapter_review_pause_is_active(data):
@@ -1671,7 +1859,7 @@ async def process_sandra_message_batch(chat_id: int) -> None:
     if not openai_available():
         await narrador_app.bot.send_message(
             chat_id=chat_id,
-            text="La tinta de Valdralis se queda inmovil. Falta configurar la llave de la historia.",
+            text="La tinta azul se queda inmóvil. Algo al otro lado de la carta contiene el aliento.",
         )
         await send_admin("Falta OPENAI_API_KEY; no puedo responder como narrador.")
         return
@@ -1683,7 +1871,7 @@ async def process_sandra_message_batch(chat_id: int) -> None:
         logger.exception("Error generando escena")
         await narrador_app.bot.send_message(
             chat_id=chat_id,
-            text="Algo en Valdralis se ha cerrado de golpe. Miguel revisara la escena.",
+            text="La tinta azul se quiebra a mitad de una palabra. Durante un instante, Valdralis queda en silencio.",
         )
         await send_admin(f"Error generando escena: {type(exc).__name__}: {exc}")
         return
@@ -1691,10 +1879,21 @@ async def process_sandra_message_batch(chat_id: int) -> None:
     reply = str(scene["reply"]).strip()
     data = load_data()
     previous_state = data.get("state") or default_state()
-    scene_state = scene.get("state") if isinstance(scene.get("state"), dict) else {}
+    try:
+        current_chapter_number = int(previous_state.get("current_chapter_number") or 0) or None
+    except (TypeError, ValueError):
+        current_chapter_number = None
+    scene_state = narrative_state_update(scene.get("state"), current_chapter_number)
     data["state"] = merge_state(previous_state, scene_state)
     transition = scene.get("chapter_transition")
     completed_chapter = completed_chapter_from_transition(data["state"], transition)
+    transition_requested = isinstance(transition, dict) and bool(transition.get("completed"))
+    if transition_requested and completed_chapter is None:
+        await send_admin(
+            "La IA intento una transicion de capitulo invalida o un salto de numeracion. "
+            "El sistema la ha rechazado y mantiene el capitulo actual."
+        )
+        transition = {"completed": False}
     general_beats_ready = completed_chapter and chapter_ready_by_scene_progress(data["state"], completed_chapter)
     required_events_ready = completed_chapter and chapter_required_events_ready(data["state"], completed_chapter)
     if completed_chapter and not (general_beats_ready and required_events_ready):
@@ -1711,7 +1910,7 @@ async def process_sandra_message_batch(chat_id: int) -> None:
         completed_chapter = None
         transition = {"completed": False}
     if completed_chapter:
-        title = CHAPTER_TITLES.get(completed_chapter, f"Capitulo {completed_chapter}")
+        title = CHAPTER_TITLES.get(completed_chapter, f"Capítulo {completed_chapter}")
         try:
             summary = await generate_chapter_summary(
                 chapter_number=completed_chapter,
@@ -1727,6 +1926,9 @@ async def process_sandra_message_batch(chat_id: int) -> None:
                 f"- Escena de cierre: {data['state'].get('current_scene', 'sin escena registrada')}"
             )
         save_chapter_summary(completed_chapter, title, summary)
+        merged_story_state = data["state"]
+        data = load_data()
+        data["state"] = merged_story_state
         await send_admin(f"Resumen canonico guardado para {chapter_label(completed_chapter)}:\n{summary}")
 
     chapter_banner = apply_chapter_transition(data, transition)
@@ -1777,7 +1979,9 @@ async def handle_sandra_message(update: Update, context: ContextTypes.DEFAULT_TY
         await update.effective_chat.send_message("Ahora mismo solo puedo continuar con texto.")
         return
     if data.get("paused"):
-        await update.effective_chat.send_message("La historia esta pausada un momento.")
+        await update.effective_chat.send_message(
+            "El reloj sin minutos ha detenido sus agujas. Valdralis guarda silencio."
+        )
         return
 
     if chapter_review_pause_is_active(data):
@@ -1960,9 +2164,15 @@ async def cmd_reanudar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         return
     data = load_data()
     data["paused"] = False
+    opened_chapter = open_pending_chapter_after_review(data)
     data["chapter_review_pause"] = None
     save_data(data)
-    await update.effective_chat.send_message("Partida reanudada.")
+    if opened_chapter:
+        await update.effective_chat.send_message(
+            f"Partida reanudada. {chapter_label(opened_chapter)} queda abierto."
+        )
+    else:
+        await update.effective_chat.send_message("Partida reanudada.")
 
 
 async def cmd_decir(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -2049,7 +2259,7 @@ async def send_story_start_message(*, manual: bool = False) -> bool:
     data["story_start_sent"] = True
     data["state"] = {
         **(data.get("state") or default_state()),
-        "chapter": "Capitulo 1: La carta bajo la puerta",
+        "chapter": chapter_label(1),
         "current_chapter_number": 1,
         "completed_chapters": [],
         "season_complete": False,
@@ -2274,6 +2484,7 @@ def build_narrador_app() -> Application:
     app = ApplicationBuilder().token(require_env("TOKEN_NARRADOR")).build()
     app.add_handler(CommandHandler("start", narrador_start))
     app.add_handler(CommandHandler("ayuda", narrador_help))
+    app.add_handler(MessageHandler(filters.COMMAND, unknown_narrador_command))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_sandra_message))
     return app
 
