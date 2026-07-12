@@ -1489,6 +1489,14 @@ def extract_json(text: str) -> dict[str, Any]:
 
 async def generate_scene(sandra_message: str) -> dict[str, Any]:
     help_request = "si" if is_help_request(sandra_message) else "no"
+    current_state = load_data().get("state") or default_state()
+    required_progress = merge_required_event_progress(current_state.get("required_event_progress"))
+    kilnip_event = (
+        required_progress.get("1", {})
+        .get("events", {})
+        .get("kilnip_despierta", {})
+    )
+    kilnip_awake = "si" if kilnip_event.get("status") == "cumplido" else "no"
     prompt = f"""
 Eres el narrador privado de una novela interactiva de fantasia romantica gotica.
 La jugadora es Sandra. No eres un asistente: eres la voz de la historia.
@@ -1499,6 +1507,7 @@ REGLAS DE ESTILO:
 - Si detectas offrol, duda de direccion, problema de seguridad narrativa o pregunta para Miguel, marca admin_alert con el aviso. A Sandra no le expliques el funcionamiento interno.
 - El campo reply solo puede contener narracion, dialogo de personajes y elementos que existan dentro del mundo. No incluyas encabezados tecnicos, explicaciones de reglas, comentarios al jugador, analisis, disculpas ni menciones al control privado.
 - Si Sandra pide ayuda, un resumen, una pista, un recordatorio o dice que no sabe que hacer, responde dentro de la escena mediante Kilnip. Kilnip debe recordarle brevemente hechos que Sandra ya conoce, objetos relevantes, hilos abiertos y la urgencia inmediata, sin revelar secretos pendientes y sin ofrecer opciones A/B/C.
+- Una vez despierto, Kilnip habla directamente dentro de la cabeza de Sandra cuando ella pide ayuda. Deja claro que solo ella oye esa voz. Usa de una a cuatro frases mentales breves, nerviosas y concretas, y acompanalo con algun gesto fisico de Kilnip. Su voz resume y orienta, pero no decide por Sandra.
 - Si Kilnip aun no ha salido del sello, no lo hagas aparecer antes de tiempo: la carta, el sello azul o la casa deben ofrecer la pista de forma diegetica. Despues de despertar, Kilnip es siempre la guia principal cuando Sandra se bloquea.
 - Narra en segunda persona, en espanol.
 - Incorpora siempre el gesto, frase o accion exacta que escriba Sandra.
@@ -1543,7 +1552,8 @@ ULTIMO MENSAJE DE SANDRA:
 {sandra_message}
 
 PETICION DE AYUDA O RECORDATORIO DETECTADA: {help_request}
-Si pone "si", aplica obligatoriamente la regla de guia diegetica de Kilnip o, si sigue sellado, de la carta azul.
+KILNIP YA HA DESPERTADO Y ESTA VINCULADO A SANDRA: {kilnip_awake}
+Si la peticion pone "si" y Kilnip esta despierto, incluye obligatoriamente su voz dentro de la cabeza de Sandra. Si sigue sellado, la guia debe venir de la carta azul sin hacer aparecer a Kilnip antes de tiempo.
 
 Devuelve SOLO JSON valido con este formato:
 {{

@@ -64,7 +64,7 @@ Sandra escribe al narrador como si escribiera una novela. El bot:
 
 Sandra debe reunir todo lo que quiera hacer, decir o sentir en un unico mensaje por turno. El buffer de 25 segundos se mantiene como proteccion si envia varias frases seguidas, pero el mensaje de inicio le pide expresamente una sola respuesta completa.
 
-Si Sandra pide ayuda, un resumen o un recordatorio, el narrador no sale del papel: Kilnip le recuerda dentro de la escena los hechos conocidos, objetos, hilos abiertos y la urgencia inmediata. Antes de que Kilnip despierte, esa guia llega mediante la carta o el sello azul.
+Si Sandra pide ayuda, un resumen o un recordatorio, el narrador no sale del papel: una vez despierto, Kilnip le habla dentro de la cabeza y le recuerda los hechos conocidos, objetos, hilos abiertos y la urgencia inmediata. Solo Sandra oye esa voz. Antes de que Kilnip despierte, la guia llega mediante la carta o el sello azul.
 
 `/probar` solo responde al bot de control. No envia nada a Sandra y no guarda memoria.
 
