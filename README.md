@@ -36,6 +36,7 @@ En el bot privado:
 /personajes
 /progreso
 /historial 20
+/reenviar_ultimo
 /resumen
 /probar texto de Sandra para hacer una prueba privada
 /preludio_status
@@ -81,6 +82,8 @@ La partida guarda memoria de varias formas:
 `data/data.json` queda como copia espejo/respaldo local. En Railway, la memoria importante debe estar en Postgres.
 
 `/exportar_capitulo 1` envia al chat de control un archivo Markdown con la transcripcion completa del capitulo, su resumen canonico y la memoria visible al cierre. El archivo incluye instrucciones editoriales para subirlo a ChatGPT y convertirlo en un capitulo de novela sin adelantar secretos futuros. Si se usa antes del cierre, se marca como exportacion provisional.
+
+Las respuestas del narrador se reintentan hasta tres veces si Telegram devuelve un fallo temporal. El estado y el historial del narrador solo avanzan cuando Telegram confirma la entrega completa. Si aun asi falla, la respuesta queda pendiente con el numero de fragmentos ya enviados; `/reenviar_ultimo` completa esa entrega sin volver a llamar a la IA. Para respuestas guardadas por versiones anteriores, el mismo comando reenvia la ultima intervencion del narrador sin duplicarla en la memoria.
 
 Cada mensaje nuevo queda etiquetado con su numero de capitulo en Postgres. Al instalar esta version, los mensajes ya existentes desde la apertura de cumpleanos se asignan automaticamente al capitulo 1.
 

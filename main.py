@@ -17,6 +17,7 @@ from openai import AsyncOpenAI
 from psycopg.types.json import Jsonb
 from telegram import Update
 from telegram.constants import ChatAction
+from telegram.error import NetworkError, RetryAfter, TimedOut
 from telegram.ext import (
     Application,
     ApplicationBuilder,
@@ -35,6 +36,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger("control-partida-sandra")
 logging.getLogger("httpx").setLevel(logging.WARNING)
+
+
+class TelegramTextDeliveryError(RuntimeError):
+    def __init__(self, sent_chunks: int, total_chunks: int, cause: Exception):
+        super().__init__(str(cause))
+        self.sent_chunks = sent_chunks
+        self.total_chunks = total_chunks
+        self.cause = cause
 
 TOKEN_NARRADOR = os.getenv("TOKEN_NARRADOR")
 TOKEN_CONTROL = os.getenv("TOKEN_CONTROL")
@@ -865,6 +874,7 @@ def default_data() -> dict[str, Any]:
         "story_start_sent": False,
         "sent_chapter_openings": [],
         "chapter_review_pause": None,
+        "pending_narrator_delivery": None,
     }
 
 
@@ -1888,6 +1898,130 @@ def split_long(text: str, limit: int = 3900) -> list[str]:
     return chunks
 
 
+def telegram_retry_seconds(error: Exception, attempt: int) -> float:
+    retry_after = getattr(error, "retry_after", None)
+    if hasattr(retry_after, "total_seconds"):
+        retry_after = retry_after.total_seconds()
+    try:
+        return max(1.0, min(30.0, float(retry_after)))
+    except (TypeError, ValueError):
+        return float(min(8, 2 ** attempt))
+
+
+async def send_telegram_text(
+    bot: Any,
+    *,
+    chat_id: int,
+    text: str,
+    start_chunk: int = 0,
+    max_attempts: int = 3,
+) -> int:
+    chunks = split_long(text)
+    sent_chunks = max(0, min(start_chunk, len(chunks)))
+    for chunk_index in range(sent_chunks, len(chunks)):
+        chunk = chunks[chunk_index]
+        for attempt in range(max_attempts):
+            try:
+                await bot.send_message(chat_id=chat_id, text=chunk)
+                sent_chunks = chunk_index + 1
+                break
+            except (RetryAfter, TimedOut, NetworkError) as exc:
+                if attempt + 1 >= max_attempts:
+                    raise TelegramTextDeliveryError(sent_chunks, len(chunks), exc) from exc
+                delay = telegram_retry_seconds(exc, attempt)
+                logger.warning(
+                    "Fallo temporal enviando Telegram, fragmento %s/%s, reintento %s en %.1fs: %s",
+                    chunk_index + 1,
+                    len(chunks),
+                    attempt + 2,
+                    delay,
+                    type(exc).__name__,
+                )
+                await asyncio.sleep(delay)
+            except Exception as exc:
+                raise TelegramTextDeliveryError(sent_chunks, len(chunks), exc) from exc
+    return sent_chunks
+
+
+def latest_narrator_message() -> tuple[str, int | None] | None:
+    if db_enabled():
+        with db_connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    select text, chapter_number
+                    from story_messages
+                    where role = 'Narrador'
+                    order by created_at desc, id desc
+                    limit 1
+                    """
+                )
+                row = cur.fetchone()
+                if row:
+                    return str(row[0]), int(row[1]) if row[1] is not None else None
+    for item in reversed(load_data().get("history", [])):
+        if str(item.get("role") or "") != "Narrador":
+            continue
+        chapter_number = item.get("chapter_number")
+        try:
+            chapter_number = int(chapter_number) if chapter_number is not None else None
+        except (TypeError, ValueError):
+            chapter_number = None
+        return str(item.get("text") or ""), chapter_number
+    return None
+
+
+async def deliver_pending_narrator_reply() -> bool:
+    if not narrador_app:
+        return False
+    data = load_data()
+    pending = data.get("pending_narrator_delivery")
+    sandra_id = data.get("sandra_chat_id")
+    if not isinstance(pending, dict) or not sandra_id:
+        return False
+    text = str(pending.get("text") or "").strip()
+    if not text:
+        return False
+    try:
+        start_chunk = max(0, int(pending.get("sent_chunks") or 0))
+    except (TypeError, ValueError):
+        start_chunk = 0
+    try:
+        await send_telegram_text(
+            narrador_app.bot,
+            chat_id=int(sandra_id),
+            text=text,
+            start_chunk=start_chunk,
+        )
+    except TelegramTextDeliveryError as exc:
+        data = load_data()
+        current_pending = data.get("pending_narrator_delivery")
+        if isinstance(current_pending, dict):
+            current_pending["sent_chunks"] = exc.sent_chunks
+            current_pending["last_error"] = f"{type(exc.cause).__name__}: {exc.cause}"
+            current_pending["last_attempt_at"] = now_iso()
+            data["pending_narrator_delivery"] = current_pending
+            save_data(data)
+        return False
+
+    data = load_data()
+    pending = data.get("pending_narrator_delivery")
+    if not isinstance(pending, dict):
+        return False
+    proposed_state = pending.get("state_after_delivery")
+    if isinstance(proposed_state, dict):
+        data["state"] = proposed_state
+    data["chapter_review_pause"] = pending.get("chapter_review_pause_after_delivery")
+    data["pending_narrator_delivery"] = None
+    save_data(data)
+    try:
+        chapter_number = int(pending.get("chapter_number"))
+    except (TypeError, ValueError):
+        chapter_number = None
+    append_history("Narrador", text, chapter_number=chapter_number)
+    return True
+
+
 def openai_available() -> bool:
     return bool(OPENAI_API_KEY)
 
@@ -1940,6 +2074,7 @@ REGLAS DE ESTILO:
 - Si detectas offrol, duda de direccion, problema de seguridad narrativa o pregunta para Miguel, marca admin_alert con el aviso. A Sandra no le expliques el funcionamiento interno.
 - El campo reply solo puede contener narracion, dialogo de personajes y elementos que existan dentro del mundo. No incluyas encabezados tecnicos, explicaciones de reglas, comentarios al jugador, analisis, disculpas ni menciones al control privado.
 - Si Sandra pide ayuda, un resumen, una pista, un recordatorio o dice que no sabe que hacer, responde dentro de la escena mediante Kilnip. Kilnip debe recordarle brevemente hechos que Sandra ya conoce, objetos relevantes, hilos abiertos y la urgencia inmediata, sin revelar secretos pendientes y sin ofrecer opciones A/B/C.
+- Pedir ayuda no equivale a realizar una accion. Despues de la pista de Kilnip, no traslades a Sandra, no resuelvas la escena, no abras una zona nueva ni completes un hito salvo que su mismo mensaje contenga tambien una accion que lo justifique.
 - Una vez despierto, Kilnip habla directamente dentro de la cabeza de Sandra cuando ella pide ayuda. Deja claro que solo ella oye esa voz. Usa de una a cuatro frases mentales breves, nerviosas y concretas, y acompanalo con algun gesto fisico de Kilnip. Su voz resume y orienta, pero no decide por Sandra.
 - Si Kilnip aun no ha salido del sello, no lo hagas aparecer antes de tiempo: la carta, el sello azul o la casa deben ofrecer la pista de forma diegetica. Despues de despertar, Kilnip es siempre la guia principal cuando Sandra se bloquea.
 - Narra en segunda persona, en espanol.
@@ -1952,9 +2087,12 @@ REGLAS DE ESTILO:
 - Prosa literaria, atmosferica y emocional, pero precisa. Prefiere imagenes concretas a cadenas de comparaciones y no abuses de "parece", "como si", "algo", objetos que respiran o frases que explican el significado emocional de la escena.
 - Cada respuesta debe desarrollar un movimiento narrativo principal con profundidad. No comprimas llegada, explicacion, conflicto, solucion y salida en la misma respuesta.
 - Los PNJ tienen objetivos, humor, limites y opiniones. Deben preguntar, interrumpir, equivocarse y esperar respuestas; no funcionar como mostradores de exposicion.
+- No uses en reply el nombre propio de un personaje hasta que Sandra lo haya oido, leido o averiguado dentro de la historia. Los nombres privados de la Biblia no son conocimiento de Sandra.
 - No escribas por Sandra la respuesta a una pregunta de un PNJ. Tras una pregunta importante, una oferta o una provocacion, deja que ella conteste antes de hacer avanzar esa conversacion.
 - No uses opciones A/B/C ni menus.
+- Tampoco disfraces un menu dentro del dialogo con formulas como "puedes hacer X, Y o Z". Un PNJ puede dar informacion o formular una pregunta, pero no enumerar las posibles respuestas de Sandra.
 - No termines con una instruccion de juego como "que haces?". La decision debe quedar abierta por la propia situacion, con estilo de novela.
+- Una respuesta ordinaria debe intentar caber en un unico mensaje de Telegram: normalmente entre 1500 y 3500 caracteres. La profundidad nace de una escena concreta, no de acumular varios movimientos. Solo un climax puede necesitar mas extension.
 - No decidas por Sandra sus grandes decisiones internas.
 - Puede y debe haber tension romantica y sensual adulta: miradas, roces, deseo, besos que casi llegan, besos robados y consecuencias emocionales.
 - Si una escena intima llega a sexo, no cortes automaticamente con fundido a negro. Narrala de forma literaria y sensual, centrada en respiracion, manos, ritmo, cercania, vulnerabilidad y consecuencias emocionales.
@@ -2173,7 +2311,8 @@ async def control_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     if not is_admin(update):
         return
     await update.effective_chat.send_message(
-        "Control Partida Sandra activo. Usa /status, /estado, /historial 20 o /nota."
+        "Control Partida Sandra activo. Usa /status, /estado, /historial 20, "
+        "/reenviar_ultimo o /nota."
     )
 
 
@@ -2245,6 +2384,15 @@ async def process_sandra_message_after_idle(chat_id: int) -> None:
         await process_sandra_message_batch(chat_id)
     except asyncio.CancelledError:
         return
+    except Exception as exc:
+        sandra_message_tasks.pop(chat_id, None)
+        logger.exception("Fallo inesperado procesando el lote de Sandra")
+        try:
+            await send_admin(
+                f"Fallo inesperado procesando el mensaje de Sandra: {type(exc).__name__}: {exc}"
+            )
+        except Exception:
+            logger.exception("No se pudo avisar al chat de control del fallo inesperado")
 
 
 async def process_sandra_message_batch(chat_id: int) -> None:
@@ -2264,6 +2412,22 @@ async def process_sandra_message_batch(chat_id: int) -> None:
             chat_id=chat_id,
             text="El reloj sin minutos ha detenido sus agujas. Valdralis guarda silencio.",
         )
+        return
+
+    if isinstance(data.get("pending_narrator_delivery"), dict):
+        delivered = await deliver_pending_narrator_reply()
+        try:
+            await send_admin(
+                "Sandra escribio mientras habia una respuesta anterior pendiente de entrega. "
+                + (
+                    "He entregado primero la respuesta pendiente; no he enviado su nuevo texto a la IA ni lo he guardado como accion."
+                    if delivered
+                    else "Telegram sigue sin confirmar la entrega; no he enviado su nuevo texto a la IA ni lo he guardado como accion."
+                )
+                + f"\n\nTexto recibido fuera de continuidad:\n{text}"
+            )
+        except Exception:
+            logger.exception("No se pudo avisar del mensaje recibido durante una entrega pendiente")
         return
 
     if chapter_review_pause_is_active(data):
@@ -2387,11 +2551,38 @@ async def process_sandra_message_batch(chat_id: int) -> None:
                 "- Usa /capitulos para revisar resumenes, /memoria para ver estado, "
                 "/corregir_memoria para ajustar canon o /reanudar para abrir el siguiente capitulo."
             )
+    try:
+        await send_telegram_text(
+            narrador_app.bot,
+            chat_id=chat_id,
+            text=reply,
+        )
+    except TelegramTextDeliveryError as exc:
+        pending_data = load_data()
+        pending_data["pending_narrator_delivery"] = {
+            "text": reply,
+            "chapter_number": turn_chapter_number,
+            "sent_chunks": exc.sent_chunks,
+            "total_chunks": exc.total_chunks,
+            "state_after_delivery": data.get("state"),
+            "chapter_review_pause_after_delivery": data.get("chapter_review_pause"),
+            "created_at": now_iso(),
+            "last_error": f"{type(exc.cause).__name__}: {exc.cause}",
+        }
+        save_data(pending_data)
+        try:
+            await send_admin(
+                "La respuesta narrativa se genero, pero Telegram no confirmo su entrega a Sandra "
+                f"tras tres intentos. Fragmentos confirmados: {exc.sent_chunks}/{exc.total_chunks}.\n"
+                "La respuesta queda pendiente; usa /reenviar_ultimo para completar el envio sin llamar otra vez a la IA."
+            )
+        except Exception:
+            logger.exception("Tampoco se pudo avisar al chat de control del fallo de entrega")
+        return
+
+    data["pending_narrator_delivery"] = None
     save_data(data)
     append_history("Narrador", reply, chapter_number=turn_chapter_number)
-
-    for chunk in split_long(reply):
-        await narrador_app.bot.send_message(chat_id=chat_id, text=chunk)
 
     admin_note = str(scene.get("admin_note") or "").strip()
     if admin_note:
@@ -2480,6 +2671,7 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         f"- Narrador vinculado: {'si' if data.get('sandra_chat_id') else 'no'}",
         f"- Pausado: {'si' if data.get('paused') else 'no'}",
         f"- Pausa revision capitulo: {'si' if review_active else 'no'}",
+        f"- Respuesta pendiente de entrega: {'si' if isinstance(data.get('pending_narrator_delivery'), dict) else 'no'}",
         f"- OpenAI: {'configurado' if openai_available() else 'pendiente'}",
         f"- Modelo: {OPENAI_MODEL}",
         f"- Postgres: {'activo' if db_enabled() else 'no configurado'}",
@@ -2612,6 +2804,55 @@ async def cmd_historial(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     text = recent_history_text(limit)
     for chunk in split_long(text):
         await update.effective_chat.send_message(chunk)
+
+
+async def cmd_reenviar_ultimo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    data = load_data()
+    if not narrador_app or not data.get("sandra_chat_id"):
+        await update.effective_chat.send_message(
+            "No puedo reenviar: el narrador no esta disponible o Sandra no esta vinculada."
+        )
+        return
+
+    if isinstance(data.get("pending_narrator_delivery"), dict):
+        delivered = await deliver_pending_narrator_reply()
+        await update.effective_chat.send_message(
+            "Respuesta pendiente entregada a Sandra y continuidad confirmada."
+            if delivered
+            else "Telegram sigue sin confirmar la entrega. La respuesta permanece pendiente."
+        )
+        return
+
+    latest = latest_narrator_message()
+    if not latest or not latest[0].strip():
+        await update.effective_chat.send_message("No encuentro una respuesta del narrador para reenviar.")
+        return
+    text, chapter_number = latest
+    try:
+        chunks_sent = await send_telegram_text(
+            narrador_app.bot,
+            chat_id=int(data["sandra_chat_id"]),
+            text=text,
+        )
+    except TelegramTextDeliveryError as exc:
+        await update.effective_chat.send_message(
+            "Telegram no ha confirmado el reenvio. "
+            f"Fragmentos confirmados: {exc.sent_chunks}/{exc.total_chunks}."
+        )
+        return
+
+    data = load_data()
+    data["last_narrator_resend"] = {
+        "chapter_number": chapter_number,
+        "chunks_sent": chunks_sent,
+        "sent_at": now_iso(),
+    }
+    save_data(data)
+    await update.effective_chat.send_message(
+        f"Ultima respuesta del narrador reenviada a Sandra en {chunks_sent} mensaje/s. No he llamado a la IA."
+    )
 
 
 async def cmd_nota(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -3025,6 +3266,7 @@ def build_control_app() -> Application:
     app.add_handler(CommandHandler("personajes", cmd_personajes))
     app.add_handler(CommandHandler("progreso", cmd_progreso))
     app.add_handler(CommandHandler("historial", cmd_historial))
+    app.add_handler(CommandHandler("reenviar_ultimo", cmd_reenviar_ultimo))
     app.add_handler(CommandHandler("resumen", cmd_resumen))
     app.add_handler(CommandHandler("probar", cmd_probar))
     app.add_handler(CommandHandler("preludio_status", cmd_preludio_status))

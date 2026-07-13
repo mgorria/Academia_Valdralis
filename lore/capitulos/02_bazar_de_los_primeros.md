@@ -24,6 +24,8 @@ Sandra ya ha cruzado la tienda de paraguas y se encuentra en la Galería del Umb
 
 No retroceder ni volver a narrar la llegada. La primera escena del capítulo 2 continúa esa pregunta. La anciana no entrega la aguja ni decide que sea el foco de Sandra. Espera una respuesta y reacciona a ella.
 
+Sandra todavía no conoce el nombre de Orla Nadir. Aunque una narración anterior haya usado "Orla" por error, eso no cuenta como una presentación dentro de la ficción: llamarla "la anciana", "la mujer" o "la tendera" hasta que Sandra oiga su nombre, lo lea o ella se presente. Los nombres de este documento son información privada del narrador, no conocimiento automático de Sandra.
+
 La calle vista al final del capítulo 1 era únicamente la galería de entrada. Más allá de la tienda de focos hay un arco de inspección y, detrás, el Bazar completo. Esto permite ampliar el lugar sin contradecir lo ya jugado.
 
 No repetir la huida de Dario. El cuerpo de Sandra puede conservar frío, cansancio, hambre, falta de abrigo o la presión de lo ocurrido, pero ella decide qué siente respecto a haber escapado.
