@@ -32,6 +32,7 @@ En el bot privado:
 /estado
 /memoria
 /capitulos
+/exportar_capitulo 1
 /personajes
 /progreso
 /historial 20
@@ -78,6 +79,10 @@ La partida guarda memoria de varias formas:
 - `data/memoria_actual.md`: resumen legible para revisar como humano.
 
 `data/data.json` queda como copia espejo/respaldo local. En Railway, la memoria importante debe estar en Postgres.
+
+`/exportar_capitulo 1` envia al chat de control un archivo Markdown con la transcripcion completa del capitulo, su resumen canonico y la memoria visible al cierre. El archivo incluye instrucciones editoriales para subirlo a ChatGPT y convertirlo en un capitulo de novela sin adelantar secretos futuros. Si se usa antes del cierre, se marca como exportacion provisional.
+
+Cada mensaje nuevo queda etiquetado con su numero de capitulo en Postgres. Al instalar esta version, los mensajes ya existentes desde la apertura de cumpleanos se asignan automaticamente al capitulo 1.
 
 El estado incluye fichas vivas de personajes (`character_sheets`) para Lucien, Kael, Aurelian, Kilnip, Nora y otros personajes recurrentes. Cada ficha guarda relacion con Sandra, secretos que sabe, ultima escena juntos, tension romantica y cosas que no debe revelar todavia. Se pueden revisar desde el bot de control con `/personajes` o dentro de `/memoria`.
 

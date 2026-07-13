@@ -1,4 +1,5 @@
 import asyncio
+import io
 import json
 import logging
 import os
@@ -126,6 +127,7 @@ FORBIDDEN_NARRATOR_PHRASES = (
     "contacta con miguel",
     "miguel revisara",
 )
+EXPORT_STORY_ROLES = ("Sandra", "Narrador", "Narrador manual")
 CHAPTER_REQUIRED_EVENTS = {
     1: [
         ("la_casa_jaula", "La casa se convierte en una jaula", "Dario sigue siendo una amenaza cercana y Sandra siente la urgencia real de escapar."),
@@ -826,9 +828,13 @@ def init_database() -> None:
                         id bigserial primary key,
                         role text not null,
                         text text not null,
+                        chapter_number integer,
                         created_at timestamptz not null default now()
                     )
                     """
+                )
+                cur.execute(
+                    "alter table story_messages add column if not exists chapter_number integer"
                 )
                 cur.execute(
                     """
@@ -838,13 +844,39 @@ def init_database() -> None:
                 )
                 cur.execute(
                     """
+                    create index if not exists story_messages_chapter_idx
+                    on story_messages (chapter_number, created_at, id)
+                    """
+                )
+                cur.execute(
+                    """
                     create table if not exists chapter_summaries (
                         chapter_number integer primary key,
                         title text not null,
                         summary text not null,
+                        state_snapshot jsonb,
                         created_at timestamptz not null default now(),
                         updated_at timestamptz not null default now()
                     )
+                    """
+                )
+                cur.execute(
+                    "alter table chapter_summaries add column if not exists state_snapshot jsonb"
+                )
+                cur.execute(
+                    """
+                    with story_start as (
+                        select min(created_at) as started_at
+                        from story_messages
+                        where role = 'Narrador'
+                          and text like 'Sandra, feliz cumple%'
+                    )
+                    update story_messages as message
+                    set chapter_number = 1
+                    from story_start
+                    where message.chapter_number is null
+                      and story_start.started_at is not null
+                      and message.created_at >= story_start.started_at
                     """
                 )
                 cur.execute("select data from app_state where key = 'main'")
@@ -858,13 +890,19 @@ def init_database() -> None:
                         """,
                         (Jsonb(seed),),
                     )
+                    seed_chapter_number: int | None = None
                     for item in seed.get("history", []):
                         role = str(item.get("role", "desconocido"))
                         text = str(item.get("text", "")).strip()
                         if text:
+                            if role == "Narrador" and text.startswith("Sandra, feliz cumple"):
+                                seed_chapter_number = 1
+                            chapter_number = item.get("chapter_number")
+                            if chapter_number is None:
+                                chapter_number = seed_chapter_number
                             cur.execute(
-                                "insert into story_messages (role, text) values (%s, %s)",
-                                (role, text),
+                                "insert into story_messages (role, text, chapter_number) values (%s, %s, %s)",
+                                (role, text, chapter_number),
                             )
         DB_READY = True
         logger.info("Postgres inicializado para memoria durable")
@@ -1230,16 +1268,29 @@ Actualizado: {updated_at}
     MEMORY_MD_PATH.write_text(content, encoding="utf-8")
 
 
-def append_history(role: str, text: str) -> None:
+def append_history(role: str, text: str, *, chapter_number: int | None = None) -> None:
+    data = load_data()
+    if chapter_number is None:
+        try:
+            inferred_chapter = int((data.get("state") or {}).get("current_chapter_number") or 0)
+        except (TypeError, ValueError):
+            inferred_chapter = 0
+        chapter_number = inferred_chapter if 1 <= inferred_chapter <= 10 else None
     if db_enabled():
         with db_connect() as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "insert into story_messages (role, text) values (%s, %s)",
-                    (role, text),
+                    "insert into story_messages (role, text, chapter_number) values (%s, %s, %s)",
+                    (role, text, chapter_number),
                 )
-    data = load_data()
-    data.setdefault("history", []).append({"role": role, "text": text, "at": now_iso()})
+    data.setdefault("history", []).append(
+        {
+            "role": role,
+            "text": text,
+            "at": now_iso(),
+            "chapter_number": chapter_number,
+        }
+    )
     data["history"] = data["history"][-MAX_HISTORY:]
     save_data(data)
 
@@ -1285,7 +1336,12 @@ def recent_history_text(limit: int = RECENT_HISTORY_FOR_AI) -> str:
     return "\n".join(lines)
 
 
-def save_chapter_summary(chapter_number: int, title: str, summary: str) -> None:
+def save_chapter_summary(
+    chapter_number: int,
+    title: str,
+    summary: str,
+    state_snapshot: dict[str, Any] | None = None,
+) -> None:
     summary = summary.strip()
     if not summary:
         return
@@ -1295,14 +1351,22 @@ def save_chapter_summary(chapter_number: int, title: str, summary: str) -> None:
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    insert into chapter_summaries (chapter_number, title, summary, updated_at)
-                    values (%s, %s, %s, now())
+                    insert into chapter_summaries (
+                        chapter_number, title, summary, state_snapshot, updated_at
+                    )
+                    values (%s, %s, %s, %s, now())
                     on conflict (chapter_number) do update
                     set title = excluded.title,
                         summary = excluded.summary,
+                        state_snapshot = coalesce(excluded.state_snapshot, chapter_summaries.state_snapshot),
                         updated_at = now()
                     """,
-                    (chapter_number, title, summary),
+                    (
+                        chapter_number,
+                        title,
+                        summary,
+                        Jsonb(state_snapshot) if isinstance(state_snapshot, dict) else None,
+                    ),
                 )
 
     data = load_data()
@@ -1316,6 +1380,7 @@ def save_chapter_summary(chapter_number: int, title: str, summary: str) -> None:
             "chapter_number": chapter_number,
             "title": title,
             "summary": summary,
+            "state_snapshot": state_snapshot if isinstance(state_snapshot, dict) else None,
             "at": now_iso(),
         }
     )
@@ -1353,6 +1418,210 @@ def chapter_summaries_text() -> str:
         for number, title, summary in rows
         if summary.strip()
     )
+
+
+def chapter_story_messages(chapter_number: int) -> list[dict[str, Any]]:
+    if db_enabled():
+        with db_connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    select role, text, created_at
+                    from story_messages
+                    where chapter_number = %s
+                      and role = any(%s::text[])
+                    order by created_at asc, id asc
+                    """,
+                    (chapter_number, list(EXPORT_STORY_ROLES)),
+                )
+                return [
+                    {"role": str(role), "text": str(text), "at": created_at}
+                    for role, text, created_at in cur.fetchall()
+                ]
+
+    history = load_data().get("history", [])
+    messages: list[dict[str, Any]] = []
+    chapter_one_started = False
+    for item in history:
+        role = str(item.get("role") or "")
+        text = str(item.get("text") or "")
+        if role not in EXPORT_STORY_ROLES or not text.strip():
+            continue
+        item_chapter = item.get("chapter_number")
+        try:
+            item_chapter_number = int(item_chapter) if item_chapter is not None else None
+        except (TypeError, ValueError):
+            item_chapter_number = None
+        if chapter_number == 1 and role == "Narrador" and text.startswith("Sandra, feliz cumple"):
+            chapter_one_started = True
+        if item_chapter_number == chapter_number or (
+            chapter_number == 1 and item_chapter_number is None and chapter_one_started
+        ):
+            messages.append({"role": role, "text": text, "at": item.get("at")})
+    return messages
+
+
+def chapter_export_context(chapter_number: int) -> tuple[str, str, dict[str, Any] | None]:
+    title = CHAPTER_TITLES.get(chapter_number, f"Capítulo {chapter_number}")
+    summary = ""
+    snapshot: dict[str, Any] | None = None
+    if db_enabled():
+        with db_connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    select title, summary, state_snapshot
+                    from chapter_summaries
+                    where chapter_number = %s
+                    """,
+                    (chapter_number,),
+                )
+                row = cur.fetchone()
+        if row:
+            title = str(row[0] or title)
+            summary = str(row[1] or "").strip()
+            snapshot = row[2] if isinstance(row[2], dict) else None
+    else:
+        for item in load_data().get("chapter_summaries", []):
+            try:
+                item_number = int(item.get("chapter_number", 0))
+            except (TypeError, ValueError):
+                continue
+            if item_number == chapter_number:
+                title = str(item.get("title") or title)
+                summary = str(item.get("summary") or "").strip()
+                raw_snapshot = item.get("state_snapshot")
+                snapshot = raw_snapshot if isinstance(raw_snapshot, dict) else None
+                break
+
+    if snapshot is None:
+        data = load_data()
+        current_state = data.get("state") or {}
+        try:
+            current_chapter = int(current_state.get("current_chapter_number") or 0)
+        except (TypeError, ValueError):
+            current_chapter = 0
+        if current_chapter == chapter_number:
+            snapshot = current_state
+    return title, summary, snapshot
+
+
+def export_visible_state_markdown(snapshot: dict[str, Any] | None) -> str:
+    if not isinstance(snapshot, dict):
+        return "- No hay una memoria de cierre disponible."
+    visible_sheets: list[str] = []
+    visible_character_names: set[str] = set()
+    sheets = snapshot.get("character_sheets")
+    all_sheet_names = {str(name) for name in sheets} if isinstance(sheets, dict) else set()
+    if isinstance(sheets, dict):
+        for name, raw_sheet in sheets.items():
+            sheet = normalize_character_sheet(raw_sheet)
+            if normalized_for_detection(sheet["ultima_escena_juntos"]).startswith("aun no apare"):
+                continue
+            visible_character_names.add(str(name))
+            visible_sheets.append(
+                f"{name}: relacion={sheet['relacion_actual']}; "
+                f"ultima escena={sheet['ultima_escena_juntos']}; "
+                f"tension={sheet['tension_romantica']}"
+            )
+
+    lines = [
+        f"- Lugar: {snapshot.get('location') or 'Pendiente'}",
+        f"- Escena final: {snapshot.get('current_scene') or 'Pendiente'}",
+        "",
+        "### Hechos conocidos por Sandra",
+        markdown_list(snapshot.get("known_facts") or []),
+        "",
+        "### Objetos relevantes",
+        markdown_list(snapshot.get("inventory") or []),
+        "",
+        "### Hilos abiertos",
+        markdown_list(snapshot.get("open_threads") or []),
+        "",
+        "### Secretos ya revelados",
+        markdown_list(snapshot.get("revealed_secrets") or []),
+        "",
+        "### Relaciones al cierre",
+    ]
+    relationships = snapshot.get("relationships")
+    if isinstance(relationships, dict) and relationships:
+        visible_relationships = [
+            f"{name}: {value}"
+            for name, value in relationships.items()
+            if (
+                str(name) in visible_character_names
+                or (
+                    str(name) not in all_sheet_names
+                    and not normalized_for_detection(value).startswith("aun no apare")
+                )
+            )
+        ]
+        lines.append(markdown_list(visible_relationships))
+    else:
+        lines.append("- Pendiente")
+
+    lines.extend(["", "### Fichas visibles de personajes", markdown_list(visible_sheets)])
+    return "\n".join(lines)
+
+
+def format_export_timestamp(value: Any) -> str:
+    if isinstance(value, datetime):
+        return value.astimezone(APP_TIMEZONE).strftime("%Y-%m-%d %H:%M")
+    raw = str(value or "").strip()
+    if not raw:
+        return "hora no registrada"
+    try:
+        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        return parsed.astimezone(APP_TIMEZONE).strftime("%Y-%m-%d %H:%M")
+    except ValueError:
+        return raw
+
+
+def build_chapter_export(chapter_number: int) -> tuple[str, int, bool]:
+    messages = chapter_story_messages(chapter_number)
+    title, summary, snapshot = chapter_export_context(chapter_number)
+    generated_at = datetime.now(APP_TIMEZONE).strftime("%Y-%m-%d %H:%M %Z")
+    lines = [
+        f"# Academia de Valdralis - Capítulo {chapter_number}: {title}",
+        "",
+        f"Exportado: {generated_at}",
+        f"Mensajes: {len(messages)}",
+        f"Capítulo cerrado: {'sí' if summary else 'no; exportación provisional'}",
+        "",
+        "## Instrucciones editoriales para ChatGPT",
+        "",
+        "Convierte esta transcripción en un capítulo de novela en segunda persona o tercera persona cercana, manteniendo las decisiones, acciones y frases importantes de Sandra. Integra sus mensajes en la prosa, elimina repeticiones propias del chat y conserva la continuidad emocional. No inventes revelaciones que no aparezcan en la transcripción o en el resumen canónico. No adelantes secretos de capítulos posteriores.",
+        "",
+        "## Resumen canónico",
+        "",
+        summary or "El capítulo todavía no tiene un resumen canónico de cierre.",
+        "",
+        "## Memoria visible al cierre",
+        "",
+        export_visible_state_markdown(snapshot),
+        "",
+        "## Transcripción completa",
+        "",
+    ]
+    role_labels = {
+        "Sandra": "Sandra",
+        "Narrador": "Narrador",
+        "Narrador manual": "Narrador",
+    }
+    for index, message in enumerate(messages, start=1):
+        role = role_labels.get(str(message.get("role")), str(message.get("role") or "Desconocido"))
+        timestamp = format_export_timestamp(message.get("at"))
+        lines.extend(
+            [
+                f"### Mensaje {index} - {role} - {timestamp}",
+                "",
+                str(message.get("text") or "").strip(),
+                "",
+            ]
+        )
+    if not messages:
+        lines.append("No hay mensajes etiquetados para este capítulo.")
+    return "\n".join(lines).strip() + "\n", len(messages), bool(summary)
 
 
 def state_text() -> str:
@@ -1686,6 +1955,7 @@ async def generate_chapter_summary(
     prompt = f"""
 Resume el capitulo cerrado de una partida de novela interactiva.
 Debe ser memoria canonica para continuidad futura, no prosa bonita.
+Incluye solo hechos ocurridos en escena o conocidos por Sandra. No copies secretos pendientes ni informacion que todavia no se haya revelado.
 
 Capitulo: {chapter_number}: {title}
 
@@ -1854,7 +2124,11 @@ async def process_sandra_message_batch(chat_id: int) -> None:
         )
         return
 
-    append_history("Sandra", text)
+    try:
+        turn_chapter_number = int((data.get("state") or {}).get("current_chapter_number") or 0) or None
+    except (TypeError, ValueError):
+        turn_chapter_number = None
+    append_history("Sandra", text, chapter_number=turn_chapter_number)
     await send_admin(f"Sandra ({len(clean_messages)} mensaje/s agrupado/s):\n{text}")
 
     if (data.get("state") or {}).get("season_complete"):
@@ -1935,7 +2209,12 @@ async def process_sandra_message_batch(chat_id: int) -> None:
                 f"- Capitulo cerrado: {chapter_label(completed_chapter)}\n"
                 f"- Escena de cierre: {data['state'].get('current_scene', 'sin escena registrada')}"
             )
-        save_chapter_summary(completed_chapter, title, summary)
+        save_chapter_summary(
+            completed_chapter,
+            title,
+            summary,
+            state_snapshot=data["state"],
+        )
         merged_story_state = data["state"]
         data = load_data()
         data["state"] = merged_story_state
@@ -1958,7 +2237,7 @@ async def process_sandra_message_batch(chat_id: int) -> None:
                 "/corregir_memoria para ajustar canon o /reanudar para abrir el siguiente capitulo."
             )
     save_data(data)
-    append_history("Narrador", reply)
+    append_history("Narrador", reply, chapter_number=turn_chapter_number)
 
     for chunk in split_long(reply):
         await narrador_app.bot.send_message(chat_id=chat_id, text=chunk)
@@ -2087,6 +2366,52 @@ async def cmd_capitulos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         return
     for chunk in split_long(chapter_summaries_text()):
         await update.effective_chat.send_message(chunk)
+
+
+async def cmd_exportar_capitulo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    data = load_data()
+    if context.args:
+        if not context.args[0].isdigit():
+            await update.effective_chat.send_message("Uso: /exportar_capitulo 1")
+            return
+        chapter_number = int(context.args[0])
+    else:
+        try:
+            chapter_number = int((data.get("state") or {}).get("current_chapter_number") or 0)
+        except (TypeError, ValueError):
+            chapter_number = 0
+    if chapter_number < 1 or chapter_number > 10:
+        await update.effective_chat.send_message("Indica un capítulo entre 1 y 10.")
+        return
+
+    try:
+        content, message_count, closed = build_chapter_export(chapter_number)
+    except Exception as exc:
+        logger.exception("No se pudo exportar el capitulo %s", chapter_number)
+        await update.effective_chat.send_message(
+            f"No pude crear la exportación: {type(exc).__name__}: {exc}"
+        )
+        return
+    if message_count == 0:
+        await update.effective_chat.send_message(
+            f"Todavía no hay mensajes guardados para {chapter_label(chapter_number)}."
+        )
+        return
+
+    filename = f"academia_valdralis_capitulo_{chapter_number:02d}.md"
+    document = io.BytesIO(content.encode("utf-8"))
+    document.name = filename
+    status = "cerrado y con resumen canónico" if closed else "provisional, todavía sin cierre canónico"
+    await update.effective_chat.send_document(
+        document=document,
+        filename=filename,
+        caption=(
+            f"{chapter_label(chapter_number)} exportado: {message_count} mensajes. "
+            f"Estado: {status}."
+        ),
+    )
 
 
 async def cmd_personajes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -2240,7 +2565,7 @@ async def send_prelude_for_day(day: date, *, manual: bool = False) -> bool:
         return False
 
     await narrador_app.bot.send_message(chat_id=int(sandra_id), text=message)
-    append_history("Preludio", message)
+    append_history("Preludio", message, chapter_number=0)
     data = load_data()
     sent_preludes = set(data.get("sent_preludes", []))
     sent_preludes.add(day.isoformat())
@@ -2264,7 +2589,7 @@ async def send_story_start_message(*, manual: bool = False) -> bool:
 
     message = read_start_message()
     await narrador_app.bot.send_message(chat_id=int(sandra_id), text=message)
-    append_history("Narrador", message)
+    append_history("Narrador", message, chapter_number=1)
     data = load_data()
     data["story_start_sent"] = True
     data["state"] = {
@@ -2469,6 +2794,7 @@ def build_control_app() -> Application:
     app.add_handler(CommandHandler("estado", cmd_estado))
     app.add_handler(CommandHandler("memoria", cmd_memoria))
     app.add_handler(CommandHandler("capitulos", cmd_capitulos))
+    app.add_handler(CommandHandler("exportar_capitulo", cmd_exportar_capitulo))
     app.add_handler(CommandHandler("personajes", cmd_personajes))
     app.add_handler(CommandHandler("progreso", cmd_progreso))
     app.add_handler(CommandHandler("historial", cmd_historial))
