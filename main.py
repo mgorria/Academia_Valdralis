@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import io
 import json
 import logging
@@ -82,6 +83,9 @@ CHAPTER_TITLES = {
 FINAL_CHAPTER_NUMBER = max(CHAPTER_TITLES)
 CHAPTER_PREPARATION_PATHS = {
     2: CHAPTER_LORE_DIR / "02_bazar_de_los_primeros.md",
+}
+CHAPTER_OPENING_PATHS = {
+    2: CHAPTER_LORE_DIR / "02_apertura.md",
 }
 CHAPTER_SCENE_BEATS = {
     "peligro": "escena de peligro o amenaza",
@@ -859,6 +863,7 @@ def default_data() -> dict[str, Any]:
         "prelude_enabled": PRELUDE_ENABLED_DEFAULT,
         "sent_preludes": [],
         "story_start_sent": False,
+        "sent_chapter_openings": [],
         "chapter_review_pause": None,
     }
 
@@ -1407,6 +1412,13 @@ def read_chapter_preparation(chapter_number: int) -> str:
     if not path.exists():
         return f"Falta la preparacion esperada para {chapter_label(chapter_number)}."
     return path.read_text(encoding="utf-8")
+
+
+def read_chapter_opening(chapter_number: int) -> str:
+    path = CHAPTER_OPENING_PATHS.get(chapter_number)
+    if not path or not path.exists():
+        return ""
+    return path.read_text(encoding="utf-8").strip()
 
 
 def chapter_scene_prompt_schema(chapter_number: int) -> str:
@@ -2635,17 +2647,91 @@ async def cmd_pausar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     await update.effective_chat.send_message("Partida pausada.")
 
 
+async def send_chapter_opening(chapter_number: int) -> bool:
+    if not narrador_app:
+        return False
+    data = load_data()
+    sandra_id = data.get("sandra_chat_id")
+    if not sandra_id:
+        return False
+    sent_openings = {
+        int(number)
+        for number in (data.get("sent_chapter_openings") or [])
+        if str(number).isdigit()
+    }
+    if chapter_number in sent_openings:
+        return False
+    message = read_chapter_opening(chapter_number)
+    if not message:
+        return False
+    if len(message) > 3900:
+        raise RuntimeError("La apertura de capitulo debe caber en un solo mensaje de Telegram")
+
+    await narrador_app.bot.send_message(chat_id=int(sandra_id), text=message)
+    try:
+        append_history("Narrador", message, chapter_number=chapter_number)
+        data = load_data()
+        sent_openings = {
+            int(number)
+            for number in (data.get("sent_chapter_openings") or [])
+            if str(number).isdigit()
+        }
+        sent_openings.add(chapter_number)
+        data["sent_chapter_openings"] = sorted(sent_openings)
+        save_data(data)
+    except Exception:
+        logger.exception(
+            "La apertura del capitulo %s se envio, pero no pudo registrarse en memoria",
+            chapter_number,
+        )
+    return True
+
+
 async def cmd_reanudar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not update.effective_chat or not is_admin(update):
         return
     data = load_data()
+    original_data = copy.deepcopy(data)
     data["paused"] = False
     opened_chapter = open_pending_chapter_after_review(data)
+    if opened_chapter:
+        opening = read_chapter_opening(opened_chapter)
+        sent_openings = {
+            int(number)
+            for number in (data.get("sent_chapter_openings") or [])
+            if str(number).isdigit()
+        }
+        if (
+            not narrador_app
+            or not data.get("sandra_chat_id")
+            or not opening
+            or len(opening) > 3900
+            or opened_chapter in sent_openings
+        ):
+            await update.effective_chat.send_message(
+                "No he reanudado la partida: no puedo garantizar el envio unico de la apertura a Sandra."
+            )
+            return
     data["chapter_review_pause"] = None
     save_data(data)
     if opened_chapter:
+        try:
+            opening_sent = await send_chapter_opening(opened_chapter)
+        except Exception as exc:
+            logger.exception("No se pudo enviar la apertura del capitulo")
+            save_data(original_data)
+            await update.effective_chat.send_message(
+                f"No he reanudado la partida porque la apertura no pudo enviarse: {type(exc).__name__}."
+            )
+            return
+        if not opening_sent:
+            save_data(original_data)
+            await update.effective_chat.send_message(
+                "No he reanudado la partida porque la apertura no pudo confirmarse."
+            )
+            return
         await update.effective_chat.send_message(
-            f"Partida reanudada. {chapter_label(opened_chapter)} queda abierto."
+            f"Partida reanudada. {chapter_label(opened_chapter)} queda abierto y su apertura se ha enviado a Sandra."
         )
     else:
         await update.effective_chat.send_message("Partida reanudada.")

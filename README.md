@@ -110,6 +110,8 @@ Al cerrar cada capitulo, el bot genera y guarda un resumen canonico. La IA recib
 
 Tras cerrar el capitulo 1, el bot activa una pausa manual de revision. El estado permanece en el capitulo 1 y, escriba lo que escriba Sandra, recibe siempre el aviso fijo de que ha terminado y pronto llegara la continuacion. Esos mensajes no llaman a la IA ni entran en la memoria narrativa. Miguel puede revisar `/capitulos`, `/memoria`, usar `/corregir_memoria` y abrir el capitulo 2 exclusivamente con `/reanudar`.
 
+Al abrir el capitulo 2, `/reanudar` envia automaticamente a Sandra `lore/capitulos/02_apertura.md` en un unico mensaje, sin llamar a la IA. La apertura queda guardada en el historial y Postgres como primera intervencion del nuevo capitulo. Si el bot no puede garantizar ese envio, conserva el cierre y no reanuda la partida.
+
 Los capitulos posteriores conservan la pausa programada por `CHAPTER_REVIEW_PAUSE_DAYS`.
 
 ## Preludio
