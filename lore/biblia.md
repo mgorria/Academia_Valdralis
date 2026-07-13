@@ -54,19 +54,24 @@ Reglas de uso:
 
 ## Antes de la academia: el Bazar de los Primeros
 
-Antes de subir al tren hacia Valdralis, Sandra debe pasar por un pequeno distrito magico oculto donde los nuevos alumnos compran lo necesario para la academia. Kilnip la guia hasta alli tras abrir la carta, incluso si ella intenta retrasarlo.
+Antes de subir al tren hacia Valdralis, Sandra debe vivir un capitulo completo dentro del Bazar de los Primeros. No es una sola calle ni un montaje de compras: es un recinto magico amplio, construido en una noche de tiempo prestado, con plaza, galerias, banco, comercios, alumnos de primer curso, familias y reglas propias.
 
-El lugar puede llamarse el Bazar de los Primeros: una calle imposible que aparece entre dos edificios normales, bajo una farola azul, tras una puerta de tienda que de dia vende paraguas y de noche vende destinos.
+Kilnip sabe que Sandra debe resolver tres preguntas: que comprar, como pagarlo y como llegar al tren. No conoce todas las respuestas. Debe invitarla a observar y preguntar a otros alumnos, dejando que Sandra elija a quien se acerca y en que orden explora el recinto.
 
-Compras sugeridas:
+Los seis objetos escolares obligatorios son:
 
-- Uniforme de Valdralis: capa oscura con forro que cambia de tono segun el turno; broche provisional sin casa ni linaje declarado.
-- Libros basicos: Encantamientos Practicos I, Pactos que no deberias firmar y Cartografia para lugares que no quieren estar.
-- Foco arcano inicial: pluma, anillo, varilla, piedra de luna o aguja de plata; Sandra puede elegir o el objeto puede reaccionar a ella.
-- Baul o maleta: demasiado pequena por fuera, inquietantemente grande por dentro.
-- Tinta nocturna, velas de silencio, guantes de practica y una libreta que corrige mentiras con manchas violetas.
+- Uniforme de Valdralis: capa oscura con forro que cambia de tono segun el turno y broche provisional.
+- Foco arcano inicial elegido por Sandra tras examinar alternativas.
+- Paquete de libros basicos: Encantamientos Practicos I, Pactos que no deberias firmar y Cartografia para lugares que no quieren estar.
+- Baul o maleta para cinco cursos, con reglas interiores que Sandra debe conocer y aceptar.
+- Equipo practico: tinta nocturna, velas de silencio, guantes de practica y libreta de mentiras.
+- Brujula de umbrales configurada por Sandra para orientarse entre lugares que cambian.
 
-El bazar debe servir para maravilla, humor y primera tension de peligro: dependientes que reconocen el apellido Valmorien, objetos que reaccionan mal a su sangre, una sombra que la sigue entre puestos o una compra que aparece en su bolsillo sin haberla pagado.
+El billete nominal para el Tren de Medianoche se obtiene aparte en la taquilla del Bazar y tambien es obligatorio.
+
+Elara dejo en el Banco de las Cinco Llaves una cuenta protegida bajo el apellido Valmorien, suficiente para los cinco cursos de academia. Sandra debe descubrirla mediante una escena jugada: Veyr no abre la cuenta, la linea materna conduce a Elara y Sandra debe pronunciar o aceptar voluntariamente Valmorien antes de retirar dinero.
+
+Cada tienda debe contener un personaje, una situacion propia, una eleccion y una consecuencia. Los objetos pueden reaccionar, pero nunca deciden por Sandra ni funcionan como flechas que la llevan automaticamente al siguiente comercio. La preparacion completa y vinculante del capitulo esta en `lore/capitulos/02_bazar_de_los_primeros.md`.
 
 ## Objetivo de la primera aventura
 
@@ -208,7 +213,7 @@ Regla de progresion:
 - Capitulo 1-2: magia instintiva, torpe y breve.
 - Capitulo 3-5: primeras clases y hechizos base con fallos visibles.
 - Capitulo 6-8: mezclas entre magia academica y linaje velado.
-- Capitulo 9-10: Sandra puede usar hechizos con intencion real, pero el poder velado sigue cobrando precio.
+- Capitulos 10-11: Sandra puede usar hechizos con intencion real, pero el poder velado sigue cobrando precio.
 
 ### Mantra protector de Sandra: Oso men
 
@@ -379,6 +384,8 @@ Funcion narrativa: persecuciones, toques de queda, humor seco, informacion de pa
 
 Sandra debe tener un grupo de apoyo que la ayude a orientarse sin quitarle protagonismo. Sirven para darle informacion, compania, humor, advertencias y pequenos empujones cuando no sepa que hacer.
 
+Todos los alumnos de este grupo son jovenes adultos de primer curso, mayores de edad. En el Bazar pueden aparecer antes de la llegada a la academia. Sandra decide a quien aborda; el primero que la ayude de verdad puede convertirse en su acompanante hacia la estacion y en su primer vinculo del curso.
+
 ### Nora Sanz
 
 Bruja becada, brillante, practica y con humor seco. Conoce normas, profesores, pasillos utiles y maneras de no llamar la atencion. Se convierte en la primera amiga estable de Sandra.
@@ -403,6 +410,22 @@ Alquimista humano, encantador, algo desastre y sorprendentemente util cuando hay
 
 Funcion narrativa: alivio ligero, recursos practicos, planes arriesgados.
 
+## Rivales de primer curso
+
+Los rivales no deben presentarse como villanos evidentes. Son alumnos adultos que volveran a coincidir con Sandra en Valdralis y cuyas primeras impresiones pueden empeorar, mejorar o convertirse en alianzas incomodas.
+
+### Vera Ordel
+
+Bruja de linaje antiguo, preparada, clasista y muy consciente de las jerarquias academicas. Desconfia de quien llega sin tutor, uniforme ni apellido reconocido. Puede negarse a ayudar a Sandra o tratarla con condescendencia, pero respeta a quien se planta con inteligencia.
+
+Funcion narrativa: rivalidad academica, presion social y prejuicio de linaje.
+
+### Gael Voss
+
+Humano tocado por pactos fae, cortes y ceremonioso. Ofrece informacion a cambio de favores formulados de manera imprecisa. Rara vez miente de frente; prefiere dar una verdad que conduce al error si no se pregunta lo suficiente.
+
+Funcion narrativa: deudas pequenas que crecen, competencia social y primeras lecciones sobre el precio de aceptar ayuda.
+
 ## Motores romanticos
 
 ### Lucien Veyrath, el vampiro
@@ -424,7 +447,7 @@ Secreto: la Casa Veyrath ayudo a Elara la noche en que desaparecio, pero tambien
 
 ### Kael Draven, el licantropo
 
-Kael es un licantropo de una casa guerrera marcada por la luna. Es directo, fisico, intenso y protector, aunque odia que lo confundan con alguien simple. Su rabia no es falta de control; es una forma de memoria.
+Kael es un licantropo adulto de veinte anos, alumno de primer curso, perteneciente a una casa guerrera marcada por la luna. Es directo, fisico, intenso y protector, aunque odia que lo confundan con alguien simple. Su rabia no es falta de control; es una forma de memoria.
 
 Rasgos:
 
@@ -439,7 +462,7 @@ Secreto: la manada de Kael perdio a varios miembros por culpa del Sello del Umbr
 
 ### Aurelian Thorne, el fae
 
-Aurelian es un fae criado entre cortes antiguas, hermoso de una forma inquietante y dificil de leer. Su voz parece siempre decir una cosa y prometer otra. No miente de manera directa, pero convierte la verdad en laberinto.
+Aurelian es un fae adulto joven, alumno de primer curso criado entre cortes antiguas, hermoso de una forma inquietante y dificil de leer. Su voz parece siempre decir una cosa y prometer otra. No miente de manera directa, pero convierte la verdad en laberinto.
 
 Rasgos:
 
@@ -517,7 +540,7 @@ Cuadros antiguos que no solo hablan: quieren recuerdos para seguir despiertos. A
 
 Figuras elegantes con mascara lisa que aparecen donde hay musica, deseo y pactos politicos. No atacan de inmediato: invitan, observan y copian gestos.
 
-- Uso sugerido: capitulo 9, baile de las tres invitaciones.
+- Uso sugerido: capitulo 10, baile de las tres invitaciones.
 - Senales: guantes impecables, perfume sin fuente, reflejo vacio en copas.
 - Debilidad: decir una verdad personal, romper el ritmo de la musica o elegir conscientemente con quien quedarse.
 - Pista que deja: la Orden puede moverse dentro de eventos sociales sin parecer una amenaza.
@@ -562,7 +585,7 @@ Llaves antiguas sin puerta fija. Buscan cerraduras que perdieron y a veces se cl
 
 No es una criatura unica, sino un fenomeno: el Umbral hablando a traves de deseos, sed, miedo o soledad. Puede usar voces conocidas.
 
-- Uso sugerido: capitulos 7-10.
+- Uso sugerido: capitulos 8-11.
 - Senales: una frase que parece exactamente lo que Sandra necesita oir, pero dicha desde el lugar equivocado.
 - Debilidad: Ancla, Guardia Totemica, apoyo de amigos, decir una verdad propia en voz alta.
 - Pista que deja: el sello no solo encierra algo; tambien escucha.
@@ -575,55 +598,61 @@ Sandra discute con su padre, Dario Veyr, por su deseo de saber mas y salir de la
 
 Final sugerido: Sandra decide si escapar de su habitacion, enfrentarse a su padre o fingir obediencia mientras prepara la marcha, con Kilnip intentando guiarla hacia el Bazar de los Primeros.
 
-### Capitulo 2: El tren de medianoche
+### Capitulo 2: El Bazar de los Primeros
 
-Antes del tren, Kilnip guia a Sandra al Bazar de los Primeros para comprar uniforme, libros, foco arcano y equipo basico. Despues Sandra llega a una estacion que no existe en los mapas. En el tren conoce a uno de los motores romanticos o a una amiga secundaria. Primer vistazo al mundo nocturno.
+Sandra descubre el mundo magico como sociedad viva, no como una sucesion de escaparates. Kilnip sabe que debe averiguar que comprar, como pagarlo y como llegar al tren, pero necesita que Sandra pregunte. Ella elige entre varios alumnos de primer curso, encuentra ayuda o rechazo, descubre en el banco la cuenta que Elara dejo bajo Valmorien y recorre seis tiendas, ademas del banco y la taquilla, en el orden que decida.
 
-Final sugerido: alguien reconoce su apellido materno y se asusta.
+Final: con dinero, uniforme, foco, libros, baul, equipo practico, brujula y billete, Sandra regresa al amigo que prometio acompanarla. Ambos comienzan juntos el camino hacia la estacion. El tren pertenece al capitulo 3.
 
-### Capitulo 3: Bienvenida a Valdralis
+### Capitulo 3: El tren de medianoche
 
-La academia se presenta como refugio y amenaza. Sandra recibe habitacion, normas, primer contacto con Nora, Izan, Mara o Theo, y una advertencia sobre el Ala Norte. Tambien descubre que las especies viven la academia por turnos: los vampiros aparecen cuando el dia se apaga, los licantropos se tensan con la luna, y los fae parecen entrar por horas que no estan en el reloj.
+Sandra llega a una estacion que no existe en los mapas y sube al tren con el amigo conocido en el Bazar o con otros alumnos. Una presencia del Umbral recorre los vagones apagando luces. El viaje debe mezclar conversacion, exploracion, miedo y una primera respuesta instintiva de la magia de Sandra.
+
+Final sugerido: la presencia o un pasajero reconoce el apellido Valmorien justo antes de llegar a Valdralis.
+
+### Capitulo 4: Bienvenida a Valdralis
+
+La academia se presenta como refugio y amenaza. Sandra recibe habitacion, normas, reencuentra o amplia su grupo de amigos y recibe una advertencia sobre el Ala Norte. Tambien descubre que las especies viven la academia por turnos: los vampiros aparecen cuando el dia se apaga, los licantropos se tensan con la luna y los fae parecen entrar por horas que no estan en el reloj.
 
 Final sugerido: una puerta prohibida susurra el nombre de su madre.
 
-### Capitulo 4: La Ceremonia del Umbral
+### Capitulo 5: La Ceremonia del Umbral
 
 Los humanos con magia bruta son llevados al espejo negro para descubrir su naturaleza. La ceremonia clasifica a varios alumnos de forma normal, hasta que Sandra toca el agua y el ritual anuncia: "Hechicera del linaje velado. Sangre de pacto. Umbral no resuelto."
 
 Final sugerido: Lucien, Kael o Aurelian reacciona al veredicto antes de poder ocultarlo.
 
-### Capitulo 5: La primera clase
+### Capitulo 6: La primera clase
 
-En Pactos y Juramentos, Sandra activa una proteccion antigua sin saber como. Profesores y alumnos reaccionan, y sus nuevos amigos intentan ayudarla a salir de la atencion publica sin empeorarlo.
+En Pactos y Juramentos y Duelos y Protecciones, Sandra practica magia academica, descubre la Guardia Totemica y puede llegar a invocar por primera vez a su oso mediante "oso men". Profesores y alumnos reaccionan, y sus amigos intentan ayudar sin quitarle protagonismo.
 
-Final sugerido: uno de los tres hombres le advierte que no vuelva a usar ese poder delante de todos.
+Final sugerido: uno de los tres hombres le advierte que no vuelva a usar cierto aspecto de su poder delante de todos.
 
-### Capitulo 6: La noche del pacto
+### Capitulo 7: La noche del pacto
 
 Ceremonia social de bienvenida. Vampiros, licantropos y fae miden influencias. Tension romantica. Sandra recibe una pista sobre Elara.
 
 Final sugerido: alguien deja en su habitacion un objeto que pertenecio a su madre.
 
-### Capitulo 7: El Ala Norte
+### Capitulo 8: El Ala Norte
 
 Sandra entra o es arrastrada hacia el Ala Norte. Encuentra un recuerdo fragmentado de Elara y descubre que el sello bajo Valdralis esta despertando.
 
 Final sugerido: uno de los tres hombres la encuentra alli, pero no esta claro si vino a salvarla, vigilarla o impedir que siga.
 
-### Capitulo 8: La marca bajo la piel
+### Capitulo 9: La marca bajo la piel
 
 La marca del Umbral empieza a reaccionar en Sandra tras lo ocurrido en el Ala Norte. Las facciones dejan de observar desde lejos y empiezan a acercarse. Sandra debe entender que su poder no solo abre puertas: tambien deja huellas en ella.
 
 Final sugerido: Sandra descubre que la marca no es solo amenaza, sino tambien una llave incompleta.
 
-### Capitulo 9: El baile de las tres invitaciones
+### Capitulo 10: El baile de las tres invitaciones
 
 Valdralis celebra un baile formal de mitad de luna. Sandra recibe tres invitaciones, directas o veladas: Lucien, Kael y Aurelian. Debe elegir con quien entrar, con quien bailar o a quien rechazar, sabiendo que su decision tendra consecuencias sociales, romanticas y politicas.
 
 Final sugerido: el capitulo culmina en una escena de intimidad adulta, larga, sensual y literaria con el interes romantico que Sandra haya elegido o hacia quien haya gravitado claramente. La escena debe ser evidente e intensa, con deseo, cercania, ritmo, manos, respiracion y consecuencias emocionales, pero sin vocabulario anatomico explicito ni mecanica sexual grafica.
 
-### Capitulo 10: El Sello del Umbral
+### Capitulo 11: El Sello del Umbral
 
 Primera bajada real a las criptas. La Orden intenta forzar una apertura parcial. Sandra debe decidir en quien confia y si usa su poder para cerrar, abrir o alterar el pacto.
 
@@ -639,7 +668,7 @@ La IA debe saber siempre en que capitulo esta. Cuando se cumpla el objetivo dram
 
 Al cerrar el capitulo 1, Valdralis queda clausurada para Sandra hasta que Miguel revise la partida y la reanude desde el bot de control. El estado permanece en el capitulo 1 y el capitulo 2 no se abre todavia. Durante el cierre no se llama a la IA, no se guarda memoria nueva y no hay avance narrativo. Diga lo que diga Sandra, el bot responde unicamente con el aviso fijo: "CAPÍTULO 1 TERMINADO. Has alcanzado el primer hito de Valdralis. La historia queda en pausa por ahora. Pronto recibirás la continuación." El resumen canonico, las fichas de personajes y los hitos deben servir para revisar que funciono antes de abrir el capitulo 2 con `/reanudar`.
 
-Al terminar el capitulo 10 termina el primer curso. No hay capitulo 11. La narracion se detiene hasta "el curso que viene".
+Al terminar el capitulo 11 termina el primer curso. No hay capitulo 12. La narracion se detiene hasta "el curso que viene".
 
 La IA debe comprobar el progreso narrativo antes de cada respuesta:
 
@@ -716,21 +745,33 @@ La IA debe mantener la urgencia entre hitos: ruidos de Dario, la casa que reacci
 
 ### Eventos predefinidos del capitulo 2
 
-- Kilnip lleva a Sandra al Bazar de los Primeros antes de la estacion. Debe ser una escena de maravilla practica: tiendas imposibles, listas que se reescriben, uniformes que miden solos y objetos que reaccionan a Sandra.
-- Sandra debe conseguir al menos tres cosas: uniforme de Valdralis, libros basicos y un foco arcano inicial. El foco puede elegirla a ella si Sandra no decide.
-- Un vendedor, objeto o sombra debe reaccionar al apellido Valmorien sin explicarlo del todo.
-- Kilnip puede meter prisa porque el tren no espera a quienes todavia pertenecen a una casa vieja.
-- En la estacion imposible, el anden aparece solo cuando Sandra acepta mirar donde no deberia haber vias.
-- En el tren, una presencia sombria recorre los vagones apagando luces. No debe ser combate abierto: debe sentirse casi como pelicula de miedo.
-- Sandra y quien este con ella deben esconderse en un compartimento, bajo una mesa, tras cortinas o en un vagon de equipajes.
+- Continuar exactamente la pregunta de Orla Nadir sobre el apellido que pretende cobrar la aguja. No regalar el foco ni decidir que pertenece a Sandra.
+- Kilnip identifica tres problemas: compras, dinero y camino al tren. Como no conoce todas las respuestas, invita a Sandra a preguntar a alumnos de primer curso.
+- Describir a Nora, Izan, Mara, Theo, Vera y Gael mediante acciones visibles, sin etiquetas de aliado o enemigo. Sandra elige a quien abordar.
+- El primer amigo que ayude de verdad promete reunirse con Sandra para ir juntos a la estacion. Un rival puede rechazarla, presionarla o darle una media verdad sin bloquear el capitulo.
+- En el Banco de las Cinco Llaves, Veyr no encuentra la cuenta educativa. La busqueda materna conduce a Elara y a Valmorien. Sandra debe pronunciar o aceptar voluntariamente el apellido para activar las cinco anualidades y retirar dinero.
+- Sandra recorre en orden libre seis tiendas para adquirir uniforme, foco, libros, baul, equipo practico y brujula de umbrales. El banco y la taquilla son destinos aparte y tambien pueden visitarse en el orden que ella decida.
+- Cada establecimiento necesita una situacion propia, un personaje, participacion de Sandra, una eleccion y una compra real. Una mencion o un "lo compro" inmediato no completa la tienda.
+- Kael puede aparecer en La Septima Costura durante una prueba de uniforme adaptado a la luna llena.
+- Lucien puede aparecer en La Ultima Vela al abrir el turno nocturno. Una herida pequena solo ocurre de forma plausible y nunca se fuerza para fabricar tension.
+- La aguja plateada, su recibo o una alarma de propiedad provoca un incidente transversal que Sandra debe resolver mediante decisiones y consecuencias, no combate.
+- El capitulo termina unicamente cuando Sandra tiene dinero, los seis objetos escolares, el billete y regresa por decision propia al amigo que prometio acompanarla. Ambos empiezan el camino hacia la estacion; el anden y el tren pertenecen al capitulo 3.
+- La preparacion detallada y vinculante esta en `lore/capitulos/02_bazar_de_los_primeros.md`.
+
+### Eventos predefinidos del capitulo 3
+
+- En la estacion imposible, el anden aparece solo cuando Sandra aprende a mirar donde no deberia haber vias.
+- Antes del peligro debe haber tiempo para explorar el tren, hablar con otros alumnos y elegir compartimento. No saltar de la estacion al ataque.
+- Una presencia sombria recorre los vagones apagando luces. No debe ser combate abierto: debe sentirse casi como pelicula de miedo.
+- Sandra y quien este con ella deben esconderse, distraerla o proteger a otro pasajero en un compartimento, bajo una mesa, tras cortinas o en un vagon de equipajes.
 - Si Sandra intenta actuar, puede usar luz, silencio, marca o desvio de forma instintiva, incluso sin haberlo aprendido formalmente.
 - El peligro huele a tierra mojada, hierro viejo y flores secas. Es una criatura menor del Umbral buscando sangre Valmorien.
 - Kilnip detecta el peligro antes que nadie: deja de hacer "tipitipitipitipitipi", se aplasta contra Sandra o se vuelve de un azul casi blanco.
-- Lucien puede aparecer al final del ataque, demasiado sereno, y hacer que la criatura retroceda sin explicar como.
-- Alternativa si Lucien ya aparecio demasiado: Nora ayuda a Sandra a esconderse, e Izan oye a la criatura decir el apellido Valmorien.
-- Termina cuando el tren llega a Valdralis o cuando alguien reconoce el apellido Valmorien justo antes de bajar.
+- Lucien puede intervenir si viaja en el turno nocturno, pero no debe resolver toda la escena sin Sandra.
+- Nora, Izan, Mara, Theo o el amigo elegido en el Bazar deben importar en la supervivencia y en las decisiones.
+- Termina cuando el tren llega a Valdralis y la presencia o un pasajero reconoce el apellido Valmorien.
 
-### Eventos predefinidos del capitulo 3
+### Eventos predefinidos del capitulo 4
 
 - Bienvenida con normas y turnos de especies. El mundo debe sentirse vivo: alumnos que se cruzan, campanas, listas, maletas que caminan solas, puertas que cambian.
 - Primer grupo de amigos: Nora debe ofrecer ayuda practica; Mara puede detectar peligro; Theo puede meter humor; Izan puede dar una pista inquietante.
@@ -740,7 +781,7 @@ La IA debe mantener la urgencia entre hitos: ruidos de Dario, la casa que reacci
 - Despues del rescate, Lucien debe ponerse borde o frio, como si lamentara haber mostrado interes.
 - Termina cuando Sandra queda instalada en Valdralis y recibe la advertencia clara sobre el Ala Norte o la Ceremonia del Umbral.
 
-### Eventos predefinidos del capitulo 4
+### Eventos predefinidos del capitulo 5
 
 - En la Ceremonia del Umbral, el espejo negro reacciona mal antes de dar el veredicto.
 - Cuando se anuncia "Hechicera del linaje velado", debe haber reaccion publica: murmullos, miedo, alumnos que se apartan y profesores que intercambian miradas.
@@ -750,7 +791,7 @@ La IA debe mantener la urgencia entre hitos: ruidos de Dario, la casa que reacci
 - Evento romantico cruzado: Lucien es frio con Sandra despues de la ceremonia; Kael interviene y le dice que no le hable como si fuera un problema. Sandra debe quedar entre dos tensiones distintas.
 - Termina cuando el veredicto del espejo queda fijado publicamente y Sandra entiende que ya no es una alumna anonima.
 
-### Eventos predefinidos del capitulo 5
+### Eventos predefinidos del capitulo 6
 
 - Primera clase de Pactos y Juramentos. La profesora Mireya Noct debe poner a Sandra en una situacion incomoda delante de otros alumnos.
 - Primera practica activa: levitacion, escudo o atadura ante toda la clase. Debe sentirse como una escena de escuela magica, no solo como charla teorica.
@@ -765,7 +806,7 @@ La IA debe mantener la urgencia entre hitos: ruidos de Dario, la casa que reacci
 - Lucien puede observar desde lejos, aparentando indiferencia, pero debe hacer algo pequeno que la proteja sin admitirlo.
 - Termina cuando Sandra sobrevive a la primera practica publica y queda claro que su magia academica se mezcla con magia velada.
 
-### Eventos predefinidos del capitulo 6
+### Eventos predefinidos del capitulo 7
 
 - Noche del pacto: baile, cena formal, ceremonia o recepcion donde facciones miden influencia.
 - Sandra debe verse obligada a asistir aunque no se sienta preparada. Los amigos ayudan con ropa, normas y advertencias.
@@ -776,7 +817,7 @@ La IA debe mantener la urgencia entre hitos: ruidos de Dario, la casa que reacci
 - Final: alguien deja en su habitacion un objeto de Elara, o el objeto aparece en su mano sin que recuerde haberlo cogido.
 - Termina cuando Sandra obtiene el objeto/pista de Elara y la noche social deja una consecuencia romantica abierta.
 
-### Eventos predefinidos del capitulo 7
+### Eventos predefinidos del capitulo 8
 
 - El Ala Norte no debe esperar pasivamente: susurra, cambia pasillos, apaga luces o usa la voz de Elara para atraer a Sandra.
 - Si Sandra no va sola, un amigo puede desaparecer brevemente o seguir una voz equivocada.
@@ -789,7 +830,7 @@ La IA debe mantener la urgencia entre hitos: ruidos de Dario, la casa que reacci
 - Evento romantico: contacto forzado por el peligro, una herida pequena, una cura, una confesion incompleta o una frase que casi dice demasiado.
 - Termina cuando Sandra encuentra el recuerdo fragmentado de Elara y descubre que el Sello del Umbral esta despertando.
 
-### Eventos predefinidos del capitulo 8
+### Eventos predefinidos del capitulo 9
 
 - La marca del Umbral cambia: se calienta, duele, brilla bajo la piel o reacciona cuando alguien miente cerca.
 - Profesores y alumnos empiezan a tratar a Sandra como un riesgo politico. Ya no basta con esconderse.
@@ -799,7 +840,7 @@ La IA debe mantener la urgencia entre hitos: ruidos de Dario, la casa que reacci
 - Los amigos ayudan a investigar sin convertirlo todo en romance: Nora busca archivos, Izan escucha ecos de la marca, Theo prepara tinta reveladora, Mara vigila pasillos.
 - Termina cuando Sandra entiende que la marca es una llave incompleta y recibe o acepta asistir al baile de las tres invitaciones.
 
-### Eventos predefinidos del capitulo 9
+### Eventos predefinidos del capitulo 10
 
 - Baile formal de mitad de luna. El salon debe sentirse vivo: mascaras, musica, normas antiguas, criaturas de turnos distintos compartiendo el mismo espacio.
 - Sandra recibe tres invitaciones o presiones romanticas:
@@ -811,9 +852,9 @@ La IA debe mantener la urgencia entre hitos: ruidos de Dario, la casa que reacci
 - Debe haber una interrupcion de peligro o politica durante el baile: una mascara sin rostro, una copa encantada, un juramento antiguo pronunciado en musica o una sombra que reconoce la marca.
 - Tras el peligro, Sandra debe acabar a solas con el interes romantico hacia quien haya gravitado mas en el capitulo.
 - Final obligatorio del capitulo: escena de intimidad adulta, extensa y sensual. No hacer fundido a negro automatico. Narrar en estilo literario con deseo claro, movimiento, respiracion, manos, ropa, peso, pausas, vulnerabilidad y despues emocional. Evitar vocabulario anatomico explicito y mecanica sexual grafica.
-- Termina al amanecer o tras la separacion posterior, cuando la intimidad haya cambiado de forma clara la relacion y haya una consecuencia emocional para el capitulo 10.
+- Termina al amanecer o tras la separacion posterior, cuando la intimidad haya cambiado de forma clara la relacion y haya una consecuencia emocional para el capitulo 11.
 
-### Eventos predefinidos del capitulo 10
+### Eventos predefinidos del capitulo 11
 
 - La Orden del Umbral intenta una apertura parcial del sello, no el final absoluto del mundo.
 - Los tres motores romanticos deben tener intereses contradictorios:

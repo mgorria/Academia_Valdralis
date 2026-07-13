@@ -90,7 +90,9 @@ La biblia de lore incluye tambien un resumen de trama de temporada, un grimorio 
 
 El estado tambien trackea el progreso de escenas obligatorias por capitulo (`chapter_scene_progress`): peligro, clase/aprendizaje, amistad/apoyo, romance/tension, misterio y decision. Se revisa con `/progreso` o `/progreso 5`. Si la IA intenta cerrar un capitulo con menos de 4 beats cumplidos/no aplicables, el sistema no lo cierra y avisa a Miguel.
 
-El capitulo 1 tiene ademas nueve hitos obligatorios y ordenados (`required_event_progress`). Solo puede registrarse un hito nuevo por respuesta. La IA no controla los campos que cambian de capitulo: el codigo ignora esos cambios y valida que toda transicion sea consecutiva y cumpla los requisitos.
+El capitulo 1 tiene nueve hitos obligatorios y ordenados (`required_event_progress`). El capitulo 2 tiene trece: orientacion, eleccion de alumno, primera amistad, banco, seis objetos escolares, billete, incidente y regreso al aliado. Tras la orientacion y la eleccion del alumno, banco, tiendas y taquilla se pueden resolver en orden libre; el reencuentro solo se habilita cuando todo lo anterior esta cumplido. Solo puede registrarse un hito nuevo por respuesta.
+
+La preparacion vinculante del Bazar esta en `lore/capitulos/02_bazar_de_los_primeros.md` y se carga unicamente mientras el capitulo 2 esta activo. La IA no controla los campos que cambian de capitulo: el codigo ignora esos cambios y valida que toda transicion sea consecutiva y cumpla los requisitos.
 
 ## Capitulos
 
@@ -102,7 +104,7 @@ Capitulo X terminado.
 Capitulo Y: Titulo
 ```
 
-Al terminar el capitulo 10, el primer curso queda cerrado y el bot no continua la historia hasta el curso siguiente.
+Al terminar el capitulo 11, el primer curso queda cerrado y el bot no continua la historia hasta el curso siguiente.
 
 Al cerrar cada capitulo, el bot genera y guarda un resumen canonico. La IA recibe esos resumenes antes de responder, para mantener continuidad aunque pasen meses.
 

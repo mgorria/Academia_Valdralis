@@ -65,17 +65,23 @@ MESSAGE_BUFFER_SECONDS = int(os.getenv("MESSAGE_BUFFER_SECONDS", "25"))
 CHAPTER_REVIEW_PAUSE_DAYS = int(os.getenv("CHAPTER_REVIEW_PAUSE_DAYS", "14"))
 
 LORE_PATH = Path("lore/biblia.md")
+CHAPTER_LORE_DIR = Path("lore/capitulos")
 CHAPTER_TITLES = {
     1: "La carta bajo la puerta",
-    2: "El tren de medianoche",
-    3: "Bienvenida a Valdralis",
-    4: "La Ceremonia del Umbral",
-    5: "La primera clase",
-    6: "La noche del pacto",
-    7: "El Ala Norte",
-    8: "La marca bajo la piel",
-    9: "El baile de las tres invitaciones",
-    10: "El Sello del Umbral",
+    2: "El Bazar de los Primeros",
+    3: "El tren de medianoche",
+    4: "Bienvenida a Valdralis",
+    5: "La Ceremonia del Umbral",
+    6: "La primera clase",
+    7: "La noche del pacto",
+    8: "El Ala Norte",
+    9: "La marca bajo la piel",
+    10: "El baile de las tres invitaciones",
+    11: "El Sello del Umbral",
+}
+FINAL_CHAPTER_NUMBER = max(CHAPTER_TITLES)
+CHAPTER_PREPARATION_PATHS = {
+    2: CHAPTER_LORE_DIR / "02_bazar_de_los_primeros.md",
 }
 CHAPTER_SCENE_BEATS = {
     "peligro": "escena de peligro o amenaza",
@@ -140,6 +146,49 @@ CHAPTER_REQUIRED_EVENTS = {
         ("decision_irreversible", "Sandra elige su salida", "Sandra toma una decision activa e irreversible contra una norma de Dario o a favor de Valdralis."),
         ("cruza_el_umbral", "Sandra deja atras la casa", "Sandra abandona la casa o cruza su umbral rumbo al mundo magico. Solo entonces puede abrirse el capitulo 2."),
     ],
+    2: [
+        ("bazar_respira", "El Bazar se convierte en un lugar vivo", "Sandra recibe una orientacion sensorial real, observa el recinto y puede reaccionar antes de que empiecen las compras."),
+        ("elige_a_quien_preguntar", "Sandra elige a quien preguntar", "Kilnip plantea compras, dinero y tren; Sandra escoge por iniciativa propia a uno de los alumnos visibles y juega su respuesta, sea ayuda o rechazo."),
+        ("primera_amistad", "Un amigo promete ir con Sandra", "Nora, Izan, Mara o Theo ayuda de verdad a Sandra y acuerda reunirse con ella para ir juntos a la estacion."),
+        ("cuenta_valmorien", "Sandra abre la cuenta de Elara", "En el banco, Veyr no basta; Sandra llega voluntariamente a Valmorien, descubre las cinco anualidades y retira dinero."),
+        ("uniforme_adquirido", "Sandra elige y compra su uniforme", "La Septima Costura ofrece una escena propia, una decision personal sobre el uniforme y una compra pagada."),
+        ("foco_adquirido", "Sandra elige su foco arcano", "Sandra examina alternativas, decide que hacer con la aguja plateada y adquiere conscientemente un foco."),
+        ("libros_adquiridos", "Sandra consigue los libros", "El Lomo Despierto plantea un problema jugable que Sandra resuelve antes de comprar el paquete de primer curso."),
+        ("baul_adquirido", "Sandra escoge un baul", "Sandra explora las reglas interiores de un baul, resuelve su incidente y lo compra."),
+        ("equipo_adquirido", "Sandra consigue el equipo practico", "La Ultima Vela ofrece una situacion con tinta, guantes, velas o libreta; Sandra participa y compra el estuche."),
+        ("brujula_adquirida", "Sandra configura su brujula de umbrales", "La Rosa sin Norte plantea una prueba de orientacion; Sandra elige una afinidad, recupera una salida y compra su brujula."),
+        ("billete_adquirido", "Sandra obtiene el billete", "Sandra decide el nombre del billete, lo paga y conoce el punto de encuentro hacia la estacion."),
+        ("incidente_bazar_resuelto", "Sandra resuelve el incidente del Bazar", "La aguja, un recibo o una alarma de propiedad obliga a Sandra a defender una decision y deja una consecuencia."),
+        ("regresa_con_su_aliado", "Sandra regresa por su companero", "Con dinero, seis objetos escolares y billete, Sandra vuelve por decision propia al amigo acordado y ambos empiezan el camino hacia la estacion."),
+    ],
+}
+CHAPTER_EVENT_ORDER_MODE = {1: "sequential", 2: "free"}
+CHAPTER_EVENT_PREREQUISITES = {
+    2: {
+        "elige_a_quien_preguntar": ("bazar_respira",),
+        "primera_amistad": ("elige_a_quien_preguntar",),
+        "cuenta_valmorien": ("elige_a_quien_preguntar",),
+        "uniforme_adquirido": ("elige_a_quien_preguntar",),
+        "foco_adquirido": ("elige_a_quien_preguntar",),
+        "libros_adquiridos": ("elige_a_quien_preguntar",),
+        "baul_adquirido": ("elige_a_quien_preguntar",),
+        "equipo_adquirido": ("elige_a_quien_preguntar",),
+        "brujula_adquirida": ("elige_a_quien_preguntar",),
+        "billete_adquirido": ("elige_a_quien_preguntar",),
+        "incidente_bazar_resuelto": ("foco_adquirido",),
+        "regresa_con_su_aliado": (
+            "primera_amistad",
+            "cuenta_valmorien",
+            "uniforme_adquirido",
+            "foco_adquirido",
+            "libros_adquiridos",
+            "baul_adquirido",
+            "equipo_adquirido",
+            "brujula_adquirida",
+            "billete_adquirido",
+            "incidente_bazar_resuelto",
+        ),
+    }
 }
 
 control_app: Application | None = None
@@ -233,6 +282,26 @@ def default_character_sheets() -> dict[str, dict[str, Any]]:
             ],
             tension_romantica="No aplica; alivio ligero y recursos",
         ),
+        "Vera Ordel": character_sheet(
+            "Aun no aparece; futura rival adulta de primer curso, heredera de un linaje de brujas antiguas",
+            secretos_que_sabe=[
+                "Conoce jerarquias, familias y prejuicios de Valdralis antes de empezar el curso",
+            ],
+            tension_romantica="No aplica; rivalidad academica y presion social",
+            no_revelar_todavia=[
+                "No convertirla en una enemiga plana; puede respetar a Sandra si demuestra criterio",
+            ],
+        ),
+        "Gael Voss": character_sheet(
+            "Aun no aparece; futuro rival adulto de primer curso, humano tocado por pactos fae",
+            secretos_que_sabe=[
+                "Sabe formular favores ambiguos y moverse por las pequenas deudas del Bazar",
+            ],
+            tension_romantica="No aplica; rivalidad, favores y verdades incompletas",
+            no_revelar_todavia=[
+                "No explicar pronto que pacto fae marco a su familia",
+            ],
+        ),
         "Lucien": character_sheet(
             "Aun no aparece; vampiro alumno del turno nocturno, neofito noble de Casa Veyrath",
             secretos_que_sabe=[
@@ -246,7 +315,7 @@ def default_character_sheets() -> dict[str, dict[str, Any]]:
             ],
         ),
         "Kael": character_sheet(
-            "Aun no aparece; licantropo intenso, fisico, protector y desconfiado de la autoridad",
+            "Aun no aparece; licantropo adulto de veinte anos, alumno de primer curso, intenso, fisico, protector y desconfiado de la autoridad",
             secretos_que_sabe=[
                 "Su manada perdio miembros por culpa del Sello del Umbral",
                 "Algunos licantropos creen que Sandra podria ser un riesgo",
@@ -257,7 +326,7 @@ def default_character_sheets() -> dict[str, dict[str, Any]]:
             ],
         ),
         "Aurelian": character_sheet(
-            "Aun no aparece; fae hermoso, ambiguo y peligroso, criado entre cortes antiguas",
+            "Aun no aparece; fae adulto joven de primer curso, hermoso, ambiguo y peligroso, criado entre cortes antiguas",
             secretos_que_sabe=[
                 "Sabe una ruta hacia las Criptas del Umbral",
                 "Entiende pactos antiguos y precios que otros no ven",
@@ -563,13 +632,23 @@ def merge_required_event_progress(existing: Any, updates: Any = None) -> dict[st
                         if not update.get("evidence"):
                             update.pop("status", None)
                             incoming_status = None
-                        event_order = list(merged[key]["events"])
-                        event_index = event_order.index(event_key)
-                        earlier_events_complete = all(
-                            merged[key]["events"][earlier_key].get("status") == "cumplido"
-                            for earlier_key in event_order[:event_index]
+                        chapter_number_int = int(key)
+                        mode = CHAPTER_EVENT_ORDER_MODE.get(chapter_number_int, "sequential")
+                        prerequisites = CHAPTER_EVENT_PREREQUISITES.get(
+                            chapter_number_int, {}
+                        ).get(event_key, ())
+                        prerequisites_complete = all(
+                            merged[key]["events"].get(required_key, {}).get("status") == "cumplido"
+                            for required_key in prerequisites
                         )
-                        if incoming_status != "cumplido" or newly_completed or not earlier_events_complete:
+                        if mode == "sequential":
+                            event_order = list(merged[key]["events"])
+                            event_index = event_order.index(event_key)
+                            prerequisites_complete = prerequisites_complete and all(
+                                merged[key]["events"][earlier_key].get("status") == "cumplido"
+                                for earlier_key in event_order[:event_index]
+                            )
+                        if incoming_status != "cumplido" or newly_completed or not prerequisites_complete:
                             update.pop("status", None)
                         else:
                             newly_completed = True
@@ -585,7 +664,12 @@ def next_required_event(progress: Any, chapter_number: int) -> dict[str, str] | 
     if not chapter:
         return None
     for event_key, event in chapter["events"].items():
-        if event.get("status") != "cumplido":
+        prerequisites = CHAPTER_EVENT_PREREQUISITES.get(chapter_number, {}).get(event_key, ())
+        prerequisites_complete = all(
+            chapter["events"].get(required_key, {}).get("status") == "cumplido"
+            for required_key in prerequisites
+        )
+        if event.get("status") != "cumplido" and prerequisites_complete:
             return {"key": event_key, **event}
     return None
 
@@ -1011,7 +1095,8 @@ def required_event_progress_markdown(progress: Any, chapter_number: int | None =
             lines.append(f"- {event['label']}: {event.get('status', 'pendiente')}{evidence}")
         next_event = next_required_event(normalized, number)
         if next_event:
-            lines.append(f"- Siguiente hito: {next_event['label']} ({next_event['requirement']})")
+            qualifier = "Siguiente hito" if CHAPTER_EVENT_ORDER_MODE.get(number) == "sequential" else "Hito disponible"
+            lines.append(f"- {qualifier}: {next_event['label']} ({next_event['requirement']})")
         lines.append("")
     return "\n".join(lines).strip() or "- No hay hitos guiados para este capitulo."
 
@@ -1042,13 +1127,13 @@ def activate_chapter_review_pause(data: dict[str, Any], completed_chapter: int) 
             "created_at": now_iso(),
         }
         return "hasta que Miguel la reanude"
-    if CHAPTER_REVIEW_PAUSE_DAYS <= 0 or completed_chapter >= 10:
+    if CHAPTER_REVIEW_PAUSE_DAYS <= 0 or completed_chapter >= FINAL_CHAPTER_NUMBER:
         return ""
     until_date = datetime.now(APP_TIMEZONE).date() + timedelta(days=CHAPTER_REVIEW_PAUSE_DAYS)
     data["chapter_review_pause"] = {
         "active": True,
         "completed_chapter": completed_chapter,
-        "next_chapter": min(10, completed_chapter + 1),
+        "next_chapter": min(FINAL_CHAPTER_NUMBER, completed_chapter + 1),
         "until_date": until_date.isoformat(),
         "requires_manual_resume": False,
         "created_at": now_iso(),
@@ -1109,8 +1194,15 @@ def open_pending_chapter_after_review(data: dict[str, Any]) -> int | None:
     state["current_chapter_number"] = next_chapter
     state["chapter"] = chapter_label(next_chapter)
     state["season_complete"] = False
-    state["current_scene"] = "La salida de casa ha quedado atras; comienza el camino hacia el Bazar de los Primeros"
-    state["next_suggested_scene"] = "Kilnip guia a Sandra hacia el Bazar de los Primeros"
+    state["location"] = "Galeria del Umbral del Bazar de los Primeros, ante la tienda de focos"
+    state["current_scene"] = (
+        "La aguja plateada acaba de mostrar una puerta, siete sombras y una mujer parecida "
+        "a Sandra; Orla Nadir espera que Sandra diga que apellido pretende cobrarle"
+    )
+    state["next_suggested_scene"] = (
+        "Esperar la respuesta de Sandra a Orla y abrir despues el Bazar como un recinto vivo "
+        "que pueda explorar"
+    )
     return next_chapter
 
 
@@ -1123,7 +1215,7 @@ def apply_chapter_transition(data: dict[str, Any], transition: Any) -> str:
         completed = int(transition.get("completed_chapter") or state.get("current_chapter_number") or 0)
     except (TypeError, ValueError):
         completed = 0
-    if completed < 1 or completed > 10:
+    if completed < 1 or completed > FINAL_CHAPTER_NUMBER:
         return ""
 
     completed_chapters = {
@@ -1134,14 +1226,14 @@ def apply_chapter_transition(data: dict[str, Any], transition: Any) -> str:
     completed_chapters.add(completed)
     state["completed_chapters"] = sorted(completed_chapters)
 
-    if completed >= 10:
-        state["current_chapter_number"] = 10
-        state["chapter"] = chapter_label(10)
+    if completed >= FINAL_CHAPTER_NUMBER:
+        state["current_chapter_number"] = FINAL_CHAPTER_NUMBER
+        state["chapter"] = chapter_label(FINAL_CHAPTER_NUMBER)
         state["season_complete"] = True
         state["current_scene"] = "Primer curso terminado"
         state["next_suggested_scene"] = "Esperar al curso que viene"
         return (
-            f"{chapter_label(10)} terminado.\n\n"
+            f"{chapter_label(FINAL_CHAPTER_NUMBER)} terminado.\n\n"
             "Primer curso terminado.\n\n"
             "La historia se detiene aqui, por ahora. Valdralis volvera a abrir sus puertas el curso que viene."
         )
@@ -1154,7 +1246,7 @@ def apply_chapter_transition(data: dict[str, Any], transition: Any) -> str:
         state["next_suggested_scene"] = "Esperar a que vuelva a abrirse el camino hacia Valdralis"
         return ""
 
-    next_chapter = min(10, completed + 1)
+    next_chapter = min(FINAL_CHAPTER_NUMBER, completed + 1)
     state["current_chapter_number"] = next_chapter
     state["chapter"] = chapter_label(next_chapter)
     state["season_complete"] = False
@@ -1169,10 +1261,10 @@ def completed_chapter_from_transition(state: dict[str, Any], transition: Any) ->
         current = int(state.get("current_chapter_number") or 0)
     except (TypeError, ValueError):
         return None
-    if completed < 1 or completed > 10 or completed != current:
+    if completed < 1 or completed > FINAL_CHAPTER_NUMBER or completed != current:
         return None
     proposed_next = transition.get("next_chapter")
-    if completed < 10 and proposed_next is not None:
+    if completed < FINAL_CHAPTER_NUMBER and proposed_next is not None:
         try:
             if int(proposed_next) != completed + 1:
                 return None
@@ -1275,7 +1367,7 @@ def append_history(role: str, text: str, *, chapter_number: int | None = None) -
             inferred_chapter = int((data.get("state") or {}).get("current_chapter_number") or 0)
         except (TypeError, ValueError):
             inferred_chapter = 0
-        chapter_number = inferred_chapter if 1 <= inferred_chapter <= 10 else None
+        chapter_number = inferred_chapter if 1 <= inferred_chapter <= FINAL_CHAPTER_NUMBER else None
     if db_enabled():
         with db_connect() as conn:
             with conn.cursor() as cur:
@@ -1306,6 +1398,53 @@ def read_lore() -> str:
     if not LORE_PATH.exists():
         return "Biblia no encontrada. Mantener fantasia romantica gotica en Valdralis."
     return LORE_PATH.read_text(encoding="utf-8")
+
+
+def read_chapter_preparation(chapter_number: int) -> str:
+    path = CHAPTER_PREPARATION_PATHS.get(chapter_number)
+    if not path:
+        return "No hay un documento adicional para este capitulo; seguir la Biblia general."
+    if not path.exists():
+        return f"Falta la preparacion esperada para {chapter_label(chapter_number)}."
+    return path.read_text(encoding="utf-8")
+
+
+def chapter_scene_prompt_schema(chapter_number: int) -> str:
+    beats = {
+        key: {
+            "status": "pendiente|cumplido|no_aplica",
+            "evidence": "que escena lo cumplio",
+            "last_update": "turno actual breve",
+        }
+        for key in CHAPTER_SCENE_BEATS
+    }
+    return json.dumps(
+        {
+            str(chapter_number): {
+                "chapter": chapter_label(chapter_number),
+                "minimum_completed": CHAPTER_SCENE_MINIMUM_COMPLETED,
+                "beats": beats,
+            }
+        },
+        ensure_ascii=False,
+        indent=2,
+    )
+
+
+def required_event_prompt_schema(chapter_number: int) -> str:
+    events = {
+        event_key: {
+            "status": "pendiente|cumplido",
+            "evidence": requirement,
+            "last_update": "turno actual breve",
+        }
+        for event_key, _label, requirement in CHAPTER_REQUIRED_EVENTS.get(chapter_number, [])
+    }
+    return json.dumps(
+        {str(chapter_number): {"events": events}} if events else {},
+        ensure_ascii=False,
+        indent=2,
+    )
 
 
 def recent_history_text(limit: int = RECENT_HISTORY_FOR_AI) -> str:
@@ -1759,6 +1898,19 @@ def extract_json(text: str) -> dict[str, Any]:
 async def generate_scene(sandra_message: str) -> dict[str, Any]:
     help_request = "si" if is_help_request(sandra_message) else "no"
     current_state = load_data().get("state") or default_state()
+    try:
+        current_chapter_number = int(current_state.get("current_chapter_number") or 1)
+    except (TypeError, ValueError):
+        current_chapter_number = 1
+    current_chapter_number = max(1, min(FINAL_CHAPTER_NUMBER, current_chapter_number))
+    scene_progress_schema = chapter_scene_prompt_schema(current_chapter_number)
+    required_progress_schema = required_event_prompt_schema(current_chapter_number)
+    completed_chapters_schema = json.dumps(
+        current_state.get("completed_chapters") or [],
+        ensure_ascii=False,
+    )
+    season_complete_schema = "true" if current_state.get("season_complete") else "false"
+    chapter_preparation = read_chapter_preparation(current_chapter_number)
     required_progress = merge_required_event_progress(current_state.get("required_event_progress"))
     kilnip_event = (
         required_progress.get("1", {})
@@ -1779,9 +1931,18 @@ REGLAS DE ESTILO:
 - Una vez despierto, Kilnip habla directamente dentro de la cabeza de Sandra cuando ella pide ayuda. Deja claro que solo ella oye esa voz. Usa de una a cuatro frases mentales breves, nerviosas y concretas, y acompanalo con algun gesto fisico de Kilnip. Su voz resume y orienta, pero no decide por Sandra.
 - Si Kilnip aun no ha salido del sello, no lo hagas aparecer antes de tiempo: la carta, el sello azul o la casa deben ofrecer la pista de forma diegetica. Despues de despertar, Kilnip es siempre la guia principal cuando Sandra se bloquea.
 - Narra en segunda persona, en espanol.
-- Incorpora siempre el gesto, frase o accion exacta que escriba Sandra.
-- Prosa literaria, atmosferica y emocional.
+- Trata el gesto, frase o accion de Sandra como un hecho que acaba de ocurrir y continua desde su consecuencia. No empieces repitiendo, citando ni parafraseando su mensaje. Solo conserva literalmente las palabras que Sandra haya pronunciado como dialogo cuando resulte natural.
+- Sandra es propietaria de su interioridad. Puedes describir reacciones fisicas involuntarias, percepciones, impulsos ambiguos y posibilidades, pero no decidir que perdona, confia, ama, desea, acepta, comprende o supera algo si ella no lo ha expresado.
+- Ante una revelacion, una aparicion sobrenatural, una pregunta directa o una eleccion importante, no encadenes automaticamente el siguiente acontecimiento. Deja espacio real para que Sandra observe, pregunte, dude o reaccione.
+- Sandra ha vivido toda su vida como humana. Trata cada primera imposibilidad magica con presencia fisica, consecuencias visibles y tiempo para reaccionar; no asumas que la acepta con normalidad ni declares por ella que siente asombro o miedo.
+- Mantiene continuidad espacial. Narra puertas, trayectos, distancias y cambios de ambiente cuando importen; no teletransportes a Sandra entre lugares ni resumas una exploracion como una lista de paradas.
+- En escenas de descubrimiento describe el mundo mediante detalles concretos de varios sentidos y muestra actividad de fondo que no exista solo para guiar a Sandra.
+- Prosa literaria, atmosferica y emocional, pero precisa. Prefiere imagenes concretas a cadenas de comparaciones y no abuses de "parece", "como si", "algo", objetos que respiran o frases que explican el significado emocional de la escena.
+- Cada respuesta debe desarrollar un movimiento narrativo principal con profundidad. No comprimas llegada, explicacion, conflicto, solucion y salida en la misma respuesta.
+- Los PNJ tienen objetivos, humor, limites y opiniones. Deben preguntar, interrumpir, equivocarse y esperar respuestas; no funcionar como mostradores de exposicion.
+- No escribas por Sandra la respuesta a una pregunta de un PNJ. Tras una pregunta importante, una oferta o una provocacion, deja que ella conteste antes de hacer avanzar esa conversacion.
 - No uses opciones A/B/C ni menus.
+- No termines con una instruccion de juego como "que haces?". La decision debe quedar abierta por la propia situacion, con estilo de novela.
 - No decidas por Sandra sus grandes decisiones internas.
 - Puede y debe haber tension romantica y sensual adulta: miradas, roces, deseo, besos que casi llegan, besos robados y consecuencias emocionales.
 - Si una escena intima llega a sexo, no cortes automaticamente con fundido a negro. Narrala de forma literaria y sensual, centrada en respiracion, manos, ritmo, cercania, vulnerabilidad y consecuencias emocionales.
@@ -1795,15 +1956,20 @@ REGLAS DE ESTILO:
 - Antes de responder, comprueba internamente el progreso: capitulo actual, objetivo dramatico, eventos predefinidos pendientes, personajes recientes y siguiente empuje narrativo. No escribas esta comprobacion a Sandra.
 - Actualiza state.chapter_scene_progress del capitulo actual. Marca como "cumplido" cualquier beat que haya ocurrido con una evidencia breve. Beats: peligro, clase_aprendizaje, amistad_apoyo, romance_tension, misterio, decision.
 - No cierres un capitulo si no se han cumplido al menos 4 de los 6 beats, salvo que los no aplicables esten marcados como "no_aplica" con evidencia. La decision y la pista de misterio casi siempre deben cumplirse antes de cerrar.
-- El capitulo 1 tiene una escaleta obligatoria en state.required_event_progress. Debes desarrollar sus hitos en el orden indicado. En cada respuesta, empuja con naturalidad hacia el siguiente hito pendiente, sin saltarlo ni marcarlo cumplido solo porque se haya mencionado. Un hito solo se cumple si se ha jugado en la narracion y Sandra ha tenido una oportunidad real de reaccionar o decidir.
+- Si el capitulo actual tiene state.required_event_progress, todos sus hitos son obligatorios. Un hito solo se cumple si se ha jugado en la narracion, Sandra ha tenido una oportunidad real de intervenir y existe evidencia concreta. El sistema acepta como maximo un hito nuevo por respuesta.
+- En el capitulo 1 los hitos siguen el orden indicado. En el capitulo 2, despues de que el Bazar se haya presentado como lugar vivo y Sandra haya elegido a quien preguntar, ella decide libremente el orden de banco, seis tiendas y taquilla; no la conduzcas automaticamente al siguiente establecimiento. El reencuentro con su aliado siempre es el ultimo hito.
 - No cierres el capitulo 1 hasta que TODOS sus hitos obligatorios esten en estado "cumplido". El ultimo, "Sandra deja atras la casa", exige que haya cruzado el umbral de la casa hacia el mundo magico; aceptar la carta sin salir aun no basta.
+- No cierres el capitulo 2 hasta que TODOS sus hitos obligatorios esten en estado "cumplido": orientacion, alumno elegido, primera amistad, cuenta Valmorien, seis objetos escolares, billete, incidente resuelto y regreso voluntario al companero de estacion.
 - No adelantes state.chapter, state.current_chapter_number, state.completed_chapters ni state.season_complete. El sistema es el unico que cambia de capitulo despues de validar todos los requisitos.
 - Mantener y actualizar las fichas vivas de personajes. Si una escena cambia una relacion, secreto, ultima escena, tension romantica o limite de revelacion, actualiza solo esa ficha en state.character_sheets. No inventes cambios para personajes que no han intervenido.
 - Cuando termine un capitulo, marca chapter_transition.completed=true, pero no escribas tu el cartel de "Capitulo terminado"; el sistema lo anadira.
-- Tras completar el capitulo 10, marca season_complete=true y no abras un capitulo 11.
+- Tras completar el capitulo {FINAL_CHAPTER_NUMBER}, marca season_complete=true y no abras un capitulo {FINAL_CHAPTER_NUMBER + 1}.
 
 BIBLIA DE LA PARTIDA:
 {read_lore()}
+
+PREPARACION PRIVADA DEL CAPITULO ACTUAL ({chapter_label(current_chapter_number)}):
+{chapter_preparation}
 
 ESTADO ACTUAL:
 {state_text()}
@@ -1826,45 +1992,18 @@ Si la peticion pone "si" y Kilnip esta despierto, incluye obligatoriamente su vo
 
 Devuelve SOLO JSON valido con este formato:
 {{
-  "reply": "respuesta narrativa para Sandra, 2 a 8 parrafos; siempre dentro de la ficcion",
+  "reply": "escena narrativa completa para Sandra, con la extension que necesite su movimiento principal; siempre dentro de la ficcion",
   "state": {{
-    "chapter": "capitulo actual",
-    "current_chapter_number": 1,
-    "completed_chapters": [1],
-    "season_complete": false,
+    "chapter": "{chapter_label(current_chapter_number)}",
+    "current_chapter_number": {current_chapter_number},
+    "completed_chapters": {completed_chapters_schema},
+    "season_complete": {season_complete_schema},
     "location": "lugar actual",
     "current_scene": "escena actual",
     "known_facts": ["hechos que Sandra ya sabe"],
     "relationships": {{"nombre": "estado breve de relacion"}},
-    "chapter_scene_progress": {{
-      "1": {{
-        "chapter": "Capítulo 1: La carta bajo la puerta",
-        "minimum_completed": 4,
-        "beats": {{
-          "peligro": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que escena lo cumplio", "last_update": "turno actual breve"}},
-          "clase_aprendizaje": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que aprendizaje/clase lo cumplio", "last_update": "turno actual breve"}},
-          "amistad_apoyo": {{"status": "pendiente|cumplido|no_aplica", "evidence": "quien apoyo o acompano", "last_update": "turno actual breve"}},
-          "romance_tension": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que tension romantica ocurrio", "last_update": "turno actual breve"}},
-          "misterio": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que pista aparecio", "last_update": "turno actual breve"}},
-          "decision": {{"status": "pendiente|cumplido|no_aplica", "evidence": "que decision tomo Sandra", "last_update": "turno actual breve"}}
-        }}
-      }}
-    }},
-    "required_event_progress": {{
-      "1": {{
-        "events": {{
-          "la_casa_jaula": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
-          "cerradura_responde": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
-          "la_carta_llama": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
-          "encuentra_la_carta": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
-          "kilnip_despierta": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
-          "revelacion_practica": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
-          "dario_casi_descubre": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
-          "decision_irreversible": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}},
-          "cruza_el_umbral": {{"status": "pendiente|cumplido", "evidence": "que ocurrio", "last_update": "turno actual breve"}}
-        }}
-      }}
-    }},
+    "chapter_scene_progress": {scene_progress_schema},
+    "required_event_progress": {required_progress_schema},
     "character_sheets": {{
       "Nombre": {{
         "relacion_actual": "relacion actual con Sandra",
@@ -2382,8 +2521,10 @@ async def cmd_exportar_capitulo(update: Update, context: ContextTypes.DEFAULT_TY
             chapter_number = int((data.get("state") or {}).get("current_chapter_number") or 0)
         except (TypeError, ValueError):
             chapter_number = 0
-    if chapter_number < 1 or chapter_number > 10:
-        await update.effective_chat.send_message("Indica un capítulo entre 1 y 10.")
+    if chapter_number < 1 or chapter_number > FINAL_CHAPTER_NUMBER:
+        await update.effective_chat.send_message(
+            f"Indica un capítulo entre 1 y {FINAL_CHAPTER_NUMBER}."
+        )
         return
 
     try:
@@ -2431,7 +2572,7 @@ async def cmd_progreso(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     state = load_data().get("state") or default_state()
     chapter_number: int | None = None
     if context.args and context.args[0].isdigit():
-        chapter_number = max(1, min(10, int(context.args[0])))
+        chapter_number = max(1, min(FINAL_CHAPTER_NUMBER, int(context.args[0])))
     else:
         try:
             chapter_number = int(state.get("current_chapter_number") or 0) or None
