@@ -875,6 +875,8 @@ def default_data() -> dict[str, Any]:
         "sent_chapter_openings": [],
         "chapter_review_pause": None,
         "pending_narrator_delivery": None,
+        "last_narrator_resend_attempt": None,
+        "last_control_error": None,
     }
 
 
@@ -2312,7 +2314,7 @@ async def control_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         return
     await update.effective_chat.send_message(
         "Control Partida Sandra activo. Usa /status, /estado, /historial 20, "
-        "/reenviar_ultimo o /nota."
+        "/entrega, /reenviar_ultimo o /nota."
     )
 
 
@@ -2817,7 +2819,29 @@ async def cmd_reenviar_ultimo(update: Update, context: ContextTypes.DEFAULT_TYPE
         return
 
     if isinstance(data.get("pending_narrator_delivery"), dict):
+        pending = data["pending_narrator_delivery"]
+        data["last_narrator_resend_attempt"] = {
+            "status": "started",
+            "source": "pending",
+            "started_at": now_iso(),
+            "sent_chunks_before": int(pending.get("sent_chunks") or 0),
+            "total_chunks": int(pending.get("total_chunks") or len(split_long(str(pending.get("text") or "")))),
+        }
+        save_data(data)
         delivered = await deliver_pending_narrator_reply()
+        data = load_data()
+        attempt = data.get("last_narrator_resend_attempt")
+        if isinstance(attempt, dict):
+            attempt["status"] = "confirmed" if delivered else "failed"
+            attempt["finished_at"] = now_iso()
+            data["last_narrator_resend_attempt"] = attempt
+            if delivered:
+                data["last_narrator_resend"] = {
+                    "chapter_number": pending.get("chapter_number"),
+                    "chunks_sent": int(pending.get("total_chunks") or len(split_long(str(pending.get("text") or "")))),
+                    "sent_at": now_iso(),
+                }
+            save_data(data)
         await update.effective_chat.send_message(
             "Respuesta pendiente entregada a Sandra y continuidad confirmada."
             if delivered
@@ -2830,6 +2854,14 @@ async def cmd_reenviar_ultimo(update: Update, context: ContextTypes.DEFAULT_TYPE
         await update.effective_chat.send_message("No encuentro una respuesta del narrador para reenviar.")
         return
     text, chapter_number = latest
+    data["last_narrator_resend_attempt"] = {
+        "status": "started",
+        "source": "stored_history",
+        "chapter_number": chapter_number,
+        "started_at": now_iso(),
+        "total_chunks": len(split_long(text)),
+    }
+    save_data(data)
     try:
         chunks_sent = await send_telegram_text(
             narrador_app.bot,
@@ -2837,6 +2869,20 @@ async def cmd_reenviar_ultimo(update: Update, context: ContextTypes.DEFAULT_TYPE
             text=text,
         )
     except TelegramTextDeliveryError as exc:
+        data = load_data()
+        attempt = data.get("last_narrator_resend_attempt")
+        if isinstance(attempt, dict):
+            attempt.update(
+                {
+                    "status": "failed",
+                    "finished_at": now_iso(),
+                    "sent_chunks": exc.sent_chunks,
+                    "total_chunks": exc.total_chunks,
+                    "error_type": type(exc.cause).__name__,
+                }
+            )
+            data["last_narrator_resend_attempt"] = attempt
+            save_data(data)
         await update.effective_chat.send_message(
             "Telegram no ha confirmado el reenvio. "
             f"Fragmentos confirmados: {exc.sent_chunks}/{exc.total_chunks}."
@@ -2849,10 +2895,71 @@ async def cmd_reenviar_ultimo(update: Update, context: ContextTypes.DEFAULT_TYPE
         "chunks_sent": chunks_sent,
         "sent_at": now_iso(),
     }
+    attempt = data.get("last_narrator_resend_attempt")
+    if isinstance(attempt, dict):
+        attempt.update(
+            {
+                "status": "confirmed",
+                "finished_at": now_iso(),
+                "sent_chunks": chunks_sent,
+            }
+        )
+        data["last_narrator_resend_attempt"] = attempt
     save_data(data)
     await update.effective_chat.send_message(
         f"Ultima respuesta del narrador reenviada a Sandra en {chunks_sent} mensaje/s. No he llamado a la IA."
     )
+
+
+async def cmd_entrega(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.effective_chat or not is_admin(update):
+        return
+    data = load_data()
+    pending = data.get("pending_narrator_delivery")
+    attempt = data.get("last_narrator_resend_attempt")
+    confirmed = data.get("last_narrator_resend")
+    control_error = data.get("last_control_error")
+    lines = ["Estado de entrega del narrador"]
+
+    if isinstance(pending, dict):
+        lines.append(
+            "- Respuesta pendiente: sí "
+            f"({int(pending.get('sent_chunks') or 0)}/{int(pending.get('total_chunks') or 0)} mensajes confirmados)"
+        )
+    else:
+        lines.append("- Respuesta pendiente: no")
+
+    if isinstance(attempt, dict):
+        labels = {
+            "started": "iniciado, sin confirmación final",
+            "confirmed": "confirmado por Telegram",
+            "failed": "fallido",
+        }
+        status = labels.get(str(attempt.get("status") or ""), "desconocido")
+        lines.append(f"- Último intento: {status}")
+        if attempt.get("finished_at") or attempt.get("started_at"):
+            lines.append(f"- Momento del intento: {attempt.get('finished_at') or attempt.get('started_at')}")
+        if attempt.get("sent_chunks") is not None:
+            lines.append(
+                f"- Mensajes confirmados en el intento: {attempt.get('sent_chunks')}/{attempt.get('total_chunks', '?')}"
+            )
+    else:
+        lines.append("- Último intento registrado: ninguno")
+
+    if isinstance(confirmed, dict):
+        lines.append(f"- Último reenvío confirmado: {confirmed.get('sent_at', 'sin fecha')}")
+        lines.append(f"- Partes entregadas: {confirmed.get('chunks_sent', '?')}")
+    else:
+        lines.append("- Reenvío confirmado: no consta")
+
+    if isinstance(control_error, dict):
+        lines.append(
+            f"- Último error del control: {control_error.get('error_type', 'desconocido')} "
+            f"({control_error.get('at', 'sin fecha')})"
+        )
+
+    lines.append("- Lectura por Sandra: Telegram no ofrece confirmación de lectura a los bots")
+    await update.effective_chat.send_message("\n".join(lines))
 
 
 async def cmd_nota(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -3255,6 +3362,33 @@ async def unknown_control(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await update.effective_chat.send_message("Comando no reconocido. Usa /status.")
 
 
+async def control_error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    error = context.error
+    logger.error(
+        "Error no controlado en el bot de control",
+        exc_info=(type(error), error, error.__traceback__) if error else None,
+    )
+    try:
+        data = load_data()
+        data["last_control_error"] = {
+            "at": now_iso(),
+            "error_type": type(error).__name__ if error else "UnknownError",
+        }
+        save_data(data)
+    except Exception:
+        logger.exception("No se pudo registrar el error del bot de control")
+
+    if not isinstance(update, Update) or not update.effective_chat or not is_admin(update):
+        return
+    try:
+        await update.effective_chat.send_message(
+            "El comando ha fallado antes de poder confirmar su resultado. "
+            "No repitas un reenvío a ciegas; usa /entrega para consultar el registro."
+        )
+    except Exception:
+        logger.exception("No se pudo informar del error en el chat de control")
+
+
 def build_control_app() -> Application:
     app = ApplicationBuilder().token(require_env("TOKEN_CONTROL")).build()
     app.add_handler(CommandHandler("start", control_start))
@@ -3266,6 +3400,7 @@ def build_control_app() -> Application:
     app.add_handler(CommandHandler("personajes", cmd_personajes))
     app.add_handler(CommandHandler("progreso", cmd_progreso))
     app.add_handler(CommandHandler("historial", cmd_historial))
+    app.add_handler(CommandHandler("entrega", cmd_entrega))
     app.add_handler(CommandHandler("reenviar_ultimo", cmd_reenviar_ultimo))
     app.add_handler(CommandHandler("resumen", cmd_resumen))
     app.add_handler(CommandHandler("probar", cmd_probar))
@@ -3282,6 +3417,7 @@ def build_control_app() -> Application:
     app.add_handler(CommandHandler("reanudar", cmd_reanudar))
     app.add_handler(CommandHandler("decir", cmd_decir))
     app.add_handler(MessageHandler(filters.COMMAND, unknown_control))
+    app.add_error_handler(control_error_handler)
     return app
 
 
