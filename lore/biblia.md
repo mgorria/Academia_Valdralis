@@ -410,6 +410,12 @@ Alquimista humano, encantador, algo desastre y sorprendentemente util cuando hay
 
 Funcion narrativa: alivio ligero, recursos practicos, planes arriesgados.
 
+### Inés Armand
+
+Hermana mayor de Theo y alumna de tercer curso. Comparte con él la rapidez de manos, pero no su necesidad de convertir cada miedo en una broma. Es exigente, práctica y protectora sin resultar maternal con todo el mundo.
+
+Funcion narrativa: mostrar una faceta familiar de Theo, ofrecer contraste entre cursos y convertirse en contacto recurrente sin sustituir al grupo de primer año.
+
 ## Rivales de primer curso
 
 Los rivales no deben presentarse como villanos evidentes. Son alumnos adultos que volveran a coincidir con Sandra en Valdralis y cuyas primeras impresiones pueden empeorar, mejorar o convertirse en alianzas incomodas.
@@ -606,9 +612,9 @@ Final: con dinero, uniforme, foco, libros, baul, equipo practico, brujula y bill
 
 ### Capitulo 3: El tren de medianoche
 
-Sandra llega a una estacion que no existe en los mapas y sube al tren con el amigo conocido en el Bazar o con otros alumnos. Una presencia del Umbral recorre los vagones apagando luces. El viaje debe mezclar conversacion, exploracion, miedo y una primera respuesta instintiva de la magia de Sandra.
+Tras un interludio canónico en el que Sandra y sus cuatro amigos construyen la Hora Cero, se enfrentan a una Sombra y alcanzan el Tren de Medianoche, Sandra entra en el Vagón Archivo. El viaje combina exploración, conversaciones individuales con Nora, Izan, Mara y Theo, maravillas cotidianas, un encuentro de tensión con Kael, profesores y comida mágica. El billete y una voz al fondo del convoy señalan un vagón que no aparece en los horarios.
 
-Final sugerido: la presencia o un pasajero reconoce el apellido Valmorien justo antes de llegar a Valdralis.
+Final: durante la noche, Sandra oye de nuevo la voz y decide voluntariamente levantarse para investigarla. El capítulo termina antes de mostrar el vagón oculto y antes de llegar a Valdralis. La exploración posterior será un interludio jugable de continuidad.
 
 ### Capitulo 4: Bienvenida a Valdralis
 
@@ -666,7 +672,7 @@ Regla de ritmo: cada 2 o 3 respuestas del bot debe ocurrir algo que cambie la es
 
 La IA debe saber siempre en que capitulo esta. Cuando se cumpla el objetivo dramatico del capitulo, debe marcar la transicion para que el sistema valide los requisitos y anada el cartel de cierre. La IA no puede cambiar por si misma el numero de capitulo ni saltar al siguiente por prisa.
 
-Al cerrar el capitulo 1, Valdralis queda clausurada para Sandra hasta que Miguel revise la partida y la reanude desde el bot de control. El estado permanece en el capitulo 1 y el capitulo 2 no se abre todavia. Durante el cierre no se llama a la IA, no se guarda memoria nueva y no hay avance narrativo. Diga lo que diga Sandra, el bot responde unicamente con el aviso fijo: "CAPÍTULO 1 TERMINADO. Has alcanzado el primer hito de Valdralis. La historia queda en pausa por ahora. Pronto recibirás la continuación." El resumen canonico, las fichas de personajes y los hitos deben servir para revisar que funciono antes de abrir el capitulo 2 con `/reanudar`.
+Al cerrar los capítulos 1 y 3, Valdralis queda clausurada para Sandra hasta que Miguel revise la partida y prepare el siguiente tramo. El estado permanece en el capítulo cerrado. Durante ese cierre no se llama a la IA, no se guarda memoria nueva y no hay avance narrativo. Diga lo que diga Sandra, el bot responde únicamente con el aviso fijo correspondiente. El resumen canónico, las fichas de personajes, los hitos y, al cerrar el capítulo 3, `chapter3_handoff`, deben revisarse antes de abrir la continuación con `/reanudar`.
 
 Al terminar el capitulo 11 termina el primer curso. No hay capitulo 12. La narracion se detiene hasta "el curso que viene".
 
@@ -760,16 +766,19 @@ La IA debe mantener la urgencia entre hitos: ruidos de Dario, la casa que reacci
 
 ### Eventos predefinidos del capitulo 3
 
-- En la estacion imposible, el anden aparece solo cuando Sandra aprende a mirar donde no deberia haber vias.
-- Antes del peligro debe haber tiempo para explorar el tren, hablar con otros alumnos y elegir compartimento. No saltar de la estacion al ataque.
-- Una presencia sombria recorre los vagones apagando luces. No debe ser combate abierto: debe sentirse casi como pelicula de miedo.
-- Sandra y quien este con ella deben esconderse, distraerla o proteger a otro pasajero en un compartimento, bajo una mesa, tras cortinas o en un vagon de equipajes.
-- Si Sandra intenta actuar, puede usar luz, silencio, marca o desvio de forma instintiva, incluso sin haberlo aprendido formalmente.
-- El peligro huele a tierra mojada, hierro viejo y flores secas. Es una criatura menor del Umbral buscando sangre Valmorien.
-- Kilnip detecta el peligro antes que nadie: deja de hacer "tipitipitipitipitipi", se aplasta contra Sandra o se vuelve de un azul casi blanco.
-- Lucien puede intervenir si viaja en el turno nocturno, pero no debe resolver toda la escena sin Sandra.
-- Nora, Izan, Mara, Theo o el amigo elegido en el Bazar deben importar en la supervivencia y en las decisiones.
-- Termina cuando el tren llega a Valdralis y la presencia o un pasajero reconoce el apellido Valmorien.
+- Comenzar exactamente dentro del Vagón Archivo. La estación, la Hora Cero, la Sombra, el encuentro inicial con Kael, la elección del apellido Valmorien, la elección de vagón y la subida al tren ya ocurrieron en el interludio y no se repiten.
+- El Vagón Archivo debe ser explorable y tener reglas propias. Sandra recorre un espacio real, observa pasajeros y participa antes de instalarse.
+- Sandra mantiene una conversación significativa y diferenciada con Nora, Izan, Mara y Theo. La mera presencia en una escena grupal no completa ninguna.
+- El revisor ya conocido muerde el billete para validarlo. El billete reacciona y Sandra oye una voz breve desde el fondo del tren.
+- Inés Armand visita el compartimento siguiendo a Fósforo, una salamandra de vidrio escapada del equipaje de Theo. La escena desarrolla al personaje y permite intervenir a Sandra.
+- Un vendedor ambulante presenta maravillas pequeñas. Sandra investiga y decide comprar, intercambiar o rechazar; ningún objeto se elige solo porque «la llama».
+- El grupo juega una escena real, no un montaje. Debe haber humor, una verdad pequeña y una anomalía relacionada con un sexto pasajero o un vagón ausente.
+- Kael pasa al otro lado del cristal. El Ascua Azul y la cercanía sostienen una tensión adulta, física y cautelosa sin decidir el deseo de Sandra.
+- Camino de la cafetería, Sandra explora en el orden que elija los dos vagones descartados: Faroles con Alba Cendra y Umbral con Silas Merrow. Cada encuentro exige su participación.
+- La cafetería presenta comidas y costumbres mágicas mediante una escena compartida. Después el grupo regresa y transforma el compartimento en dormitorio; Sandra elige su lugar y qué conserva cerca.
+- Durante la noche, la misma voz despierta a Sandra. Oírla no mueve su cuerpo ni completa el capítulo.
+- Terminar solo cuando Sandra decide expresamente levantarse y buscar el origen de la voz, después de completar todos los demás hitos. No mostrar el vagón oculto ni la llegada a Valdralis.
+- La preparación vinculante, el orden flexible, la evidencia de los dieciséis hitos y el traspaso de continuidad están en `lore/capitulos/03_tren_de_medianoche.md`.
 
 ### Eventos predefinidos del capitulo 4
 

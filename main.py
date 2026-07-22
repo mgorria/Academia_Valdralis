@@ -92,9 +92,21 @@ CHAPTER_TITLES = {
 FINAL_CHAPTER_NUMBER = max(CHAPTER_TITLES)
 CHAPTER_PREPARATION_PATHS = {
     2: CHAPTER_LORE_DIR / "02_bazar_de_los_primeros.md",
+    3: CHAPTER_LORE_DIR / "03_tren_de_medianoche.md",
 }
 CHAPTER_OPENING_PATHS = {
     2: CHAPTER_LORE_DIR / "02_apertura.md",
+    3: CHAPTER_LORE_DIR / "03_apertura.md",
+}
+CHAPTER_THREE_CONTINUITY_PATH = CHAPTER_LORE_DIR / "02_03_continuidad_interludio.json"
+MANUAL_REVIEW_CHAPTERS = {1, 3}
+CHAPTER_THREE_HANDOFF_FIXED_FIELDS = {
+    "source_run_id",
+    "continuity_checksum",
+    "starting_carriage",
+    "starting_closest_friend",
+    "starting_group_bonds",
+    "starting_kael_relationship",
 }
 CHAPTER_SCENE_BEATS = {
     "peligro": "escena de peligro o amenaza",
@@ -110,6 +122,8 @@ PROTECTED_CHAPTER_STATE_FIELDS = {
     "current_chapter_number",
     "completed_chapters",
     "season_complete",
+    "interlude_continuity",
+    "chapter3_prepared_at",
 }
 HELP_REQUEST_MARKERS = (
     "ayuda",
@@ -174,8 +188,26 @@ CHAPTER_REQUIRED_EVENTS = {
         ("incidente_bazar_resuelto", "Sandra resuelve el incidente del Bazar", "La aguja, un recibo o una alarma de propiedad obliga a Sandra a defender una decision y deja una consecuencia."),
         ("regresa_con_su_aliado", "Sandra regresa por su companero", "Con dinero, seis objetos escolares y billete, Sandra vuelve por decision propia al amigo acordado y ambos empiezan el camino hacia la estacion."),
     ],
+    3: [
+        ("archivo_descubierto", "Sandra descubre el Vagón Archivo", "Sandra entra realmente en el Vagón Archivo, comprende al menos una de sus reglas imposibles y puede orientarse antes de instalarse."),
+        ("nora_escuchada", "Sandra conoce mejor a Nora", "Sandra y Nora sostienen una conversación propia con una revelación, pregunta o decisión que cambie o concrete su vínculo; coincidir en una escena de grupo no basta."),
+        ("izan_escuchado", "Sandra conoce mejor a Izan", "Sandra e Izan sostienen una conversación propia sobre sus ecos, temores o expectativas, y Sandra tiene espacio para responderle."),
+        ("mara_escuchada", "Sandra conoce mejor a Mara", "Sandra y Mara sostienen una conversación propia que muestre su lealtad, su relación con la luna o su forma de entender la compañía."),
+        ("theo_escuchado", "Sandra conoce mejor a Theo", "Sandra y Theo sostienen una conversación propia que haga avanzar su vínculo más fuerte y revele algo personal sin convertirlo en exposición."),
+        ("revisor_y_susurro", "El revisor muerde el billete", "El revisor ya conocido valida el billete de Sandra con los dientes; el billete reacciona y Sandra oye por primera vez dentro del tren una voz procedente del fondo."),
+        ("visita_de_ines", "Inés Armand visita el compartimento", "La visita de Inés desarrolla a Theo, altera la dinámica del grupo y permite que Sandra intervenga; no puede ser un saludo de paso."),
+        ("vendedor_investigado", "Sandra investiga el carro de maravillas", "El vendedor presenta varios objetos mágicos memorables. Sandra examina, pregunta, negocia, compra, intercambia o rechaza conscientemente; una lista de productos no basta."),
+        ("juego_compartido", "El grupo juega junto", "Los cinco participan en Historias Imposibles u otro juego mágico equivalente, con humor, una pequeña verdad y una consecuencia elegida o provocada por Sandra."),
+        ("mirada_con_kael", "Sandra se cruza con Kael tras el cristal", "Kael pasa por el corredor y comparte con Sandra una mirada o encuentro breve de tensión física y emocional que continúa el Ascua Azul sin decidir por ella qué desea."),
+        ("faroles_y_alba", "Sandra descubre el Vagón de los Faroles", "Durante el trayecto a la cafetería Sandra observa el Vagón de los Faroles y vive un encuentro participativo con la profesora Alba Cendra."),
+        ("umbral_y_silas", "Sandra descubre el Vagón del Umbral", "Durante el trayecto a la cafetería Sandra observa el Vagón del Umbral y vive un encuentro participativo con el profesor Silas Merrow."),
+        ("cafeteria_descubierta", "Sandra cena en la cafetería imposible", "Sandra explora comida y costumbres mágicas, elige o prueba algo y comparte una escena con el grupo; no se resuelve como un menú ni un montaje."),
+        ("camarote_preparado", "El compartimento se prepara para la noche", "El grupo regresa, despliega las camas imposibles y Sandra decide cómo acomodarse o relacionarse antes de dormir."),
+        ("voz_en_la_noche", "La voz despierta a Sandra", "Ya de noche, la misma presencia vuelve a llamar desde el vagón que no figura; reaccionan el Billete Ciego, el Eco de Elara o la Marca de la Sombra, pero Sandra todavía no es movida de la cama."),
+        ("decide_investigar", "Sandra decide seguir la voz", "Después de todos los demás hitos, Sandra toma de forma expresa y voluntaria la decisión de levantarse y buscar el origen de la voz. El capítulo termina antes de que vea el vagón oculto."),
+    ],
 }
-CHAPTER_EVENT_ORDER_MODE = {1: "sequential", 2: "free"}
+CHAPTER_EVENT_ORDER_MODE = {1: "sequential", 2: "free", 3: "free"}
 CHAPTER_EVENT_PREREQUISITES = {
     2: {
         "elige_a_quien_preguntar": ("bazar_respira",),
@@ -201,7 +233,55 @@ CHAPTER_EVENT_PREREQUISITES = {
             "billete_adquirido",
             "incidente_bazar_resuelto",
         ),
-    }
+    },
+    3: {
+        "nora_escuchada": ("archivo_descubierto",),
+        "izan_escuchado": ("archivo_descubierto",),
+        "mara_escuchada": ("archivo_descubierto",),
+        "theo_escuchado": ("archivo_descubierto",),
+        "revisor_y_susurro": ("archivo_descubierto",),
+        "visita_de_ines": ("archivo_descubierto",),
+        "vendedor_investigado": ("archivo_descubierto",),
+        "mirada_con_kael": ("archivo_descubierto",),
+        "juego_compartido": (
+            "nora_escuchada",
+            "izan_escuchado",
+            "mara_escuchada",
+            "theo_escuchado",
+            "vendedor_investigado",
+        ),
+        "faroles_y_alba": (
+            "revisor_y_susurro",
+            "visita_de_ines",
+            "juego_compartido",
+            "mirada_con_kael",
+        ),
+        "umbral_y_silas": (
+            "revisor_y_susurro",
+            "visita_de_ines",
+            "juego_compartido",
+            "mirada_con_kael",
+        ),
+        "cafeteria_descubierta": ("faroles_y_alba", "umbral_y_silas"),
+        "camarote_preparado": ("cafeteria_descubierta",),
+        "voz_en_la_noche": ("camarote_preparado",),
+        "decide_investigar": (
+            "nora_escuchada",
+            "izan_escuchado",
+            "mara_escuchada",
+            "theo_escuchado",
+            "revisor_y_susurro",
+            "visita_de_ines",
+            "vendedor_investigado",
+            "juego_compartido",
+            "mirada_con_kael",
+            "faroles_y_alba",
+            "umbral_y_silas",
+            "cafeteria_descubierta",
+            "camarote_preparado",
+            "voz_en_la_noche",
+        ),
+    },
 }
 
 control_app: Application | None = None
@@ -294,6 +374,17 @@ def default_character_sheets() -> dict[str, dict[str, Any]]:
                 "Sabe improvisar herramientas, mezclas, permisos y pequenas trampas practicas",
             ],
             tension_romantica="No aplica; alivio ligero y recursos",
+        ),
+        "Inés Armand": character_sheet(
+            "Hermana mayor de Theo y alumna de tercer curso; aún no conoce a Sandra",
+            secretos_que_sabe=[
+                "Conoce los accidentes alquímicos de Theo y cuándo su humor esconde miedo",
+                "Sabe moverse por el Tren de Medianoche y reconocer pequeños fraudes de equipaje",
+            ],
+            tension_romantica="No aplica; vínculo familiar, contraste y apoyo exigente",
+            no_revelar_todavia=[
+                "No contar secretos íntimos de Theo para humillarlo ni resolver su relación con Sandra",
+            ],
         ),
         "Vera Ordel": character_sheet(
             "Aun no aparece; futura rival adulta de primer curso, heredera de un linaje de brujas antiguas",
@@ -762,6 +853,177 @@ def chapter_ready_by_scene_progress(state: dict[str, Any], chapter_number: int) 
     return completed >= minimum or completed + not_applicable >= len(CHAPTER_SCENE_BEATS)
 
 
+def deep_merge_dict(existing: Any, updates: Any) -> dict[str, Any]:
+    merged = copy.deepcopy(existing) if isinstance(existing, dict) else {}
+    if not isinstance(updates, dict):
+        return merged
+    for key, value in updates.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = deep_merge_dict(merged[key], value)
+        else:
+            merged[key] = copy.deepcopy(value)
+    return merged
+
+
+def merge_chapter_three_handoff(existing: Any, updates: Any = None) -> dict[str, Any]:
+    merged = deep_merge_dict(existing, updates)
+    if isinstance(existing, dict):
+        for field in CHAPTER_THREE_HANDOFF_FIXED_FIELDS:
+            if field in existing:
+                merged[field] = copy.deepcopy(existing[field])
+    return merged
+
+
+def unique_strings(existing: Any, additions: Any) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+    sources = (
+        existing if isinstance(existing, list) else [],
+        additions if isinstance(additions, list) else [],
+    )
+    for source in sources:
+        for value in source:
+            clean = str(value).strip()
+            key = normalized_for_detection(clean)
+            if clean and key not in seen:
+                seen.add(key)
+                result.append(clean)
+    return result
+
+
+def read_chapter_three_continuity() -> dict[str, Any]:
+    if not CHAPTER_THREE_CONTINUITY_PATH.exists():
+        raise RuntimeError("Falta la continuidad canónica del interludio previo al capítulo 3")
+    continuity = json.loads(CHAPTER_THREE_CONTINUITY_PATH.read_text(encoding="utf-8"))
+    required_fields = {
+        "run_id",
+        "continuity_checksum",
+        "chosen_carriage",
+        "closest_friend",
+        "group_bonds",
+        "kael_relationship",
+        "decisions",
+        "magical_discoveries",
+        "items",
+    }
+    missing = sorted(required_fields.difference(continuity))
+    if missing:
+        raise RuntimeError(f"Continuidad del interludio incompleta: {', '.join(missing)}")
+    return continuity
+
+
+def append_relationship_detail(relationships: dict[str, Any], name: str, detail: str) -> None:
+    current = str(relationships.get(name) or "").strip()
+    if normalized_for_detection(detail) in normalized_for_detection(current):
+        return
+    relationships[name] = f"{current}; {detail}" if current else detail
+
+
+def prepare_chapter_three_state(data: dict[str, Any]) -> None:
+    continuity = read_chapter_three_continuity()
+    state = normalize_state(data.get("state") or default_state())
+    already_prepared = (
+        isinstance(state.get("interlude_continuity"), dict)
+        and state["interlude_continuity"].get("run_id") == continuity["run_id"]
+    )
+    state["chapter"] = chapter_label(3)
+    state["current_chapter_number"] = 3
+    state["season_complete"] = False
+    if not already_prepared:
+        state["location"] = "Umbral interior del Vagón Archivo, en el Tren de Medianoche"
+        state["current_scene"] = (
+            "Sandra acaba de entrar en el Vagón Archivo con Nora, Izan, Mara y Theo; "
+            "el compartimento del grupo aún no ha sido elegido ni explorado"
+        )
+        state["next_suggested_scene"] = (
+            "Dejar que Sandra reaccione al Vagón Archivo y descubra una de sus reglas "
+            "antes de instalar al grupo"
+        )
+    state["interlude_continuity"] = continuity
+    state["chapter3_prepared_at"] = state.get("chapter3_prepared_at") or now_iso()
+    state["known_facts"] = unique_strings(
+        state.get("known_facts"),
+        continuity.get("magical_discoveries"),
+    )
+    state["inventory"] = unique_strings(state.get("inventory"), continuity.get("items"))
+    state["open_threads"] = unique_strings(
+        state.get("open_threads"),
+        [
+            "Qué es y dónde está el vagón que no aparece en los horarios",
+            "Por qué la Sombra dijo a Sandra: 'Tú. Porque aún no tienes nombre'",
+            "Por qué el Tren de Medianoche reconoce el apellido Valmorien",
+            "Cómo completar el Eco incompleto de Elara",
+            "Qué significa la Marca de la Sombra que Sandra conserva",
+            "Qué ruta no escrita puede abrir el Billete Ciego",
+        ],
+    )
+
+    relationships = dict(state.get("relationships") or {})
+    append_relationship_detail(relationships, "Nora", "vínculo 5; Sandra le dijo que elegir a uno no significa abandonar a los demás")
+    append_relationship_detail(relationships, "Izan", "vínculo 5; Sandra cree lo que oye y no le exige demostrarlo")
+    append_relationship_detail(relationships, "Mara", "vínculo 6; Sandra la quiere como compañera, no como protectora")
+    append_relationship_detail(relationships, "Theo", "vínculo 7 y amistad más fuerte del grupo; Sandra confió en su intuición")
+    append_relationship_detail(relationships, "Kael", "relación cautelosa; Sandra conserva el Ascua Azul que él le dio")
+    append_relationship_detail(relationships, "Kilnip", "guía constante durante el camino a Hora Cero; orientó sin decidir por Sandra")
+    state["relationships"] = relationships
+
+    state["character_sheets"] = merge_character_sheets(
+        state.get("character_sheets"),
+        {
+            "Kilnip": {
+                "relacion_actual": "Guía inseparable de Sandra; la ayudó a construir el camino a Hora Cero sin decidir por ella",
+                "ultima_escena_juntos": "Entró con Sandra y el grupo en el Vagón Archivo después de guiarlos durante el interludio",
+            },
+            "Nora": {
+                "relacion_actual": "Amiga del grupo, vínculo 5; Sandra defendió que elegir a alguien no supone abandonar al resto",
+                "ultima_escena_juntos": "Cruzaron juntas la estación de Hora Cero y entraron en el Vagón Archivo",
+            },
+            "Izan": {
+                "relacion_actual": "Amigo del grupo, vínculo 5; Sandra valida sus percepciones sin obligarlo a probarlas",
+                "ultima_escena_juntos": "Cruzaron juntos la estación de Hora Cero y entraron en el Vagón Archivo",
+            },
+            "Mara": {
+                "relacion_actual": "Amiga cercana, vínculo 6; Sandra le pidió compañía en igualdad, no protección",
+                "ultima_escena_juntos": "Cruzaron juntas la estación de Hora Cero y entraron en el Vagón Archivo",
+            },
+            "Theo": {
+                "relacion_actual": "Amistad más fuerte del grupo, vínculo 7; Sandra confió en su intuición y le permitió desafiarla",
+                "ultima_escena_juntos": "Cruzaron juntos la estación de Hora Cero y entraron en el Vagón Archivo",
+            },
+            "Kael": {
+                "relacion_actual": "Relación cautelosa tras preguntarle Sandra si los seguía; le confió un Ascua Azul",
+                "ultima_escena_juntos": "Encuentro en el camino a la estación; Sandra conserva su Ascua Azul",
+                "tension_romantica": "Cautelosa y latente: atención física, desconfianza y un objeto suyo que aún conserva calor",
+            },
+        },
+    )
+
+    handoff_seed = {
+        "source_run_id": continuity["run_id"],
+        "continuity_checksum": continuity["continuity_checksum"],
+        "starting_carriage": continuity["chosen_carriage"],
+        "starting_closest_friend": continuity["closest_friend"],
+        "starting_group_bonds": continuity["group_bonds"],
+        "starting_kael_relationship": continuity["kael_relationship"],
+        "friend_conversations": {},
+        "ticket_whisper": {},
+        "visitor": {},
+        "vendor_choice": {},
+        "group_game": {},
+        "romantic_glass_scene": {},
+        "professors_met": {},
+        "cafeteria": {},
+        "night_arrangement": {},
+        "voice_in_night": {},
+        "investigation_decision": {},
+    }
+    state["chapter3_handoff"] = merge_chapter_three_handoff(
+        handoff_seed,
+        state.get("chapter3_handoff"),
+    )
+    data["state"] = normalize_state(state)
+
+
 def normalize_state(state: Any) -> dict[str, Any]:
     normalized = default_state()
     if isinstance(state, dict):
@@ -774,6 +1036,9 @@ def normalize_state(state: Any) -> dict[str, Any]:
     )
     normalized["required_event_progress"] = merge_required_event_progress(
         normalized.get("required_event_progress")
+    )
+    normalized["chapter3_handoff"] = merge_chapter_three_handoff(
+        normalized.get("chapter3_handoff")
     )
     return normalized
 
@@ -798,6 +1063,10 @@ def merge_state(previous_state: Any, scene_state: Any) -> dict[str, Any]:
     merged["required_event_progress"] = merge_required_event_progress(
         previous.get("required_event_progress"),
         updates.get("required_event_progress"),
+    )
+    merged["chapter3_handoff"] = merge_chapter_three_handoff(
+        previous.get("chapter3_handoff"),
+        updates.get("chapter3_handoff"),
     )
     return normalize_state(merged)
 
@@ -856,6 +1125,9 @@ def default_state() -> dict[str, Any]:
         "character_sheets": default_character_sheets(),
         "chapter_scene_progress": default_chapter_scene_progress(),
         "required_event_progress": default_required_event_progress(),
+        "interlude_continuity": {},
+        "chapter3_handoff": {},
+        "chapter3_prepared_at": None,
         "next_suggested_scene": "La carta bajo la puerta",
     }
 
@@ -1134,11 +1406,11 @@ def course_complete_reply() -> str:
 
 
 def activate_chapter_review_pause(data: dict[str, Any], completed_chapter: int) -> str:
-    if completed_chapter == 1:
+    if completed_chapter in MANUAL_REVIEW_CHAPTERS:
         data["chapter_review_pause"] = {
             "active": True,
             "completed_chapter": completed_chapter,
-            "next_chapter": 2,
+            "next_chapter": min(FINAL_CHAPTER_NUMBER, completed_chapter + 1),
             "until_date": None,
             "requires_manual_resume": True,
             "created_at": now_iso(),
@@ -1184,6 +1456,13 @@ def chapter_review_pause_reply(data: dict[str, Any]) -> str:
             "Has alcanzado el primer hito de Valdralis. La historia queda en pausa por ahora.\n\n"
             "Pronto recibirás la continuación."
         )
+    if str(completed) == "3":
+        return (
+            "CAPÍTULO 3 TERMINADO\n\n"
+            "Has alcanzado el umbral del camino que no figura. El Tren de Medianoche "
+            "sigue avanzando, pero la puerta que has decidido buscar permanece cerrada por ahora.\n\n"
+            "Pronto continuará la historia."
+        )
     until_date = pause.get("until_date")
     chapter = chapter_label(int(completed)) if str(completed).isdigit() else "El capitulo"
     return (
@@ -1195,31 +1474,89 @@ def chapter_review_pause_reply(data: dict[str, Any]) -> str:
     )
 
 
-def open_pending_chapter_after_review(data: dict[str, Any]) -> int | None:
-    pause = data.get("chapter_review_pause")
-    if not isinstance(pause, dict):
-        return None
+def pending_chapter_opening(data: dict[str, Any]) -> int | None:
+    state = data.get("state") if isinstance(data.get("state"), dict) else {}
     try:
-        completed = int(pause.get("completed_chapter") or 0)
-        next_chapter = int(pause.get("next_chapter") or completed + 1)
-        current = int((data.get("state") or {}).get("current_chapter_number") or 0)
+        current = int(state.get("current_chapter_number") or 0)
     except (TypeError, ValueError):
         return None
-    if completed != 1 or current != completed or next_chapter != completed + 1:
+    if current not in CHAPTER_OPENING_PATHS:
         return None
+    sent_openings = {
+        int(number)
+        for number in (data.get("sent_chapter_openings") or [])
+        if str(number).isdigit()
+    }
+    if current in sent_openings:
+        return None
+    completed_chapters = {
+        int(number)
+        for number in (state.get("completed_chapters") or [])
+        if str(number).isdigit()
+    }
+    return current if current - 1 in completed_chapters else None
+
+
+def pending_chapter_opening_reply() -> str:
+    return (
+        "La siguiente puerta de Valdralis permanece cerrada. Al otro lado, "
+        "la tinta se está preparando, pero todavía no permite cruzar."
+    )
+
+
+def open_pending_chapter_after_review(data: dict[str, Any]) -> int | None:
+    pause = data.get("chapter_review_pause")
     state = data.setdefault("state", default_state())
+    try:
+        current = int(state.get("current_chapter_number") or 0)
+    except (TypeError, ValueError):
+        return None
+
+    if isinstance(pause, dict):
+        try:
+            completed = int(pause.get("completed_chapter") or 0)
+            next_chapter = int(pause.get("next_chapter") or completed + 1)
+        except (TypeError, ValueError):
+            return None
+        if next_chapter != completed + 1:
+            return None
+        if current == completed:
+            current = next_chapter
+        elif current != next_chapter:
+            return None
+    else:
+        completed_chapters = {
+            int(number)
+            for number in (state.get("completed_chapters") or [])
+            if str(number).isdigit()
+        }
+        next_chapter = current
+        if current - 1 not in completed_chapters:
+            return None
+
+    sent_openings = {
+        int(number)
+        for number in (data.get("sent_chapter_openings") or [])
+        if str(number).isdigit()
+    }
+    if next_chapter not in CHAPTER_OPENING_PATHS or next_chapter in sent_openings:
+        return None
+
     state["current_chapter_number"] = next_chapter
     state["chapter"] = chapter_label(next_chapter)
     state["season_complete"] = False
-    state["location"] = "Galeria del Umbral del Bazar de los Primeros, ante la tienda de focos"
-    state["current_scene"] = (
-        "La aguja plateada acaba de mostrar una puerta, siete sombras y una mujer parecida "
-        "a Sandra; Orla Nadir espera que Sandra diga que apellido pretende cobrarle"
-    )
-    state["next_suggested_scene"] = (
-        "Esperar la respuesta de Sandra a Orla y abrir despues el Bazar como un recinto vivo "
-        "que pueda explorar"
-    )
+    if next_chapter == 2:
+        state["location"] = "Galeria del Umbral del Bazar de los Primeros, ante la tienda de focos"
+        state["current_scene"] = (
+            "La aguja plateada acaba de mostrar una puerta, siete sombras y una mujer parecida "
+            "a Sandra; Orla Nadir espera que Sandra diga que apellido pretende cobrarle"
+        )
+        state["next_suggested_scene"] = (
+            "Esperar la respuesta de Sandra a Orla y abrir despues el Bazar como un recinto vivo "
+            "que pueda explorar"
+        )
+    elif next_chapter == 3:
+        prepare_chapter_three_state(data)
     return next_chapter
 
 
@@ -1261,6 +1598,18 @@ def apply_chapter_transition(data: dict[str, Any], transition: Any) -> str:
         state["season_complete"] = False
         state["current_scene"] = "Capítulo 1 terminado; el siguiente umbral permanece cerrado"
         state["next_suggested_scene"] = "Esperar a que vuelva a abrirse el camino hacia Valdralis"
+        return ""
+
+    if completed == 3:
+        state["current_chapter_number"] = 3
+        state["chapter"] = chapter_label(3)
+        state["season_complete"] = False
+        state["current_scene"] = (
+            "Sandra ha decidido seguir la voz del vagón que no figura; el umbral permanece cerrado"
+        )
+        state["next_suggested_scene"] = (
+            "Esperar la continuación jugable del camino oculto antes de abrir el capítulo 4"
+        )
         return ""
 
     next_chapter = min(FINAL_CHAPTER_NUMBER, completed + 1)
@@ -1352,6 +1701,18 @@ Actualizado: {updated_at}
 ## Hilos abiertos
 
 {markdown_list(state.get('open_threads') or [])}
+
+## Continuidad canónica del interludio previo al capítulo 3
+
+```json
+{json.dumps(state.get('interlude_continuity') or {}, ensure_ascii=False, indent=2)}
+```
+
+## Entrega acumulativa del capítulo 3
+
+```json
+{json.dumps(state.get('chapter3_handoff') or {}, ensure_ascii=False, indent=2)}
+```
 
 ## Secretos revelados
 
@@ -2110,10 +2471,15 @@ REGLAS DE ESTILO:
 - No cierres un capitulo si no se han cumplido al menos 4 de los 6 beats, salvo que los no aplicables esten marcados como "no_aplica" con evidencia. La decision y la pista de misterio casi siempre deben cumplirse antes de cerrar.
 - Si el capitulo actual tiene state.required_event_progress, todos sus hitos son obligatorios. Un hito solo se cumple si se ha jugado en la narracion, Sandra ha tenido una oportunidad real de intervenir y existe evidencia concreta. El sistema acepta como maximo un hito nuevo por respuesta.
 - En el capitulo 1 los hitos siguen el orden indicado. En el capitulo 2, despues de que el Bazar se haya presentado como lugar vivo y Sandra haya elegido a quien preguntar, ella decide libremente el orden de banco, seis tiendas y taquilla; no la conduzcas automaticamente al siguiente establecimiento. El reencuentro con su aliado siempre es el ultimo hito.
+- El interludio entre los capitulos 2 y 3 es canon jugado. No repitas el camino a la estacion, la Hora Cero, el ataque de la Sombra, la conversacion inicial con Kael, la eleccion de vagon ni la subida al tren. El capitulo 3 empieza exactamente dentro del Vagon Archivo.
+- En el capitulo 3, tras descubrir el Vagon Archivo, las conversaciones con Nora, Izan, Mara y Theo, el revisor, la visita, el vendedor y el cruce con Kael pueden trenzarse con libertad. No conviertas los hitos en una lista visible ni conduzcas automaticamente de uno al siguiente. La presencia de un amigo en una escena grupal no completa su conversacion individual.
+- Los encuentros con los dos vagones no elegidos suceden durante un trayecto fisico hacia la cafeteria y exigen participacion de Sandra. La noche solo llega despues de volver al compartimento y preparar las camas.
 - No cierres el capitulo 1 hasta que TODOS sus hitos obligatorios esten en estado "cumplido". El ultimo, "Sandra deja atras la casa", exige que haya cruzado el umbral de la casa hacia el mundo magico; aceptar la carta sin salir aun no basta.
 - No cierres el capitulo 2 hasta que TODOS sus hitos obligatorios esten en estado "cumplido": orientacion, alumno elegido, primera amistad, cuenta Valmorien, seis objetos escolares, billete, incidente resuelto y regreso voluntario al companero de estacion.
+- No cierres el capitulo 3 hasta que TODOS sus hitos obligatorios esten en estado "cumplido". La voz nocturna y la decision de investigarla son dos hitos distintos: oirla no mueve a Sandra. El ultimo hito exige que Sandra decida expresamente levantarse y buscarla. Termina antes de mostrar el vagon oculto y antes de llegar a Valdralis.
 - No adelantes state.chapter, state.current_chapter_number, state.completed_chapters ni state.season_complete. El sistema es el unico que cambia de capitulo despues de validar todos los requisitos.
 - Mantener y actualizar las fichas vivas de personajes. Si una escena cambia una relacion, secreto, ultima escena, tension romantica o limite de revelacion, actualiza solo esa ficha en state.character_sheets. No inventes cambios para personajes que no han intervenido.
+- Durante el capitulo 3 actualiza state.chapter3_handoff solo con hechos que se hayan jugado: conversaciones, palabras de la voz, objeto elegido, resultado del juego, reaccion al cruce con Kael, profesores conocidos, comida, disposicion nocturna, companeros y objetos que Sandra decide llevar al investigar. No alteres sus campos starting_* ni la continuidad heredada.
 - Cuando termine un capitulo, marca chapter_transition.completed=true, pero no escribas tu el cartel de "Capitulo terminado"; el sistema lo anadira.
 - Tras completar el capitulo {FINAL_CHAPTER_NUMBER}, marca season_complete=true y no abras un capitulo {FINAL_CHAPTER_NUMBER + 1}.
 
@@ -2169,6 +2535,19 @@ Devuelve SOLO JSON valido con este formato:
     "open_threads": ["misterios o tensiones abiertas"],
     "revealed_secrets": ["secretos ya revelados a Sandra"],
     "unrevealed_secrets_reminder": ["secretos importantes aun no revelados"],
+    "chapter3_handoff": {{
+      "friend_conversations": {{"Nora": {{}}, "Izan": {{}}, "Mara": {{}}, "Theo": {{}}}},
+      "ticket_whisper": {{}},
+      "visitor": {{}},
+      "vendor_choice": {{}},
+      "group_game": {{}},
+      "romantic_glass_scene": {{}},
+      "professors_met": {{}},
+      "cafeteria": {{}},
+      "night_arrangement": {{}},
+      "voice_in_night": {{}},
+      "investigation_decision": {{}}
+    }},
     "next_suggested_scene": "siguiente tension sugerida"
   }},
   "chapter_transition": {{
@@ -2267,6 +2646,7 @@ Incluye en 8-14 bullets:
 - objetos, marcas o heridas;
 - tension romantica relevante;
 - hilos pendientes para capitulos futuros.
+Si es el capitulo 3, conserva ademas con precision las palabras de la voz, las conversaciones con cada amigo, la reaccion de Sandra a Kael, el objeto del vendedor, la disposicion nocturna, quien queda despierto y que decide llevar al investigar. Usa chapter3_handoff como fuente y no anadas hechos no jugados.
 
 Devuelve SOLO JSON valido:
 {{"summary": "- punto\\n- punto"}}
@@ -2331,6 +2711,9 @@ async def narrador_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if chapter_review_pause_is_active(data):
         await update.effective_chat.send_message(chapter_review_pause_reply(data))
         return
+    if pending_chapter_opening(data):
+        await update.effective_chat.send_message(pending_chapter_opening_reply())
+        return
     if (data.get("state") or {}).get("season_complete"):
         await update.effective_chat.send_message(course_complete_reply())
         return
@@ -2355,6 +2738,9 @@ async def narrador_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         return
     if chapter_review_pause_is_active(data):
         await update.effective_chat.send_message(chapter_review_pause_reply(data))
+        return
+    if pending_chapter_opening(data):
+        await update.effective_chat.send_message(pending_chapter_opening_reply())
         return
     if (data.get("state") or {}).get("season_complete"):
         await update.effective_chat.send_message(course_complete_reply())
@@ -2437,6 +2823,17 @@ async def process_sandra_message_batch(chat_id: int) -> None:
         await send_admin(
             "Sandra ha escrito durante un cierre de revision de capitulo. "
             "He enviado el aviso fijo de hito alcanzado; no he llamado a la IA ni he guardado el mensaje en la memoria narrativa.\n\n"
+            f"Sandra:\n{text}"
+        )
+        return
+
+    opening_chapter = pending_chapter_opening(data)
+    if opening_chapter:
+        await narrador_app.bot.send_message(chat_id=chat_id, text=pending_chapter_opening_reply())
+        await send_admin(
+            f"Sandra ha escrito antes de recibir la apertura de {chapter_label(opening_chapter)}. "
+            "No he llamado a la IA ni he guardado el mensaje en la memoria narrativa. "
+            "Usa /reanudar para preparar y enviar la apertura.\n\n"
             f"Sandra:\n{text}"
         )
         return
@@ -2626,6 +3023,18 @@ async def handle_sandra_message(update: Update, context: ContextTypes.DEFAULT_TY
         )
         return
 
+
+    opening_chapter = pending_chapter_opening(data)
+    if opening_chapter:
+        await update.effective_chat.send_message(pending_chapter_opening_reply())
+        await send_admin(
+            f"Sandra ha escrito antes de recibir la apertura de {chapter_label(opening_chapter)}. "
+            "No he llamado a la IA ni he guardado el mensaje en la memoria narrativa. "
+            "Usa /reanudar para preparar y enviar la apertura.\n\n"
+            f"Sandra:\n{text}"
+        )
+        return
+
     if (data.get("state") or {}).get("season_complete"):
         reply = course_complete_reply()
         await update.effective_chat.send_message(reply)
@@ -2668,16 +3077,19 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     review_active = chapter_review_pause_is_active(data)
     review_pause = data.get("chapter_review_pause") or {}
     state = data.get("state") or {}
+    opening_pending = pending_chapter_opening(data)
     lines = [
         "Estado Control Partida Sandra",
         f"- Narrador vinculado: {'si' if data.get('sandra_chat_id') else 'no'}",
         f"- Pausado: {'si' if data.get('paused') else 'no'}",
         f"- Pausa revision capitulo: {'si' if review_active else 'no'}",
+        f"- Apertura pendiente: {chapter_label(opening_pending) if opening_pending else 'no'}",
         f"- Respuesta pendiente de entrega: {'si' if isinstance(data.get('pending_narrator_delivery'), dict) else 'no'}",
         f"- OpenAI: {'configurado' if openai_available() else 'pendiente'}",
         f"- Modelo: {OPENAI_MODEL}",
         f"- Postgres: {'activo' if db_enabled() else 'no configurado'}",
         f"- Capitulo: {state.get('chapter', 'Pendiente')}",
+        f"- Continuidad del interludio C3: {'cargada' if (state.get('interlude_continuity') or {}).get('run_id') else 'pendiente'}",
         f"- Primer curso terminado: {'si' if state.get('season_complete') else 'no'}",
         f"- Mensajes guardados: {len(data.get('history', []))}",
         f"- Antesala activa: {'si' if prelude_guard_active() else 'no'}",
@@ -3041,7 +3453,31 @@ async def cmd_reanudar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     data = load_data()
     original_data = copy.deepcopy(data)
     data["paused"] = False
-    opened_chapter = open_pending_chapter_after_review(data)
+    try:
+        opened_chapter = open_pending_chapter_after_review(data)
+    except Exception as exc:
+        logger.exception("No se pudo preparar la apertura del siguiente capitulo")
+        await update.effective_chat.send_message(
+            f"No he reanudado la partida: la preparación del capítulo falló ({type(exc).__name__}: {exc})."
+        )
+        return
+    review_pause = data.get("chapter_review_pause") or {}
+    if review_pause.get("requires_manual_resume") and not opened_chapter:
+        try:
+            next_chapter = int(review_pause.get("next_chapter") or 0)
+        except (TypeError, ValueError):
+            next_chapter = 0
+        sent_openings = {
+            int(number)
+            for number in (data.get("sent_chapter_openings") or [])
+            if str(number).isdigit()
+        }
+        if next_chapter not in sent_openings:
+            await update.effective_chat.send_message(
+                "No he reanudado la partida: el siguiente tramo todavía no tiene una apertura "
+                "preparada y sería peligroso dejar a Sandra avanzar sin continuidad."
+            )
+            return
     if opened_chapter:
         opening = read_chapter_opening(opened_chapter)
         sent_openings = {

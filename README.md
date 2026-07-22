@@ -94,9 +94,9 @@ La biblia de lore incluye tambien un resumen de trama de temporada, un grimorio 
 
 El estado tambien trackea el progreso de escenas obligatorias por capitulo (`chapter_scene_progress`): peligro, clase/aprendizaje, amistad/apoyo, romance/tension, misterio y decision. Se revisa con `/progreso` o `/progreso 5`. Si la IA intenta cerrar un capitulo con menos de 4 beats cumplidos/no aplicables, el sistema no lo cierra y avisa a Miguel.
 
-El capitulo 1 tiene nueve hitos obligatorios y ordenados (`required_event_progress`). El capitulo 2 tiene trece: orientacion, eleccion de alumno, primera amistad, banco, seis objetos escolares, billete, incidente y regreso al aliado. Tras la orientacion y la eleccion del alumno, banco, tiendas y taquilla se pueden resolver en orden libre; el reencuentro solo se habilita cuando todo lo anterior esta cumplido. Solo puede registrarse un hito nuevo por respuesta.
+El capitulo 1 tiene nueve hitos obligatorios y ordenados (`required_event_progress`). El capitulo 2 tiene trece: orientacion, eleccion de alumno, primera amistad, banco, seis objetos escolares, billete, incidente y regreso al aliado. El capitulo 3 tiene dieciseis: descubrimiento del Vagón Archivo, una conversación propia con cada uno de los cuatro amigos, revisor, Inés, vendedor, juego, Kael, dos vagones con profesores, cafetería, preparación nocturna, voz y decisión final de investigar. Solo puede registrarse un hito nuevo por respuesta.
 
-La preparacion vinculante del Bazar esta en `lore/capitulos/02_bazar_de_los_primeros.md` y se carga unicamente mientras el capitulo 2 esta activo. La IA no controla los campos que cambian de capitulo: el codigo ignora esos cambios y valida que toda transicion sea consecutiva y cumpla los requisitos.
+Las preparaciones vinculantes están en `lore/capitulos/02_bazar_de_los_primeros.md` y `lore/capitulos/03_tren_de_medianoche.md`; solo se carga la del capítulo activo. La continuidad del interludio gráfico previo al capítulo 3 vive en `lore/capitulos/02_03_continuidad_interludio.json` y `/reanudar` la mezcla de forma idempotente con el estado de Postgres. La IA no controla los campos que cambian de capitulo: el codigo ignora esos cambios y valida que toda transicion sea consecutiva y cumpla los requisitos.
 
 ## Capitulos
 
@@ -114,9 +114,11 @@ Al cerrar cada capitulo, el bot genera y guarda un resumen canonico. La IA recib
 
 Tras cerrar el capitulo 1, el bot activa una pausa manual de revision. El estado permanece en el capitulo 1 y, escriba lo que escriba Sandra, recibe siempre el aviso fijo de que ha terminado y pronto llegara la continuacion. Esos mensajes no llaman a la IA ni entran en la memoria narrativa. Miguel puede revisar `/capitulos`, `/memoria`, usar `/corregir_memoria` y abrir el capitulo 2 exclusivamente con `/reanudar`.
 
-Al abrir el capitulo 2, `/reanudar` envia automaticamente a Sandra `lore/capitulos/02_apertura.md` en un unico mensaje, sin llamar a la IA. La apertura queda guardada en el historial y Postgres como primera intervencion del nuevo capitulo. Si el bot no puede garantizar ese envio, conserva el cierre y no reanuda la partida.
+Al abrir los capítulos 2 y 3, `/reanudar` envía automáticamente a Sandra la apertura correspondiente en un único mensaje, sin llamar a la IA. La apertura queda guardada en el historial y Postgres como primera intervención del nuevo capítulo. Antes de abrir el capítulo 3 también carga la crónica del interludio, sus decisiones, objetos, vínculos y código de continuidad. Si el bot no puede garantizar la preparación o el envío único, conserva el cierre y no reanuda la partida.
 
-Los capitulos posteriores conservan la pausa programada por `CHAPTER_REVIEW_PAUSE_DAYS`.
+Un cerrojo adicional impide llamar a la IA si el estado ya apunta a un capítulo cuya apertura todavía no consta como enviada. Así, aunque una pausa programada caduque o se borre, Sandra no puede entrar en el capítulo 3 sin cargar antes la continuidad y recibir la apertura.
+
+Al cerrar el capítulo 3 se activa otra pausa manual. El estado queda bloqueado justo después de que Sandra decida investigar la voz; el bot no abre el capítulo 4 ni muestra el vagón oculto hasta que exista una continuación preparada. Los demás capítulos conservan la pausa programada por `CHAPTER_REVIEW_PAUSE_DAYS`.
 
 ## Preludio
 

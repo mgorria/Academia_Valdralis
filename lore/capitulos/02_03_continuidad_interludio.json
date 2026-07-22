@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "source": "VALDRALIS - CRÓNICA DE CONTINUIDAD: Interludio El camino que no figura",
+  "run_id": "bridge-v1-1e8f2514-1ab3-4da5-b0d3-d2f0e677f89f",
+  "continuity_code_prefix": "VDR-C3-1",
+  "continuity_checksum": "486dbd8d",
+  "chapter2_companion": null,
+  "carriage_id": "archivo",
+  "chosen_carriage": "Vagón Archivo",
+  "closest_friend": "Theo",
+  "group_bonds": {
+    "Nora": 5,
+    "Izan": 5,
+    "Mara": 6,
+    "Theo": 7
+  },
+  "kael_relationship": {
+    "label": "Cautelosa",
+    "value": 1
+  },
+  "stats": {
+    "courage": 3,
+    "insight": 17,
+    "shadow_mark": 2,
+    "solved_puzzles": 5,
+    "wrong_attempts": 5,
+    "kilnip_hints": 14
+  },
+  "decisions": [
+    {
+      "scene": "El grupo",
+      "answer": "El Bazar nos ha reunido por alguna razón."
+    },
+    {
+      "scene": "Nora",
+      "answer": "Elegir a uno no significa abandonar a los demás."
+    },
+    {
+      "scene": "Izan",
+      "answer": "Te creo. No tienes que demostrarme lo que oyes."
+    },
+    {
+      "scene": "Mara",
+      "answer": "No quiero una protectora. Quiero una compañera."
+    },
+    {
+      "scene": "Theo",
+      "answer": "En mi intuición. Pero puedes intentar demostrar que se equivoca."
+    },
+    {
+      "scene": "Kael Draven",
+      "answer": "¿Nos estabas siguiendo?"
+    },
+    {
+      "scene": "La Sombra",
+      "answer": "Tú. Porque aún no tienes nombre."
+    },
+    {
+      "scene": "El grupo",
+      "answer": "Tenemos que entender qué quiso decir sobre el vagón."
+    },
+    {
+      "scene": "El revisor",
+      "answer": "Con el nombre Valmorien."
+    },
+    {
+      "scene": "El revisor",
+      "answer": "En el Vagón Archivo."
+    },
+    {
+      "scene": "Elección de vagón",
+      "answer": "Vagón Archivo"
+    }
+  ],
+  "magical_discoveries": [
+    "Las campanas azules recuerdan sonidos futuros.",
+    "La Fuente del Primer Nombre no ha decidido cómo llamar a Sandra.",
+    "Los reflejos de esta calle son más fiables que sus carteles.",
+    "Los relojes prestados conservan decisiones, no horas.",
+    "Elara pasó por el camino de la estación y habló de su hija.",
+    "El canal estelar anticipa rutas que aún no existen.",
+    "Un billete sin destino puede atravesar rutas no escritas.",
+    "Tres luces unidas pueden obligar a una Sombra menor a retroceder.",
+    "Luz de Concordia: una defensa cuya fuerza depende de la amistad.",
+    "Existe un vagón que no aparece en los horarios.",
+    "La magia doméstica del camino pide permiso antes de ayudar.",
+    "La estación aparece cuando todos sus relojes marcan la Hora Cero.",
+    "Sello de Concordia: una puerta protegida por una promesa colectiva.",
+    "La Hora Cero se construye deteniendo el tiempo, materializando el camino y abriendo después el umbral.",
+    "El Tren de Medianoche reconoce el apellido Valmorien."
+  ],
+  "items": [
+    "Billete del Tren de Medianoche",
+    "Brújula de umbrales",
+    "Foco arcano",
+    "Mapa de las cinco rutas",
+    "Eco incompleto de Elara",
+    "Billete ciego",
+    "Ascua azul de Kael"
+  ],
+  "dialogue_answers": {
+    "puerta": 2,
+    "nora": 0,
+    "ecos": 0,
+    "puente": 1,
+    "equipajes": 1,
+    "kael": 2,
+    "sombra": 2,
+    "refugio": 2,
+    "revisor": 0,
+    "tren": 1
+  },
+  "solved_puzzles": [
+    "campanas",
+    "equipajes",
+    "faroles",
+    "sello",
+    "estacion"
+  ],
+  "wrong_attempts": {
+    "equipajes": 1,
+    "sello": 4
+  },
+  "hints_used": {
+    "campanas": 1,
+    "nora": 1,
+    "ecos": 1,
+    "puente": 1,
+    "kael": 1,
+    "faroles": 1,
+    "sombra": 1,
+    "refugio": 1,
+    "sello": 2,
+    "estacion": 1,
+    "tren": 3
+  }
+}
