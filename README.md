@@ -67,6 +67,8 @@ Sandra escribe al narrador como si escribiera una novela. El bot:
 
 Sandra debe reunir todo lo que quiera hacer, decir o sentir en un unico mensaje por turno. El buffer de 25 segundos se mantiene como proteccion si envia varias frases seguidas, pero el mensaje de inicio le pide expresamente una sola respuesta completa.
 
+El narrador tiene instrucciones de generar turnos de unos 900-1600 caracteres, con un máximo indicado de 2000, y ayudas sencillas de 250-600 caracteres. Es una pauta de generación: no se recortan respuestas ni se limita el JSON de memoria. Las escenas conservan sus hitos y se desarrollan mediante intercambios breves con Sandra.
+
 Si Sandra pide ayuda, un resumen o un recordatorio, el narrador no sale del papel: una vez despierto, Kilnip le habla dentro de la cabeza y le recuerda los hechos conocidos, objetos, hilos abiertos y la urgencia inmediata. Solo Sandra oye esa voz. Antes de que Kilnip despierte, la guia llega mediante la carta o el sello azul.
 
 `/probar` solo responde al bot de control. No envia nada a Sandra y no guarda memoria.

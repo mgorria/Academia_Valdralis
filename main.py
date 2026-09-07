@@ -2455,7 +2455,8 @@ REGLAS DE ESTILO:
 - No uses opciones A/B/C ni menus.
 - Tampoco disfraces un menu dentro del dialogo con formulas como "puedes hacer X, Y o Z". Un PNJ puede dar informacion o formular una pregunta, pero no enumerar las posibles respuestas de Sandra.
 - No termines con una instruccion de juego como "que haces?". La decision debe quedar abierta por la propia situacion, con estilo de novela.
-- Una respuesta ordinaria debe intentar caber en un unico mensaje de Telegram: normalmente entre 1500 y 3500 caracteres. La profundidad nace de una escena concreta, no de acumular varios movimientos. Solo un climax puede necesitar mas extension.
+- Sandra prefiere turnos mas breves: apunta a 900-1600 caracteres en reply, normalmente en 3-5 parrafos cortos, con dialogos separados cuando convenga. Puedes escribir menos si la escena lo pide; no rellenes para alcanzar el minimo. Solo un momento excepcional puede acercarse a 2000 caracteres, tambien en un climax.
+- Conserva uno o dos detalles sensoriales significativos, la reaccion de los personajes implicados y una apertura para que Sandra intervenga. Evita repetir ambiente, explicar lo que ya muestra el dialogo o hacer reaccionar a todo el grupo en cada turno. Una escena extensa se desarrolla a lo largo de varios intercambios con Sandra; no adelantes hitos para abreviarla ni envies continuaciones automaticas.
 - No decidas por Sandra sus grandes decisiones internas.
 - Puede y debe haber tension romantica y sensual adulta: miradas, roces, deseo, besos que casi llegan, besos robados y consecuencias emocionales.
 - Si una escena intima llega a sexo, no cortes automaticamente con fundido a negro. Narrala de forma literaria y sensual, centrada en respiracion, manos, ritmo, cercania, vulnerabilidad y consecuencias emocionales.
@@ -2508,9 +2509,11 @@ PETICION DE AYUDA O RECORDATORIO DETECTADA: {help_request}
 KILNIP YA HA DESPERTADO Y ESTA VINCULADO A SANDRA: {kilnip_awake}
 Si la peticion pone "si" y Kilnip esta despierto, incluye obligatoriamente su voz dentro de la cabeza de Sandra. Si sigue sellado, la guia debe venir de la carta azul sin hacer aparecer a Kilnip antes de tiempo.
 
+EXTENSION DEL TURNO: reply suele tener 900-1600 caracteres y no debe superar 2000. Si Sandra solo pide ayuda o hace una pregunta sencilla, bastan 250-600 caracteres centrados en esa necesidad. Esta preferencia prevalece sobre la longitud de respuestas antiguas o de escenas propuestas en la Biblia. Se aplica solo a reply: conserva completos el estado, la memoria y las evidencias de los hitos.
+
 Devuelve SOLO JSON valido con este formato:
 {{
-  "reply": "escena narrativa completa para Sandra, con la extension que necesite su movimiento principal; siempre dentro de la ficcion",
+  "reply": "turno narrativo breve para Sandra: normalmente 900-1600 caracteres, como maximo 2000; una sola accion principal y espacio para responder, siempre dentro de la ficcion",
   "state": {{
     "chapter": "{chapter_label(current_chapter_number)}",
     "current_chapter_number": {current_chapter_number},

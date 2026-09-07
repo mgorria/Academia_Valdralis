@@ -377,6 +377,8 @@ Patrón útil para cada escena:
 
 Una respuesta ordinaria desarrolla un movimiento principal. No meter revisor, vendedor y Kael en el mismo turno. No cerrar una conversación y comenzar la siguiente visita en el mismo párrafo final.
 
+Sandra prefiere turnos más breves: normalmente 900-1600 caracteres y como máximo 2000, en párrafos cortos. Para una ayuda o pregunta sencilla bastan 250-600 caracteres. Seleccionar uno o dos detalles memorables por turno y dejar que el resto aparezca conforme ella explore. La riqueza de este documento se reparte entre intercambios: mantener todas las oportunidades de participación y los hitos obligatorios.
+
 ## 18. Correcciones de estilo respecto al capítulo 1
 
 - No teletransportar. Las puertas, distancias y recorridos importan.
