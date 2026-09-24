@@ -289,6 +289,7 @@ narrador_app: Application | None = None
 stop_event: asyncio.Event | None = None
 sandra_message_buffers: dict[int, list[str]] = {}
 sandra_message_tasks: dict[int, asyncio.Task] = {}
+sandra_turn_lock = asyncio.Lock()
 DB_READY = False
 
 
@@ -1431,6 +1432,7 @@ def activate_chapter_review_pause(data: dict[str, Any], completed_chapter: int) 
 
 
 def chapter_review_pause_is_active(data: dict[str, Any]) -> bool:
+    recover_chapter_three_closure(data)
     pause = data.get("chapter_review_pause")
     if not isinstance(pause, dict) or not pause.get("active"):
         return False
@@ -1637,6 +1639,57 @@ def completed_chapter_from_transition(state: dict[str, Any], transition: Any) ->
         except (TypeError, ValueError):
             return None
     return completed
+
+
+def automatic_chapter_three_transition(state: dict[str, Any]) -> dict[str, Any] | None:
+    if str(state.get("current_chapter_number")) != "3":
+        return None
+    if not chapter_required_events_ready(state, 3) or not chapter_ready_by_scene_progress(state, 3):
+        return None
+    return {"completed": True, "completed_chapter": 3, "next_chapter": 4}
+
+
+def recover_chapter_three_closure(data: dict[str, Any]) -> bool:
+    """Restore a missed terminal gate without generating or sending new fiction."""
+    state = data.get("state") or {}
+    if str(state.get("current_chapter_number")) != "3":
+        return False
+    pause = data.get("chapter_review_pause") or {}
+    if (
+        pause.get("active")
+        and pause.get("requires_manual_resume")
+        and str(pause.get("completed_chapter")) == "3"
+    ):
+        return False
+    already_completed = "3" in {str(number) for number in state.get("completed_chapters", [])}
+    if not already_completed and not automatic_chapter_three_transition(state):
+        return False
+
+    snapshot = copy.deepcopy(state)
+    apply_chapter_transition(data, {"completed": True, "completed_chapter": 3})
+    activate_chapter_review_pause(data, 3)
+    save_data(data)
+    logger.warning("Cierre del capitulo 3 recuperado; narracion bloqueada para revision")
+    # The lock must survive even if recording the recovery summary fails.
+    try:
+        _title, summary, _snapshot = chapter_export_context(3)
+        if not summary:
+            events = merge_required_event_progress(snapshot.get("required_event_progress"))["3"]["events"]
+            summary = "\n".join(
+                f"- {event['label']}: {event.get('evidence') or 'Sin evidencia registrada'}"
+                for event in events.values()
+                if event.get("status") == "cumplido"
+            )
+            summary = (
+                "Cierre recuperado a partir de los hitos guardados; no se han generado escenas nuevas.\n"
+                + summary
+                + f"\n- Última escena registrada antes del bloqueo: {snapshot.get('current_scene', '')}"
+            )
+            save_chapter_summary(3, CHAPTER_TITLES[3], summary, state_snapshot=snapshot)
+            data.update(load_data())
+    except Exception:
+        logger.exception("Cierre recuperado, pero no se pudo guardar el resumen de recuperacion")
+    return True
 
 
 def write_memory_markdown(data: dict[str, Any]) -> None:
@@ -2338,6 +2391,8 @@ async def deliver_pending_narrator_reply() -> bool:
     if not narrador_app:
         return False
     data = load_data()
+    if chapter_review_pause_is_active(data):
+        return False
     pending = data.get("pending_narrator_delivery")
     sandra_id = data.get("sandra_chat_id")
     if not isinstance(pending, dict) or not sandra_id:
@@ -2787,6 +2842,12 @@ async def process_sandra_message_after_idle(chat_id: int) -> None:
 
 
 async def process_sandra_message_batch(chat_id: int) -> None:
+    # Buffered turns must not race a terminal transition or another generated scene.
+    async with sandra_turn_lock:
+        await process_sandra_message_batch_locked(chat_id)
+
+
+async def process_sandra_message_batch_locked(chat_id: int) -> None:
     if not narrador_app:
         return
 
@@ -2805,6 +2866,15 @@ async def process_sandra_message_batch(chat_id: int) -> None:
         )
         return
 
+    if chapter_review_pause_is_active(data):
+        await narrador_app.bot.send_message(chat_id=chat_id, text=chapter_review_pause_reply(data))
+        await send_admin(
+            "Sandra ha escrito durante un cierre de revision de capitulo. "
+            "He enviado el aviso fijo de hito alcanzado; no he llamado a la IA ni he guardado el mensaje en la memoria narrativa.\n\n"
+            f"Sandra:\n{text}"
+        )
+        return
+
     if isinstance(data.get("pending_narrator_delivery"), dict):
         delivered = await deliver_pending_narrator_reply()
         try:
@@ -2819,15 +2889,6 @@ async def process_sandra_message_batch(chat_id: int) -> None:
             )
         except Exception:
             logger.exception("No se pudo avisar del mensaje recibido durante una entrega pendiente")
-        return
-
-    if chapter_review_pause_is_active(data):
-        await narrador_app.bot.send_message(chat_id=chat_id, text=chapter_review_pause_reply(data))
-        await send_admin(
-            "Sandra ha escrito durante un cierre de revision de capitulo. "
-            "He enviado el aviso fijo de hito alcanzado; no he llamado a la IA ni he guardado el mensaje en la memoria narrativa.\n\n"
-            f"Sandra:\n{text}"
-        )
         return
 
     opening_chapter = pending_chapter_opening(data)
@@ -2879,6 +2940,9 @@ async def process_sandra_message_batch(chat_id: int) -> None:
 
     reply = str(scene["reply"]).strip()
     data = load_data()
+    if data.get("paused") or chapter_review_pause_is_active(data):
+        await send_admin("Respuesta descartada: la partida se pausó o cerró mientras la IA respondía.")
+        return
     previous_state = data.get("state") or default_state()
     try:
         current_chapter_number = int(previous_state.get("current_chapter_number") or 0) or None
@@ -2886,7 +2950,7 @@ async def process_sandra_message_batch(chat_id: int) -> None:
         current_chapter_number = None
     scene_state = narrative_state_update(scene.get("state"), current_chapter_number)
     data["state"] = merge_state(previous_state, scene_state)
-    transition = scene.get("chapter_transition")
+    transition = automatic_chapter_three_transition(data["state"]) or scene.get("chapter_transition")
     completed_chapter = completed_chapter_from_transition(data["state"], transition)
     transition_requested = isinstance(transition, dict) and bool(transition.get("completed"))
     if transition_requested and completed_chapter is None:
@@ -2953,6 +3017,10 @@ async def process_sandra_message_batch(chat_id: int) -> None:
                 "- Usa /capitulos para revisar resumenes, /memoria para ver estado, "
                 "/corregir_memoria para ajustar canon o /reanudar para abrir el siguiente capitulo."
             )
+    latest_data = load_data()
+    if latest_data.get("paused") or chapter_review_pause_is_active(latest_data):
+        await send_admin("Respuesta descartada: la partida se pausó o cerró antes del envío.")
+        return
     try:
         await send_telegram_text(
             narrador_app.bot,
@@ -2983,6 +3051,7 @@ async def process_sandra_message_batch(chat_id: int) -> None:
         return
 
     data["pending_narrator_delivery"] = None
+    data["paused"] = load_data().get("paused", False)
     save_data(data)
     append_history("Narrador", reply, chapter_number=turn_chapter_number)
 
@@ -3454,6 +3523,7 @@ async def cmd_reanudar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if not update.effective_chat or not is_admin(update):
         return
     data = load_data()
+    recover_chapter_three_closure(data)
     original_data = copy.deepcopy(data)
     data["paused"] = False
     try:
@@ -3899,7 +3969,9 @@ async def main() -> None:
         except NotImplementedError:
             pass
 
-    save_data(load_data())
+    data = load_data()
+    recover_chapter_three_closure(data)
+    save_data(data)
     await start_app(control_app)
     await start_app(narrador_app)
     summary_task = asyncio.create_task(daily_summary_loop())

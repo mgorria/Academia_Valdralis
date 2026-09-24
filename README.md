@@ -122,6 +122,10 @@ Un cerrojo adicional impide llamar a la IA si el estado ya apunta a un capítulo
 
 Al cerrar el capítulo 3 se activa otra pausa manual. El estado queda bloqueado justo después de que Sandra decida investigar la voz; el bot no abre el capítulo 4 ni muestra el vagón oculto hasta que exista una continuación preparada. Los demás capítulos conservan la pausa programada por `CHAPTER_REVIEW_PAUSE_DAYS`.
 
+El cierre del capítulo 3 se calcula en código al completar los 16 hitos y el mínimo de escenas, aunque la IA omita su señal de transición. Al arrancar y al comprobar el bloqueo, el worker recupera los cierres pendientes a partir de la memoria guardada, sin llamar a la IA ni enviar mensajes nuevos a Sandra. Conserva el historial y guarda un resumen de recuperación con las evidencias y una instantánea del estado. `/status` debe mostrar `Pausa revision capitulo: si`; `/reanudar` no abre el capítulo 4 si su continuación no está preparada.
+
+Pruebas del cierre, sin Telegram, OpenAI ni Postgres reales: `python -m unittest discover -s tests -v`.
+
 ## Preludio
 
 Los mensajes previos al cumpleanos viven en `lore/preludio.md`. El mensaje que abre la partida vive en `lore/inicio.md`.
